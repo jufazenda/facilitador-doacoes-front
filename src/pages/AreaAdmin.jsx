@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { instituicoesPendentesMock } from "../utils/mockData"
 
-const TABS = ["Pendentes", "Aprovadas", "Rejeitadas"]
+const ABAS = ["Pendentes", "Aprovadas", "Rejeitadas"]
 
-export default function AdminArea() {
+export default function AreaAdmin() {
   const [instituicoes, setInstituicoes] = useState(instituicoesPendentesMock)
-  const [tab, setTab] = useState("Pendentes")
+  const [aba, setAba] = useState("Pendentes")
   const [rejeitandoId, setRejeitandoId] = useState(null)
   const [motivo, setMotivo] = useState("")
 
@@ -13,7 +13,7 @@ export default function AdminArea() {
   const aprovadas  = instituicoes.filter((i) => i.status === "aprovada")
   const rejeitadas = instituicoes.filter((i) => i.status === "rejeitada")
 
-  const listaAtual = { Pendentes: pendentes, Aprovadas: aprovadas, Rejeitadas: rejeitadas }[tab]
+  const listaAtual = { Pendentes: pendentes, Aprovadas: aprovadas, Rejeitadas: rejeitadas }[aba]
 
   function aprovar(id) {
     setInstituicoes((prev) =>
@@ -70,12 +70,12 @@ export default function AdminArea() {
       </div>
 
       <div className="flex overflow-x-auto border-b border-line gap-1">
-        {TABS.map((t) => (
+        {ABAS.map((t) => (
           <button
             key={t}
-            onClick={() => setTab(t)}
+            onClick={() => setAba(t)}
             className={`whitespace-nowrap px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${
-              tab === t
+              aba === t
                 ? "border-primary text-primary"
                 : "border-transparent text-muted hover:text-ink"
             }`}

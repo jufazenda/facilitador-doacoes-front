@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom"
 import { campanhas } from "../utils/mockData"
 
-export default function CampaignDetail() {
+export default function DetalhesCampanha() {
   const { id } = useParams()
   const campanha = campanhas.find((c) => c.id === Number(id))
 
@@ -48,13 +48,13 @@ export default function CampaignDetail() {
           </div>
 
           <div className="md:hidden">
-            <DonationCard id={id} arrecadado={arrecadado} meta={meta} falta={falta} percentual={percentual} />
+            <CardDoacao id={id} arrecadado={arrecadado} meta={meta} falta={falta} percentual={percentual} />
           </div>
         </div>
 
         <div className="hidden md:block md:col-span-1">
           <div className="sticky top-24">
-            <DonationCard id={id} arrecadado={arrecadado} meta={meta} falta={falta} percentual={percentual} />
+            <CardDoacao id={id} arrecadado={arrecadado} meta={meta} falta={falta} percentual={percentual} />
           </div>
         </div>
       </div>
@@ -62,7 +62,7 @@ export default function CampaignDetail() {
   )
 }
 
-function DonationCard({ id, arrecadado, meta, falta, percentual }) {
+function CardDoacao({ id, arrecadado, meta, falta, percentual }) {
   return (
     <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5">
       <div>
