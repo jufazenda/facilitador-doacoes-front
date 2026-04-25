@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import heroImage from "../../assets/hero.png";
+import kaoImage from "../../assets/kao.jpg";
 
 export default function CardCampanha({ campaign: campanha }) {
   const urgente = campanha.badgeType === "urgent";
@@ -8,7 +8,7 @@ export default function CardCampanha({ campaign: campanha }) {
     <article className="overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-xl shadow-purple-950/5 sm:rounded-3xl">
       <div className="relative h-40 overflow-hidden sm:h-48">
         <img
-          src={heroImage}
+          src={kaoImage}
           alt={campanha.title}
           className="h-full w-full object-cover transition duration-300 hover:scale-105"
         />
