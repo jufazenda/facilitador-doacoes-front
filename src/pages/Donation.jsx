@@ -37,7 +37,7 @@ export default function Donation() {
   }
 
   return (
-    <div className="py-8 px-4 flex flex-col items-center">
+    <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col items-center">
       <div className="w-full max-w-lg flex flex-col gap-6">
         <div className="bg-white rounded-xl border border-line p-4">
           <p className="text-xs text-muted mb-1">Doando para</p>

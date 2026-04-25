@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import heroImage from "../assets/hero.png";
 import CampaignCard from "../components/ui/CampaignCard";
 import {
@@ -38,12 +39,12 @@ export default function Home() {
                 Ver campanhas
               </a>
 
-              <a
-                href="#register-institution"
+              <Link
+                to="/cadastro/instituicao"
                 className="inline-flex items-center justify-center gap-2 rounded-2xl border border-purple-700 bg-white px-7 py-4 font-extrabold text-purple-800 transition hover:-translate-y-0.5 hover:bg-purple-50"
               >
                 Cadastre instituições
-              </a>
+              </Link>
             </div>
           </div>
 

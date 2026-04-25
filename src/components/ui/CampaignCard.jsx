@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import heroImage from "../../assets/hero.png";
 
 export default function CampaignCard({ campaign }) {
@@ -31,8 +32,10 @@ export default function CampaignCard({ campaign }) {
 
       <div className="p-5">
         <h3 className="text-xl font-extrabold text-purple-950">
-          {campaign.title}
-        </h3>
+            <Link to={`/campanha/${campaign.id}`} className="hover:text-purple-700 transition-colors">
+              {campaign.title}
+            </Link>
+          </h3>
 
         <p className="mt-1 text-sm font-semibold text-slate-500">
           {campaign.institution}
@@ -63,12 +66,12 @@ export default function CampaignCard({ campaign }) {
           <span className="text-slate-500">{campaign.daysLeft}</span>
         </div>
 
-        <a
-          href={`#campaign-${campaign.id}`}
+        <Link
+          to={`/doacao/${campaign.id}`}
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-3 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-purple-800"
         >
           ♡ Donate
-        </a>
+        </Link>
       </div>
     </article>
   );

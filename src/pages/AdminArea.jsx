@@ -49,7 +49,7 @@ export default function AdminArea() {
   }
 
   return (
-    <div className="py-8 px-4 flex flex-col gap-6">
+    <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
       <div className="flex items-center gap-3">
         <div className="w-14 h-14 rounded-2xl bg-primary-dark flex items-center justify-center shrink-0">
           <span className="text-white text-xl">🛡️</span>

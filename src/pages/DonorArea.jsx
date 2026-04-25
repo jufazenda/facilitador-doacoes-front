@@ -23,7 +23,7 @@ export default function DonorArea() {
   const d = doadorMock
 
   return (
-    <div className="py-8 px-4 flex flex-col gap-6">
+    <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shrink-0">
           <span className="text-white text-xl font-bold">

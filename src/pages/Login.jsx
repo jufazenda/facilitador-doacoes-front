@@ -1,13 +1,30 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
+
+const MOCK_USERS = [
+  { email: "doador@email.com",      senha: "123456", tipo: "doador",      nome: "Maria Silva",       rota: "/area/doador" },
+  { email: "instituicao@email.com", senha: "123456", tipo: "instituicao", nome: "Associação Passos de Luz", rota: "/area/instituicao" },
+  { email: "admin@email.com",       senha: "123456", tipo: "admin",       nome: "Admin",             rota: "/area/admin" },
+]
 
 export default function Login() {
   const [email, setEmail] = useState("")
   const [senha, setSenha] = useState("")
+  const [erro, setErro] = useState("")
+  const navigate = useNavigate()
+  const { login } = useAuth()
 
   function handleSubmit(e) {
     e.preventDefault()
-    console.log("login:", { email, senha })
+    const found = MOCK_USERS.find((u) => u.email === email && u.senha === senha)
+    if (found) {
+      const { senha: _, ...userData } = found
+      login(userData)
+      navigate(found.rota)
+    } else {
+      setErro("E-mail ou senha inválidos.")
+    }
   }
 
   return (
@@ -35,10 +52,17 @@ export default function Login() {
               />
             </div>
 
+            {erro && <p className="text-sm text-accent font-semibold">{erro}</p>}
             <button type="submit"
               className="mt-2 w-full bg-primary hover:bg-primary-dark text-white font-bold rounded-lg py-3 transition-colors">
               Entrar
             </button>
+            <div className="text-xs text-muted bg-soft rounded-lg px-3 py-2 flex flex-col gap-0.5">
+              <p className="font-semibold text-ink mb-1">Credenciais de teste:</p>
+              <p>doador@email.com · 123456</p>
+              <p>instituicao@email.com · 123456</p>
+              <p>admin@email.com · 123456</p>
+            </div>
           </form>
 
           <div className="flex items-center gap-3">

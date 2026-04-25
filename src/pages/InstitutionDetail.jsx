@@ -20,7 +20,7 @@ export default function InstitutionDetail() {
   const iniciais = nome.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
 
   return (
-    <div className="py-8 px-4 flex flex-col gap-10">
+    <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-10">
       <Link to="/" className="text-sm text-primary hover:underline inline-flex items-center gap-1">
         ← Voltar para campanhas
       </Link>

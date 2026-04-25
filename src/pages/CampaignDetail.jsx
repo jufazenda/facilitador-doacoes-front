@@ -19,7 +19,7 @@ export default function CampaignDetail() {
   const falta = meta - arrecadado
 
   return (
-    <div className="py-8 px-4">
+    <div className="mx-auto max-w-4xl px-4 py-8">
       <Link to="/" className="text-sm text-primary hover:underline inline-flex items-center gap-1 mb-6">
         ← Voltar para campanhas
       </Link>
