@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import kaoImage from "../assets/kao.jpg";
-import CardCampanha from "../components/ui/CardCampanha";
+import CampaignCard from "../components/ui/CampaignCard";
 import {
   campaigns,
   campaignFilters,
@@ -13,11 +13,11 @@ export default function Home() {
     <>
       <section
         id="home"
-        className="overflow-hidden bg-gradient-to-r from-[#FCFAFF] via-[#F5F0FF] to-white"
+        className="overflow-hidden bg-linear-to-r from-page via-soft to-white"
       >
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-2 lg:gap-12">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-[#EEE4FF] px-3 py-1.5 text-xs font-extrabold text-purple-950 sm:px-4 sm:py-2 sm:text-sm">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3 py-1.5 text-xs font-extrabold text-purple-950 sm:px-4 sm:py-2 sm:text-sm">
               🛡️ Instituições verificadas, impacto real
             </span>
 
@@ -89,7 +89,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-7">
             {campaigns.map((campaign) => (
-              <CardCampanha key={campaign.id} campaign={campaign} />
+              <CampaignCard key={campaign.id} campaign={campaign} />
             ))}
           </div>
 
@@ -145,7 +145,7 @@ export default function Home() {
                 key={step.title}
                 className="rounded-2xl bg-white p-4 sm:rounded-3xl sm:p-6"
               >
-                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#EEE4FF] text-2xl text-purple-700 sm:h-16 sm:w-16 sm:text-3xl">
+                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary-light text-2xl text-purple-700 sm:h-16 sm:w-16 sm:text-3xl">
                   {step.icon}
                 </span>
 

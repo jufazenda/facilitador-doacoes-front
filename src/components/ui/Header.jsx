@@ -75,15 +75,15 @@ export default function Header() {
         {/* Desktop nav */}
 
         <nav className="hidden items-center gap-10 font-semibold text-purple-950 md:flex">
-          <a href="/#campaigns" className="transition hover:text-purple-600">
-            Campanhas
+          <a href="/" className="transition hover:text-purple-600">
+            Menu
           </a>
-          <a href="/#institutions" className="transition hover:text-purple-600">
+          <Link to="/instituicoes" className="transition hover:text-purple-600">
             Instituições
-          </a>
-          <a href="/#how-it-works" className="transition hover:text-purple-600">
-            Como funciona?
-          </a>
+          </Link>
+          <Link to="/sobre-nos" className="transition hover:text-purple-600">
+            Sobre Nós
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-4">
@@ -178,13 +178,13 @@ export default function Header() {
             >
               Campanhas
             </a>
-            <a
-              href="/#institutions"
+            <Link
+              to="/instituicoes"
               onClick={() => setMenuOpen(false)}
               className="rounded-xl px-4 py-3 font-semibold text-purple-950 hover:bg-purple-50"
             >
               Instituições
-            </a>
+            </Link>
             <a
               href="/#how-it-works"
               onClick={() => setMenuOpen(false)}
@@ -235,11 +235,7 @@ export default function Header() {
                 </Link>
               </>
             )}
-            <a
-              href="/#campaigns"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-2xl bg-[#FF5C5C] px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200"
-            >
+            <a href="/#campaigns" onClick={() => setMenuOpen(false)} className="rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
               Doe agora ♡
             </a>
           </div>
