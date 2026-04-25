@@ -1,48 +1,89 @@
-export const campanhas = [
+export const campaigns = [
   {
     id: 1,
-    titulo: "Cestas básicas para famílias em vulnerabilidade",
-    instituicao: "Instituto Esperança Viva",
-    categoria: "Alimentação",
-    descricao:
-      "Ajude a garantir alimentação básica para 50 famílias em situação de extrema pobreza no bairro Jardim Esperança. Cada cesta alimenta uma família por 30 dias.",
-    meta: 15000,
-    arrecadado: 9800,
-    urgente: true,
+    title: "Fisioterapia que transforma",
+    institution: "Associação Passos de Luz",
+    badge: "Urgente",
+    badgeType: "urgent",
+    raised: "R$ 48.750",
+    goal: "R$ 75.000",
+    percentage: 65,
+    daysLeft: "28 dias restantes",
   },
   {
     id: 2,
-    titulo: "Reforma da escola comunitária",
-    instituicao: "ONG Raízes do Futuro",
-    categoria: "Educação",
-    descricao:
-      "A escola atende 200 crianças e adolescentes em situação de risco. O telhado apresenta infiltrações graves que comprometem as aulas nos dias de chuva.",
-    meta: 30000,
-    arrecadado: 12400,
-    urgente: false,
+    title: "Sala sensorial inclusiva",
+    institution: "Instituto Caminhos do Saber",
+    badge: "Nova",
+    badgeType: "new",
+    raised: "R$ 26.300",
+    goal: "R$ 60.000",
+    percentage: 44,
+    daysLeft: "45 dias restantes",
   },
   {
     id: 3,
-    titulo: "Medicamentos para idosos carentes",
-    instituicao: "Lar São Francisco",
-    categoria: "Saúde",
-    descricao:
-      "O lar abriga 35 idosos em situação de abandono. Precisamos de suporte para cobrir os custos de medicamentos de uso contínuo por 6 meses.",
-    meta: 8000,
-    arrecadado: 7200,
-    urgente: true,
+    title: "Equipamentos de mobilidade",
+    institution: "Centro de Reabilitação Esperança",
+    badge: "Urgente",
+    badgeType: "urgent",
+    raised: "R$ 33.210",
+    goal: "R$ 90.000",
+    percentage: 37,
+    daysLeft: "19 dias restantes",
+  },
+];
+
+export const campaignFilters = [
+  "Todos",
+  "Urgentes",
+  "Saúde",
+  "Educação",
+  "Higiene",
+  "Mobilidade",
+  "Alimentação",
+];
+
+export const platformMetrics = [
+  {
+    icon: "♡",
+    value: "R$ 124 mil",
+    label: "arrecadados",
+    description: "em doações com total transparência",
   },
   {
-    id: 4,
-    titulo: "Kits escolares para crianças da favela",
-    instituicao: "Projeto Semear",
-    categoria: "Educação",
-    descricao:
-      "Distribuição de 300 kits escolares (mochila, cadernos, lápis e material básico) para crianças matriculadas na rede pública em comunidades carentes.",
-    meta: 12000,
-    arrecadado: 3500,
-    urgente: false,
+    icon: "⚑",
+    value: "86",
+    label: "campanhas concluídas",
+    description: "impacto real, histórias transformadas",
   },
-]
+  {
+    icon: "🛡",
+    value: "42",
+    label: "instituições verificadas",
+    description: "avaliadas com rigor e cuidado",
+  },
+];
 
-export const categorias = ["Alimentação", "Educação", "Saúde", "Moradia", "Cultura"]
+export const steps = [
+  {
+    icon: "⌕",
+    title: "1. Explore",
+    text: "Descubra campanhas e instituições verificadas.",
+  },
+  {
+    icon: "♡",
+    title: "2. Doe com segurança",
+    text: "Sua doação é protegida e o impacto é garantido.",
+  },
+  {
+    icon: "▥",
+    title: "3. Acompanhe",
+    text: "Veja como sua doação está transformando vidas.",
+  },
+  {
+    icon: "♁",
+    title: "4. Compartilhe",
+    text: "Convide outras pessoas para multiplicar o impacto.",
+  },
+];
