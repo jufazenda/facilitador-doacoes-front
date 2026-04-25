@@ -130,7 +130,7 @@ export default function Home() {
 
       <section id="how-it-works" className="bg-white pb-20">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <h2 className="text-3xl font-black text-purple-950">How it works</h2>
+          <h2 className="text-3xl font-black text-purple-950">Como funciona</h2>
 
           <div className="mt-12 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             {steps.map((step) => (

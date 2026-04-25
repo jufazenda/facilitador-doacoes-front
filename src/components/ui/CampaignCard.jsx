@@ -55,13 +55,13 @@ export default function CampaignCard({ campaign }) {
         </div>
 
         <div className="mt-3 flex justify-between gap-4 text-sm font-bold text-purple-950">
-          <span>{campaign.raised} raised</span>
-          <span className="text-slate-500">{campaign.goal} goal</span>
+          <span>{campaign.raised} arrecadado</span>
+          <span className="text-slate-500">{campaign.goal} - meta</span>
         </div>
 
         <div className="mt-1 flex justify-between gap-4 text-sm">
           <span className="font-extrabold text-green-600">
-            {campaign.percentage}% funded
+            {campaign.percentage}% alcançado
           </span>
           <span className="text-slate-500">{campaign.daysLeft}</span>
         </div>
@@ -70,7 +70,7 @@ export default function CampaignCard({ campaign }) {
           to={`/doacao/${campaign.id}`}
           className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-3 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-purple-800"
         >
-          ♡ Donate
+          ♡ Doe
         </Link>
       </div>
     </article>
