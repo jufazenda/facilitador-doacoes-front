@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import heroImage from "../../assets/hero.png";
+import kaoImage from "../../assets/kao.jpg";
 
 export default function CampaignCard({ campaign }) {
   const isUrgent = campaign.badgeType === "urgent";
@@ -8,7 +8,7 @@ export default function CampaignCard({ campaign }) {
     <article className="overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-xl shadow-purple-950/5 sm:rounded-3xl">
       <div className="relative h-40 overflow-hidden sm:h-48">
         <img
-          src={heroImage}
+          src={kaoImage}
           alt={campaign.title}
           className="h-full w-full object-cover transition duration-300 hover:scale-105"
         />
@@ -32,7 +32,10 @@ export default function CampaignCard({ campaign }) {
 
       <div className="p-4 sm:p-5">
         <h3 className="text-lg font-extrabold text-purple-950 sm:text-xl">
-          <Link to={`/campanha/${campaign.id}`} className="transition-colors hover:text-purple-700">
+          <Link
+            to={`/campanha/${campaign.id}`}
+            className="transition-colors hover:text-purple-700"
+          >
             {campaign.title}
           </Link>
         </h3>

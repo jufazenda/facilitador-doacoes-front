@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import heroImage from "../assets/hero.png";
+import kaoImage from "../assets/kao.jpg";
 import CampaignCard from "../components/ui/CampaignCard";
 import {
   campaigns,
@@ -56,7 +56,7 @@ export default function Home() {
             <div className="absolute bottom-8 left-0 z-10 h-16 w-16 bg-[radial-gradient(#6F3DD9_2px,transparent_2px)] bg-size-[14px_14px] opacity-30 sm:bottom-12 sm:h-24 sm:w-24 sm:bg-size-[16px_16px]" />
 
             <img
-              src={heroImage}
+              src={kaoImage}
               alt="Children smiling in an inclusive care environment"
               className="h-56 w-full rounded-2xl object-cover shadow-2xl shadow-purple-950/10 sm:h-72 sm:rounded-4xl lg:h-115"
             />
@@ -74,10 +74,15 @@ export default function Home() {
           <div className="mb-6 flex flex-col justify-between gap-3 sm:mb-8 sm:gap-4 md:flex-row md:items-end">
             <div>
               <span className="text-xl text-purple-600 sm:text-2xl">✦</span>
-              <h2 className="text-2xl font-black text-purple-950 sm:text-3xl">Campanhas</h2>
+              <h2 className="text-2xl font-black text-purple-950 sm:text-3xl">
+                Campanhas
+              </h2>
             </div>
 
-            <a href="#all-campaigns" className="text-sm font-extrabold text-purple-700 sm:text-base">
+            <a
+              href="#all-campaigns"
+              className="text-sm font-extrabold text-purple-700 sm:text-base"
+            >
               Ver todas as campanhas →
             </a>
           </div>
@@ -110,7 +115,10 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-4 rounded-2xl bg-gradient-to-r from-purple-700 via-purple-600 to-purple-950 p-5 text-white shadow-2xl shadow-purple-950/20 sm:gap-6 sm:rounded-3xl sm:p-8 md:grid-cols-3">
             {platformMetrics.map((metric) => (
-              <div key={metric.label} className="flex items-center gap-4 sm:gap-5">
+              <div
+                key={metric.label}
+                className="flex items-center gap-4 sm:gap-5"
+              >
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl sm:h-16 sm:w-16 sm:text-3xl">
                   {metric.icon}
                 </span>
@@ -130,11 +138,16 @@ export default function Home() {
 
       <section id="how-it-works" className="bg-white pb-12 sm:pb-20">
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
-          <h2 className="text-2xl font-black text-purple-950 sm:text-3xl">Como funciona</h2>
+          <h2 className="text-2xl font-black text-purple-950 sm:text-3xl">
+            Como funciona
+          </h2>
 
           <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-12 sm:gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
             {steps.map((step) => (
-              <article key={step.title} className="rounded-2xl bg-white p-4 sm:rounded-3xl sm:p-6">
+              <article
+                key={step.title}
+                className="rounded-2xl bg-white p-4 sm:rounded-3xl sm:p-6"
+              >
                 <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#EEE4FF] text-2xl text-purple-700 sm:h-16 sm:w-16 sm:text-3xl">
                   {step.icon}
                 </span>
