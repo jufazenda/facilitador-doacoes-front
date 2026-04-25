@@ -37,11 +37,15 @@ export const campaigns = [
 export const campaignFilters = [
   "Todos",
   "Urgentes",
-  "Saúde",
-  "Educação",
-  "Higiene",
-  "Mobilidade",
+  "Higiene & Cuidados Pessoais",
   "Alimentação",
+  "Educação & Escolar",
+  "Roupas & Calçados",
+  "Brinquedos & Lazer",
+  "Financeira",
+  "Saúde & Medicamentos",
+  "Pets",
+  "Moradia & Utensílios",
 ];
 
 export const platformMetrics = [
@@ -157,7 +161,7 @@ export const campanhas = [
     titulo: "Fisioterapia que transforma",
     instituicao: "Associação Passos de Luz",
     instituicaoId: 1,
-    categoria: "Saúde",
+    categoria: "Saúde & Medicamentos",
     descricao: "Ajude a garantir sessões contínuas de fisioterapia para crianças e adultos com mobilidade reduzida. Cada sessão representa um passo a mais rumo à independência.",
     meta: 75000,
     arrecadado: 48750,
@@ -168,7 +172,7 @@ export const campanhas = [
     titulo: "Sala sensorial inclusiva",
     instituicao: "Instituto Caminhos do Saber",
     instituicaoId: 2,
-    categoria: "Educação",
+    categoria: "Educação & Escolar",
     descricao: "A sala sensorial é um ambiente terapêutico essencial para crianças com autismo e TEA. Com equipamentos especializados, ela amplia o desenvolvimento cognitivo e emocional.",
     meta: 60000,
     arrecadado: 26300,
@@ -179,7 +183,7 @@ export const campanhas = [
     titulo: "Equipamentos de mobilidade",
     instituicao: "Centro de Reabilitação Esperança",
     instituicaoId: 3,
-    categoria: "Mobilidade",
+    categoria: "Saúde & Medicamentos",
     descricao: "Cadeiras de rodas, andadores e muletas para pessoas em situação de vulnerabilidade que não têm acesso a esses recursos pelo sistema público.",
     meta: 90000,
     arrecadado: 33210,
@@ -187,11 +191,21 @@ export const campanhas = [
   },
 ];
 
-export const categorias = ["Saúde", "Educação", "Higiene", "Mobilidade", "Alimentação"];
+export const categorias = [
+  "Higiene & Cuidados Pessoais",
+  "Alimentação",
+  "Educação & Escolar",
+  "Roupas & Calçados",
+  "Brinquedos & Lazer",
+  "Financeira",
+  "Saúde & Medicamentos",
+  "Pets",
+  "Moradia & Utensílios",
+];
 
 export const necessidadesMock = [
-  { id: 1, titulo: "50 fraldas geriátricas tamanho G", categoria: "Saúde", urgente: true, status: "aberta", criadaEm: "2024-04-10" },
-  { id: 2, titulo: "Cadeira de rodas motorizada para adulto", categoria: "Mobilidade", urgente: false, status: "aberta", criadaEm: "2024-04-08" },
+  { id: 1, titulo: "50 fraldas geriátricas tamanho G", categoria: "Saúde & Medicamentos", urgente: true, status: "aberta", criadaEm: "2024-04-10" },
+  { id: 2, titulo: "Cadeira de rodas motorizada para adulto", categoria: "Saúde & Medicamentos", urgente: false, status: "aberta", criadaEm: "2024-04-08" },
   { id: 3, titulo: "Alimentos não-perecíveis para 20 famílias", categoria: "Alimentação", urgente: false, status: "atendida", criadaEm: "2024-03-20" },
 ];
 
