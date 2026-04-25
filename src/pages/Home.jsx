@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import kaoImage from "../assets/kao.jpg";
-import CardCampanha from "../components/ui/CardCampanha";
+import CampaignCard from "../components/ui/CampaignCard";
 import {
   campaigns,
   campaignFilters,
@@ -89,7 +89,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-7">
             {campaigns.map((campaign) => (
-              <CardCampanha key={campaign.id} campaign={campaign} />
+              <CampaignCard key={campaign.id} campaign={campaign} />
             ))}
           </div>
 

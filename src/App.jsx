@@ -3,15 +3,17 @@ import { AuthProvider, useAuth } from "./context/AuthContext"
 import MainLayout from "./layouts/MainLayout"
 
 import Home from "./pages/Home"
-import DetalhesCampanha from "./pages/DetalhesCampanha"
-import InstituicaoDetalhe from "./pages/InstituicaoDetalhe"
-import Doacao from "./pages/Doacao"
+import CampaignDetail from "./pages/CampaignDetail"
+import InstitutionDetail from "./pages/InstitutionDetail"
+import InstitutionList from "./pages/InstitutionList"
+import Donation from "./pages/Donation"
 import Login from "./pages/Login"
-import RegistroDoador from "./pages/RegistroDoador"
-import InstituicaoCadastro from "./pages/InstituicaoCadastro"
-import AreaDoador from "./pages/AreaDoador"
-import AreaInstituicao from "./pages/AreaInstituicao"
-import AreaAdmin from "./pages/AreaAdmin"
+import DonorRegistration from "./pages/DonorRegistration"
+import InstitutionRegistration from "./pages/InstitutionRegistration"
+import DonorArea from "./pages/DonorArea"
+import InstitutionArea from "./pages/InstitutionArea"
+import AdminArea from "./pages/AdminArea"
+import AboutUs from "./pages/AboutUs"
 
 function ProtectedRoute({ children, tipo }) {
   const { user } = useAuth()
@@ -26,15 +28,17 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/" element={<MainLayout><Home /></MainLayout>} />
-          <Route path="/campanha/:id" element={<MainLayout><DetalhesCampanha /></MainLayout>} />
-          <Route path="/instituicao/:id" element={<MainLayout><InstituicaoDetalhe /></MainLayout>} />
-          <Route path="/doacao/:campanhaId" element={<MainLayout><Doacao /></MainLayout>} />
+          <Route path="/campanha/:id" element={<MainLayout><CampaignDetail /></MainLayout>} />
+          <Route path="/instituicoes" element={<MainLayout><InstitutionList /></MainLayout>} />
+          <Route path="/instituicao/:id" element={<MainLayout><InstitutionDetail /></MainLayout>} />
+          <Route path="/doacao/:campanhaId" element={<MainLayout><Donation /></MainLayout>} />
           <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
-          <Route path="/cadastro/doador" element={<MainLayout><RegistroDoador /></MainLayout>} />
-          <Route path="/cadastro/instituicao" element={<MainLayout><InstituicaoCadastro /></MainLayout>} />
-          <Route path="/area/doador" element={<MainLayout><ProtectedRoute tipo="doador"><AreaDoador /></ProtectedRoute></MainLayout>} />
-          <Route path="/area/instituicao" element={<MainLayout><ProtectedRoute tipo="instituicao"><AreaInstituicao /></ProtectedRoute></MainLayout>} />
-          <Route path="/area/admin" element={<MainLayout><ProtectedRoute tipo="admin"><AreaAdmin /></ProtectedRoute></MainLayout>} />
+          <Route path="/cadastro/doador" element={<MainLayout><DonorRegistration /></MainLayout>} />
+          <Route path="/cadastro/instituicao" element={<MainLayout><InstitutionRegistration /></MainLayout>} />
+          <Route path="/sobre-nos" element={<MainLayout><AboutUs /></MainLayout>} />
+          <Route path="/area/doador" element={<MainLayout><ProtectedRoute tipo="doador"><DonorArea /></ProtectedRoute></MainLayout>} />
+          <Route path="/area/instituicao" element={<MainLayout><ProtectedRoute tipo="instituicao"><InstitutionArea /></ProtectedRoute></MainLayout>} />
+          <Route path="/area/admin" element={<MainLayout><ProtectedRoute tipo="admin"><AdminArea /></ProtectedRoute></MainLayout>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
