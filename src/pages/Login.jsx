@@ -28,9 +28,9 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center py-12 px-4">
+    <div className="min-h-[70vh] flex items-center justify-center py-8 px-4 sm:py-12">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-xl border border-line p-8 flex flex-col gap-6">
+        <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5 sm:p-8 sm:gap-6">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-ink">Entrar</h1>
             <p className="text-sm text-muted mt-1">Acesse sua conta para gerenciar doações</p>

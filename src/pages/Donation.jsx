@@ -87,7 +87,7 @@ function StepValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setVal
     <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-6">
       <div>
         <p className="text-sm font-bold text-ink mb-3">Escolha um valor</p>
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
           {VALORES_PRESET.map((v) => (
             <button key={v} onClick={() => handlePreset(v)}
               className={`py-2.5 rounded-lg text-sm font-bold border transition-colors ${!isCustom && valor === v ? "bg-primary text-white border-primary" : "bg-white text-muted border-line hover:border-primary hover:text-primary"}`}>
@@ -95,7 +95,7 @@ function StepValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setVal
             </button>
           ))}
           <button onClick={() => { setIsCustom(true); setValor(0) }}
-            className={`py-2.5 rounded-lg text-sm font-bold border transition-colors col-span-3 sm:col-span-5 ${isCustom ? "bg-primary text-white border-primary" : "bg-white text-muted border-line hover:border-primary hover:text-primary"}`}>
+            className={`py-2.5 rounded-lg text-sm font-bold border transition-colors col-span-2 sm:col-span-5 ${isCustom ? "bg-primary text-white border-primary" : "bg-white text-muted border-line hover:border-primary hover:text-primary"}`}>
             Outro valor
           </button>
         </div>

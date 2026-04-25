@@ -16,9 +16,9 @@ export default function InstitutionRegistration() {
   }
 
   return (
-    <div className="flex items-start justify-center py-12 px-4">
+    <div className="flex items-start justify-center py-8 px-4 sm:py-12">
       <div className="w-full max-w-lg">
-        <div className="bg-white rounded-xl border border-line p-8 flex flex-col gap-6">
+        <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5 sm:p-8 sm:gap-6">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-ink">Cadastrar instituição</h1>
             <p className="text-sm text-muted mt-1">Após o cadastro, sua conta será analisada pela nossa equipe</p>
@@ -34,7 +34,7 @@ export default function InstitutionRegistration() {
             <Field label="CNPJ" id="cnpj" name="cnpj" type="text" value={form.cnpj} onChange={handleChange} placeholder="00.000.000/0000-00" />
             <Field label="E-mail institucional" id="email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="contato@instituicao.org" />
             <Field label="Telefone" id="telefone" name="telefone" type="tel" value={form.telefone} onChange={handleChange} placeholder="(00) 00000-0000" />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Field label="Cidade" id="cidade" name="cidade" type="text" value={form.cidade} onChange={handleChange} placeholder="São Paulo" />
               <Field label="Estado" id="estado" name="estado" type="text" value={form.estado} onChange={handleChange} placeholder="SP" />
             </div>

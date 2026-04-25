@@ -26,7 +26,7 @@ export default function InstitutionDetail() {
       </Link>
 
       {/* Hero */}
-      <section className="flex flex-col sm:flex-row items-start gap-6">
+      <section className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
         <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center shrink-0">
           <span className="text-white text-2xl font-bold">{iniciais}</span>
         </div>
@@ -55,7 +55,7 @@ export default function InstitutionDetail() {
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <StatCard value={balancoSocial.familiasBeneficiadas.toLocaleString("pt-BR")} label="Famílias beneficiadas" />
         <StatCard value={balancoSocial.voluntarios.toLocaleString("pt-BR")} label="Voluntários ativos" />
         <StatCard value={balancoSocial.arrecadadoTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })} label="Total arrecadado" />
