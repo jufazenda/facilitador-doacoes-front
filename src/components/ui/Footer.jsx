@@ -42,7 +42,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="rounded-2xl bg-[#EEE4FF] p-4 sm:col-span-2 sm:rounded-3xl sm:p-6 lg:col-span-1">
+        <div className="rounded-2xl bg-primary-light p-4 sm:col-span-2 sm:rounded-3xl sm:p-6 lg:col-span-1">
           <h3 className="font-black text-purple-950">Inscreva-se</h3>
 
           <p className="mt-2 text-sm text-slate-600">

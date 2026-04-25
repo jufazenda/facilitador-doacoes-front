@@ -156,7 +156,7 @@ export default function Header() {
                 </Link>
               </>
             )}
-            <a href="/#campaigns" onClick={() => setMenuOpen(false)} className="rounded-2xl bg-[#FF5C5C] px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
+            <a href="/#campaigns" onClick={() => setMenuOpen(false)} className="rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
               Doe agora ♡
             </a>
           </div>
