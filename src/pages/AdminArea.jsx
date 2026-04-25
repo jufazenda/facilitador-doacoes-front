@@ -63,18 +63,18 @@ export default function AdminArea() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3 sm:gap-4">
         <StatCard value={pendentes.length}  label="Pendentes"  color="text-warning" />
         <StatCard value={aprovadas.length}  label="Aprovadas"  color="text-success" />
         <StatCard value={rejeitadas.length} label="Rejeitadas" color="text-accent"  />
       </div>
 
-      <div className="flex border-b border-line gap-1">
+      <div className="flex overflow-x-auto border-b border-line gap-1">
         {TABS.map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${
+            className={`whitespace-nowrap px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${
               tab === t
                 ? "border-primary text-primary"
                 : "border-transparent text-muted hover:text-ink"
@@ -140,7 +140,7 @@ function InstituicaoCard({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:shrink-0 sm:flex-wrap">
           <button
             onClick={() => setExpandido((v) => !v)}
             className="text-xs px-3 py-1.5 rounded-lg border border-line text-muted hover:border-primary hover:text-primary transition-colors"
