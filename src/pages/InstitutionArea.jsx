@@ -74,7 +74,7 @@ function TabDashboard({ campas }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <StatCard value={totalArrecadado.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })} label="Total arrecadado" />
         <StatCard value={`${percentual}%`} label="Da meta atingida" />
         <StatCard value={campas.length} label="Campanhas ativas" />
@@ -141,7 +141,7 @@ function TabCampanhas({ campas, onToggleUrgente, onAdicionar }) {
         <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
           <h3 className="text-base font-bold text-ink">Nova campanha</h3>
           <FormField label="Título" name="titulo" value={form.titulo} onChange={handleChange} placeholder="Nome da campanha" />
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-ink">Categoria</label>
               <select name="categoria" value={form.categoria} onChange={handleChange}

@@ -38,7 +38,7 @@ export default function DonorArea() {
         </div>
       </div>
 
-      <div className="flex border-b border-line gap-1">
+      <div className="flex overflow-x-auto border-b border-line gap-1">
         {TABS.map((t) => (
           <button key={t} onClick={() => setTab(t)}
             className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${
@@ -59,7 +59,7 @@ export default function DonorArea() {
 function TabPerfil({ d }) {
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatCard value={d.totalDoado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} label="Total doado" />
         <StatCard value={d.totalDoacoes} label="Doações realizadas" />
         <StatCard value={d.doacoesRecorrentes} label="Doações recorrentes" />

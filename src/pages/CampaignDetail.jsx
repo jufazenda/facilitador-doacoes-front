@@ -24,7 +24,7 @@ export default function CampaignDetail() {
         ← Voltar para campanhas
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-2">
+      <div className="grid grid-cols-1 gap-6 mt-2 md:grid-cols-3 md:gap-8">
         <div className="lg:col-span-2 flex flex-col gap-6">
           <div className="flex gap-2 flex-wrap">
             <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary-light text-primary">{categoria}</span>
@@ -47,12 +47,12 @@ export default function CampaignDetail() {
             <p className="text-muted leading-relaxed">{descricao}</p>
           </div>
 
-          <div className="lg:hidden">
+          <div className="md:hidden">
             <DonationCard id={id} arrecadado={arrecadado} meta={meta} falta={falta} percentual={percentual} />
           </div>
         </div>
 
-        <div className="hidden lg:block lg:col-span-1">
+        <div className="hidden md:block md:col-span-1">
           <div className="sticky top-24">
             <DonationCard id={id} arrecadado={arrecadado} meta={meta} falta={falta} percentual={percentual} />
           </div>

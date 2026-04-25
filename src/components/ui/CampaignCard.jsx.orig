@@ -54,9 +54,15 @@ export default function CampaignCard({ campaign }) {
           />
         </div>
 
-        <div className="mt-3 flex justify-between gap-2 text-sm font-bold text-purple-950">
+<<<<<<< HEAD
+        <div className="mt-3 flex justify-between gap-4 text-sm font-bold text-purple-950">
           <span>{campaign.raised} arrecadado</span>
           <span className="text-slate-500">{campaign.goal} - meta</span>
+=======
+        <div className="mt-3 flex justify-between gap-2 text-sm font-bold text-purple-950">
+          <span>{campaign.raised} raised</span>
+          <span className="text-slate-500">{campaign.goal} goal</span>
+>>>>>>> origin/main
         </div>
 
         <div className="mt-1 flex justify-between gap-2 text-sm">
