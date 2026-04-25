@@ -1,12 +1,12 @@
-import Header from "../components/ui/Header"
+import Header from "../components/ui/Header";
+import Footer from "../components/ui/Footer";
 
 export default function MainLayout({ children }) {
   return (
     <div className="min-h-screen bg-page">
       <Header />
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        {children}
-      </main>
+      <main>{children}</main>
+      <Footer />
     </div>
-  )
+  );
 }

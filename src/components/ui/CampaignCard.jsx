@@ -1,51 +1,75 @@
-import { Link } from "react-router-dom"
+import heroImage from "../../assets/hero.png";
 
-export default function CampaignCard({ campanha }) {
-  const { id, titulo, instituicao, categoria, descricao, meta, arrecadado, urgente } = campanha
-  const percentual = Math.min(Math.round((arrecadado / meta) * 100), 100)
+export default function CampaignCard({ campaign }) {
+  const isUrgent = campaign.badgeType === "urgent";
 
   return (
-    <Link to={`/campanha/${id}`} className="block group">
-      <div className="bg-white rounded-xl border border-line p-5 flex flex-col gap-3 h-full group-hover:shadow-md transition-shadow">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-primary-light text-primary">
-            {categoria}
-          </span>
-          {urgente && (
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-accent-light text-accent">
-              Urgente
-            </span>
-          )}
-        </div>
+    <article className="overflow-hidden rounded-3xl border border-purple-100 bg-white shadow-xl shadow-purple-950/5">
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={heroImage}
+          alt={campaign.title}
+          className="h-full w-full object-cover transition duration-300 hover:scale-105"
+        />
 
-        <h3 className="text-base font-bold text-ink leading-snug line-clamp-2">{titulo}</h3>
+        <span
+          className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-extrabold ${
+            isUrgent ? "bg-[#FF5C5C] text-white" : "bg-green-100 text-green-700"
+          }`}
+        >
+          {campaign.badge}
+        </span>
 
-        <p className="text-sm text-muted">{instituicao}</p>
-
-        <p className="text-sm text-muted line-clamp-2 flex-1">{descricao}</p>
-
-        <div className="flex flex-col gap-1.5 mt-auto">
-          <div className="w-full bg-soft rounded-full h-2">
-            <div className="bg-primary h-2 rounded-full transition-all" style={{ width: `${percentual}%` }} />
-          </div>
-          <div className="flex justify-between text-xs text-muted">
-            <span>
-              <span className="font-bold text-ink">
-                {arrecadado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-              </span>{" "}
-              arrecadados
-            </span>
-            <span className="font-semibold text-primary">{percentual}%</span>
-          </div>
-          <p className="text-xs text-muted">
-            Meta: {meta.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-          </p>
-        </div>
-
-        <button className="mt-1 w-full bg-primary hover:bg-primary-dark text-white text-sm font-bold rounded-lg py-2.5 transition-colors">
-          Doar agora
+        <button
+          type="button"
+          className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/30 text-xl text-white backdrop-blur-md"
+          aria-label={`Save campaign ${campaign.title}`}
+        >
+          ♡
         </button>
       </div>
-    </Link>
-  )
+
+      <div className="p-5">
+        <h3 className="text-xl font-extrabold text-purple-950">
+          {campaign.title}
+        </h3>
+
+        <p className="mt-1 text-sm font-semibold text-slate-500">
+          {campaign.institution}
+          <span
+            className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-purple-700 text-xs text-white"
+            aria-label="Verified institution"
+          >
+            ✓
+          </span>
+        </p>
+
+        <div className="mt-5 h-2 overflow-hidden rounded-full bg-purple-100">
+          <div
+            className="h-full rounded-full bg-purple-700"
+            style={{ width: `${campaign.percentage}%` }}
+          />
+        </div>
+
+        <div className="mt-3 flex justify-between gap-4 text-sm font-bold text-purple-950">
+          <span>{campaign.raised} raised</span>
+          <span className="text-slate-500">{campaign.goal} goal</span>
+        </div>
+
+        <div className="mt-1 flex justify-between gap-4 text-sm">
+          <span className="font-extrabold text-green-600">
+            {campaign.percentage}% funded
+          </span>
+          <span className="text-slate-500">{campaign.daysLeft}</span>
+        </div>
+
+        <a
+          href={`#campaign-${campaign.id}`}
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-3 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-purple-800"
+        >
+          ♡ Donate
+        </a>
+      </div>
+    </article>
+  );
 }
