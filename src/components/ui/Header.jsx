@@ -46,9 +46,28 @@ export default function Header() {
         <Link
           to="/"
           onClick={() => setMenuOpen(false)}
-          className="flex items-center gap-3"
+          className="group flex items-center gap-2 sm:gap-3"
         >
-          <img src={logo} alt="Faz a Boa" className="h-10 w-auto sm:h-12" />
+          <img
+            src={logo}
+            alt=""
+            className="h-12 w-auto transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 sm:h-14 md:h-16"
+          />
+
+          <span
+            className="flex items-center text-accent"
+            style={{ fontFamily: '"Luckiest Guy", cursive' }}
+          >
+            <span className="-rotate-6 text-xl leading-none sm:text-2xl">
+              Faz
+            </span>
+            <span className="mx-1 rotate-3 text-base leading-none sm:text-xl">
+              a
+            </span>
+            <span className="-rotate-2 text-xl leading-none sm:text-2xl">
+              Boa
+            </span>
+          </span>
 
           <span className="sr-only">Faz a Boa</span>
         </Link>

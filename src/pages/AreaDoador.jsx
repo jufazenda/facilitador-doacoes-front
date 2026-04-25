@@ -2,24 +2,24 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { doadorMock, historicoMock, rankingMock } from "../utils/mockData"
 
-const TABS = ["Perfil", "Histórico", "Ranking"]
+const ABAS = ["Perfil", "Histórico", "Ranking"]
 
-const TIERS = [
+const NIVEIS = [
   { label: "Bronze",   min: 0,    max: 299,      color: "text-amber-700",  bg: "bg-amber-100" },
   { label: "Prata",    min: 300,  max: 999,       color: "text-muted",      bg: "bg-soft" },
   { label: "Ouro",     min: 1000, max: 2999,      color: "text-warning",    bg: "bg-warning-light" },
   { label: "Diamante", min: 3000, max: Infinity,  color: "text-primary",    bg: "bg-primary-light" },
 ]
 
-const STATUS_STYLES = {
+const STATUS = {
   pendente:   { label: "Pendente",   classes: "bg-warning-light text-warning" },
   processado: { label: "Processado", classes: "bg-blue-100 text-blue-700" },
   confirmado: { label: "Confirmado", classes: "bg-secondary/10 text-secondary" },
   aplicado:   { label: "Aplicado",   classes: "bg-success-light text-success" },
 }
 
-export default function DonorArea() {
-  const [tab, setTab] = useState("Perfil")
+export default function AreaDoador() {
+  const [aba, setAba] = useState("Perfil")
   const d = doadorMock
 
   return (
@@ -39,38 +39,38 @@ export default function DonorArea() {
       </div>
 
       <div className="flex overflow-x-auto border-b border-line gap-1">
-        {TABS.map((t) => (
-          <button key={t} onClick={() => setTab(t)}
+        {ABAS.map((t) => (
+          <button key={t} onClick={() => setAba(t)}
             className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${
-              tab === t ? "border-primary text-primary" : "border-transparent text-muted hover:text-ink"
+              aba === t ? "border-primary text-primary" : "border-transparent text-muted hover:text-ink"
             }`}>
             {t}
           </button>
         ))}
       </div>
 
-      {tab === "Perfil"    && <TabPerfil d={d} />}
-      {tab === "Histórico" && <TabHistorico />}
-      {tab === "Ranking"   && <TabRanking d={d} />}
+      {aba === "Perfil"    && <AbaPerfil d={d} />}
+      {aba === "Histórico" && <AbaHistorico />}
+      {aba === "Ranking"   && <AbaRanking d={d} />}
     </div>
   )
 }
 
-function TabPerfil({ d }) {
+function AbaPerfil({ d }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-        <StatCard value={d.totalDoado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} label="Total doado" />
-        <StatCard value={d.totalDoacoes} label="Doações realizadas" />
-        <StatCard value={d.doacoesRecorrentes} label="Doações recorrentes" />
+        <CardStatus value={d.totalDoado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} label="Total doado" />
+        <CardStatus value={d.totalDoacoes} label="Doações realizadas" />
+        <CardStatus value={d.doacoesRecorrentes} label="Doações recorrentes" />
       </div>
       <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-4">
         <h2 className="text-base font-bold text-ink">Dados pessoais</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <InfoRow label="Nome" value={d.nome} />
-          <InfoRow label="E-mail" value={d.email} />
-          <InfoRow label="CPF" value={d.cpf} />
-          <InfoRow label="Membro desde" value={new Date(d.desde).toLocaleDateString("pt-BR")} />
+          <InfoLinha label="Nome" value={d.nome} />
+          <InfoLinha label="E-mail" value={d.email} />
+          <InfoLinha label="CPF" value={d.cpf} />
+          <InfoLinha label="Membro desde" value={new Date(d.desde).toLocaleDateString("pt-BR")} />
         </div>
         <button className="self-start mt-2 text-sm text-primary hover:underline font-semibold">Editar dados</button>
       </div>
@@ -78,11 +78,11 @@ function TabPerfil({ d }) {
   )
 }
 
-function TabHistorico() {
+function AbaHistorico() {
   return (
     <div className="flex flex-col gap-3">
       {historicoMock.map((d) => {
-        const status = STATUS_STYLES[d.status]
+        const status = STATUS[d.status]
         return (
           <div key={d.id} className="bg-white rounded-xl border border-line p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex flex-col gap-1 flex-1 min-w-0">
@@ -107,7 +107,7 @@ function TabHistorico() {
         )
       })}
       <div className="mt-2 flex flex-wrap gap-2">
-        {Object.values(STATUS_STYLES).map((s) => (
+        {Object.values(STATUS).map((s) => (
           <span key={s.label} className={`text-xs px-2 py-0.5 rounded-full ${s.classes}`}>{s.label}</span>
         ))}
       </div>
@@ -116,10 +116,10 @@ function TabHistorico() {
   )
 }
 
-function TabRanking({ d }) {
-  const tier = TIERS.find((t) => d.pontos >= t.min && d.pontos <= t.max)
-  const nextTier = TIERS[TIERS.indexOf(tier) + 1]
-  const progress = nextTier ? Math.round(((d.pontos - tier.min) / (nextTier.min - tier.min)) * 100) : 100
+function AbaRanking({ d }) {
+  const nivel = NIVEIS.find((t) => d.pontos >= t.min && d.pontos <= t.max)
+  const proxNivel = NIVEIS[NIVEIS.indexOf(nivel) + 1]
+  const progresso = proxNivel ? Math.round(((d.pontos - nivel.min) / (proxNivel.min - nivel.min)) * 100) : 100
 
   return (
     <div className="flex flex-col gap-6">
@@ -127,21 +127,21 @@ function TabRanking({ d }) {
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-muted mb-1">Seu nível</p>
-            <span className={`text-lg font-bold px-3 py-1 rounded-full ${tier.bg} ${tier.color}`}>{tier.label}</span>
+            <span className={`text-lg font-bold px-3 py-1 rounded-full ${nivel.bg} ${nivel.color}`}>{nivel.label}</span>
           </div>
           <div className="text-right">
             <p className="text-xs text-muted">Pontos</p>
             <p className="text-2xl font-bold text-primary">{d.pontos.toLocaleString("pt-BR")}</p>
           </div>
         </div>
-        {nextTier && (
+        {proxNivel && (
           <div>
             <div className="flex justify-between text-xs text-muted mb-1.5">
-              <span>{tier.label}</span>
-              <span>{nextTier.label} em {(nextTier.min - d.pontos).toLocaleString("pt-BR")} pts</span>
+              <span>{nivel.label}</span>
+              <span>{proxNivel.label} em {(proxNivel.min - d.pontos).toLocaleString("pt-BR")} pts</span>
             </div>
             <div className="w-full bg-soft rounded-full h-2">
-              <div className="bg-primary h-2 rounded-full" style={{ width: `${progress}%` }} />
+              <div className="bg-primary h-2 rounded-full" style={{ width: `${progresso}%` }} />
             </div>
           </div>
         )}
@@ -192,7 +192,7 @@ function TabRanking({ d }) {
   )
 }
 
-function StatCard({ value, label }) {
+function CardStatus({ value, label }) {
   return (
     <div className="bg-white rounded-xl border border-line p-4 text-center">
       <p className="text-xl font-bold text-primary">{value}</p>
@@ -201,7 +201,7 @@ function StatCard({ value, label }) {
   )
 }
 
-function InfoRow({ label, value }) {
+function InfoLinha({ label, value }) {
   return (
     <div className="flex flex-col gap-0.5">
       <p className="text-xs text-muted">{label}</p>

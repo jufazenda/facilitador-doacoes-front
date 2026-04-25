@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 
-function maskCnpj(v) {
+function mascararCnpj(v) {
   return v
     .replace(/\D/g, "")
     .slice(0, 14)
@@ -11,17 +11,17 @@ function maskCnpj(v) {
     .replace(/(\d{4})(\d{1,2})$/, "$1-$2")
 }
 
-export default function InstitutionRegistration() {
+export default function InstituicaoCadastro() {
   const [form, setForm] = useState({ nome: "", cnpj: "", email: "", telefone: "", cidade: "", estado: "", descricao: "", senha: "", confirmarSenha: "", termos: false })
   const [arquivo, setArquivo] = useState(null)
 
-  function handleChange(e) {
-    const { name, value, type, checked } = e.target
-    const masked = name === "cnpj" ? maskCnpj(value) : value
-    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : masked }))
+  function handleMudanca(e) {
+    const { name: nome, value: valor, type: tipo, checked: marcado } = e.target
+    const mascarado = nome === "cnpj" ? mascararCnpj(valor) : valor
+    setForm((prev) => ({ ...prev, [nome]: tipo === "checkbox" ? marcado : mascarado }))
   }
 
-  function handleSubmit(e) {
+  function handleSubmeter(e) {
     e.preventDefault()
     console.log("cadastro instituição:", form, arquivo)
   }
@@ -39,19 +39,19 @@ export default function InstitutionRegistration() {
             Sua instituição só aparecerá publicamente após a verificação dos documentos pelo nosso time.
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmeter} className="flex flex-col gap-4">
             <p className="text-xs font-bold text-muted uppercase tracking-wide">Dados da instituição</p>
-            <Field label="Nome da instituição" id="nome" name="nome" type="text" value={form.nome} onChange={handleChange} placeholder="Nome oficial da ONG ou entidade" />
-            <Field label="CNPJ" id="cnpj" name="cnpj" type="text" value={form.cnpj} onChange={handleChange} placeholder="00.000.000/0000-00" inputMode="numeric" />
-            <Field label="E-mail institucional" id="email" name="email" type="email" value={form.email} onChange={handleChange} placeholder="contato@instituicao.org" />
-            <Field label="Telefone" id="telefone" name="telefone" type="tel" value={form.telefone} onChange={handleChange} placeholder="(00) 00000-0000" />
+            <Campo label="Nome da instituição" id="nome" name="nome" type="text" value={form.nome} onChange={handleMudanca} placeholder="Nome oficial da ONG ou entidade" />
+            <Campo label="CNPJ" id="cnpj" name="cnpj" type="text" value={form.cnpj} onChange={handleMudanca} placeholder="00.000.000/0000-00" inputMode="numeric" />
+            <Campo label="E-mail institucional" id="email" name="email" type="email" value={form.email} onChange={handleMudanca} placeholder="contato@instituicao.org" />
+            <Campo label="Telefone" id="telefone" name="telefone" type="tel" value={form.telefone} onChange={handleMudanca} placeholder="(00) 00000-0000" />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Field label="Cidade" id="cidade" name="cidade" type="text" value={form.cidade} onChange={handleChange} placeholder="São Paulo" />
-              <Field label="Estado" id="estado" name="estado" type="text" value={form.estado} onChange={handleChange} placeholder="SP" />
+              <Campo label="Cidade" id="cidade" name="cidade" type="text" value={form.cidade} onChange={handleMudanca} placeholder="São Paulo" />
+              <Campo label="Estado" id="estado" name="estado" type="text" value={form.estado} onChange={handleMudanca} placeholder="SP" />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-ink" htmlFor="descricao">Descrição</label>
-              <textarea id="descricao" name="descricao" required rows={3} value={form.descricao} onChange={handleChange}
+              <textarea id="descricao" name="descricao" required rows={3} value={form.descricao} onChange={handleMudanca}
                 placeholder="Descreva a missão e o trabalho da sua instituição"
                 className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition resize-none" />
             </div>
@@ -66,11 +66,11 @@ export default function InstitutionRegistration() {
             </div>
 
             <p className="text-xs font-bold text-muted uppercase tracking-wide mt-2">Dados de acesso</p>
-            <PasswordField label="Senha" id="senha" name="senha" value={form.senha} onChange={handleChange} placeholder="Mínimo 8 caracteres" />
-            <PasswordField label="Confirmar senha" id="confirmarSenha" name="confirmarSenha" value={form.confirmarSenha} onChange={handleChange} placeholder="Repita a senha" />
+            <CampoSenha label="Senha" id="senha" name="senha" value={form.senha} onChange={handleMudanca} placeholder="Mínimo 8 caracteres" />
+            <CampoSenha label="Confirmar senha" id="confirmarSenha" name="confirmarSenha" value={form.confirmarSenha} onChange={handleMudanca} placeholder="Repita a senha" />
 
             <label className="flex items-start gap-2 cursor-pointer">
-              <input type="checkbox" name="termos" checked={form.termos} onChange={handleChange} required className="mt-0.5 accent-primary" />
+              <input type="checkbox" name="termos" checked={form.termos} onChange={handleMudanca} required className="mt-0.5 accent-primary" />
               <span className="text-xs text-muted">
                 Concordo com os{" "}
                 <a href="#" className="text-primary hover:underline">Termos de Uso</a>{" "}
@@ -95,7 +95,7 @@ export default function InstitutionRegistration() {
   )
 }
 
-function Eye() {
+function Visivel() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -103,7 +103,7 @@ function Eye() {
   )
 }
 
-function EyeOff() {
+function Oculto() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
@@ -111,7 +111,7 @@ function EyeOff() {
   )
 }
 
-function Field({ label, id, ...props }) {
+function Campo({ label, id, ...props }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-sm font-semibold text-ink" htmlFor={id}>{label}</label>
@@ -121,7 +121,7 @@ function Field({ label, id, ...props }) {
   )
 }
 
-function PasswordField({ label, id, ...props }) {
+function CampoSenha({ label, id, ...props }) {
   const [show, setShow] = useState(false)
   return (
     <div className="flex flex-col gap-1.5">
@@ -132,7 +132,7 @@ function PasswordField({ label, id, ...props }) {
         <button type="button" onClick={() => setShow((v) => !v)}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors"
           aria-label={show ? "Ocultar senha" : "Mostrar senha"}>
-          {show ? <EyeOff /> : <Eye />}
+          {show ? <Oculto /> : <Visivel />}
         </button>
       </div>
     </div>

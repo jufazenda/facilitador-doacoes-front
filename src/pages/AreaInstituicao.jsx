@@ -1,25 +1,25 @@
 import { useState } from "react"
 import { campanhas as campanhasMock, categorias, instituicoes, necessidadesMock, atualizacoesMock, doacoesInstituicaoMock } from "../utils/mockData"
 
-const TABS = ["Dashboard", "Campanhas", "Necessidades", "Atualizações"]
+const ABAS = ["Dashboard", "Campanhas", "Necessidades", "Atualizações"]
 
-const STATUS_STYLES = {
+const STATUS = {
   pendente:   { label: "Pendente",   classes: "bg-warning-light text-warning" },
   processado: { label: "Processado", classes: "bg-blue-100 text-blue-700" },
   confirmado: { label: "Confirmado", classes: "bg-secondary/10 text-secondary" },
   aplicado:   { label: "Aplicado",   classes: "bg-success-light text-success" },
 }
 
-export default function InstitutionArea() {
-  const [tab, setTab] = useState("Dashboard")
+export default function AreaInstituicao() {
+  const [aba, setAba] = useState("Dashboard")
   const instituicao = instituicoes[0]
-  const [campas, setCampas] = useState(campanhasMock.filter((c) => c.instituicaoId === instituicao.id))
+  const [campanhas, setCampanhas] = useState(campanhasMock.filter((c) => c.instituicaoId === instituicao.id))
   const [necessidades, setNecessidades] = useState(necessidadesMock)
   const [atualizacoes, setAtualizacoes] = useState(atualizacoesMock)
 
-  function toggleUrgenteC(id) { setCampas((prev) => prev.map((c) => c.id === id ? { ...c, urgente: !c.urgente } : c)) }
+  function toggleUrgenteC(id) { setCampanhas((prev) => prev.map((c) => c.id === id ? { ...c, urgente: !c.urgente } : c)) }
   function adicionarCampanha(nova) {
-    setCampas((prev) => [{ ...nova, id: Date.now(), arrecadado: 0, urgente: false, instituicaoId: instituicao.id, instituicao: instituicao.nome }, ...prev])
+    setCampanhas((prev) => [{ ...nova, id: Date.now(), arrecadado: 0, urgente: false, instituicaoId: instituicao.id, instituicao: instituicao.nome }, ...prev])
   }
   function toggleUrgenteN(id) { setNecessidades((prev) => prev.map((n) => n.id === id ? { ...n, urgente: !n.urgente } : n)) }
   function atenderNecessidade(id) { setNecessidades((prev) => prev.map((n) => n.id === id ? { ...n, status: "atendida" } : n)) }
@@ -27,7 +27,7 @@ export default function InstitutionArea() {
     setNecessidades((prev) => [{ ...nova, id: Date.now(), status: "aberta", criadaEm: new Date().toISOString().slice(0, 10) }, ...prev])
   }
   function enviarAtualizacao(update) {
-    const campanha = campas.find((c) => c.id === Number(update.campanhaId))
+    const campanha = campanhas.find((c) => c.id === Number(update.campanhaId))
     setAtualizacoes((prev) => [{ ...update, id: Date.now(), campanha: campanha?.titulo ?? "", enviadaEm: new Date().toISOString().slice(0, 10) }, ...prev])
   }
 
@@ -49,27 +49,27 @@ export default function InstitutionArea() {
       </div>
 
       <div className="flex border-b border-line gap-1 overflow-x-auto">
-        {TABS.map((t) => (
-          <button key={t} onClick={() => setTab(t)}
+        {ABAS.map((t) => (
+          <button key={t} onClick={() => setAba(t)}
             className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap ${
-              tab === t ? "border-primary text-primary" : "border-transparent text-muted hover:text-ink"
+              aba === t ? "border-primary text-primary" : "border-transparent text-muted hover:text-ink"
             }`}>
             {t}
           </button>
         ))}
       </div>
 
-      {tab === "Dashboard"    && <TabDashboard campas={campas} />}
-      {tab === "Campanhas"    && <TabCampanhas campas={campas} onToggleUrgente={toggleUrgenteC} onAdicionar={adicionarCampanha} />}
-      {tab === "Necessidades" && <TabNecessidades necessidades={necessidades} onToggleUrgente={toggleUrgenteN} onAtender={atenderNecessidade} onAdicionar={adicionarNecessidade} />}
-      {tab === "Atualizações" && <TabAtualizacoes campas={campas} atualizacoes={atualizacoes} onEnviar={enviarAtualizacao} />}
+      {aba === "Dashboard"    && <AbaDashboard campas={campanhas} />}
+      {aba === "Campanhas"    && <AbaCampanhas campas={campanhas} onToggleUrgente={toggleUrgenteC} onAdicionar={adicionarCampanha} />}
+      {aba === "Necessidades" && <AbaNecessidades necessidades={necessidades} onToggleUrgente={toggleUrgenteN} onAtender={atenderNecessidade} onAdicionar={adicionarNecessidade} />}
+      {aba === "Atualizações" && <AbaAtualizacoes campas={campanhas} atualizacoes={atualizacoes} onEnviar={enviarAtualizacao} />}
     </div>
   )
 }
 
-function TabDashboard({ campas }) {
-  const totalArrecadado = campas.reduce((s, c) => s + c.arrecadado, 0)
-  const totalMeta = campas.reduce((s, c) => s + c.meta, 0)
+function AbaDashboard({ campas: campanhas }) {
+  const totalArrecadado = campanhas.reduce((s, c) => s + c.arrecadado, 0)
+  const totalMeta = campanhas.reduce((s, c) => s + c.meta, 0)
   const percentual = totalMeta > 0 ? Math.round((totalArrecadado / totalMeta) * 100) : 0
 
   return (
@@ -77,7 +77,7 @@ function TabDashboard({ campas }) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <StatCard value={totalArrecadado.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })} label="Total arrecadado" />
         <StatCard value={`${percentual}%`} label="Da meta atingida" />
-        <StatCard value={campas.length} label="Campanhas ativas" />
+        <StatCard value={campanhas.length} label="Campanhas ativas" />
         <StatCard value={47} label="Doadores únicos" />
       </div>
       <div className="bg-white rounded-xl border border-line p-5 flex flex-col gap-3">
@@ -97,7 +97,7 @@ function TabDashboard({ campas }) {
         <h2 className="text-base font-bold text-ink mb-3">Doações recentes</h2>
         <div className="bg-white rounded-xl border border-line divide-y divide-line">
           {doacoesInstituicaoMock.map((d) => {
-            const s = STATUS_STYLES[d.status]
+            const s = STATUS[d.status]
             return (
               <div key={d.id} className="flex items-center justify-between px-4 py-3 gap-3">
                 <div className="flex flex-col gap-0.5 min-w-0">
@@ -117,7 +117,7 @@ function TabDashboard({ campas }) {
   )
 }
 
-function TabCampanhas({ campas, onToggleUrgente, onAdicionar }) {
+function AbaCampanhas({ campas: campanhas, onToggleUrgente, onAdicionar }) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ titulo: "", categoria: categorias[0], meta: "", descricao: "" })
 
@@ -162,7 +162,7 @@ function TabCampanhas({ campas, onToggleUrgente, onAdicionar }) {
           </button>
         </form>
       )}
-      {campas.map((c) => {
+      {campanhas.map((c) => {
         const pct = Math.min(Math.round((c.arrecadado / c.meta) * 100), 100)
         return (
           <div key={c.id} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-3">
@@ -197,15 +197,15 @@ function TabCampanhas({ campas, onToggleUrgente, onAdicionar }) {
   )
 }
 
-function TabNecessidades({ necessidades, onToggleUrgente, onAtender, onAdicionar }) {
+function AbaNecessidades({ necessidades, onToggleUrgente, onAtender, onAdicionar }) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ titulo: "", categoria: categorias[0], urgente: false })
 
-  function handleChange(e) {
+  function handleMudanca(e) {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }))
   }
-  function handleSubmit(e) {
+  function handleSubmeter(e) {
     e.preventDefault()
     onAdicionar(form)
     setForm({ titulo: "", categoria: categorias[0], urgente: false })
@@ -224,18 +224,18 @@ function TabNecessidades({ necessidades, onToggleUrgente, onAtender, onAdicionar
         </button>
       </div>
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
+        <form onSubmit={handleSubmeter} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
           <h3 className="text-base font-bold text-ink">Nova necessidade</h3>
-          <FormField label="Descrição" name="titulo" value={form.titulo} onChange={handleChange} placeholder="Ex: 50 cobertores para o inverno" />
+          <FormField label="Descrição" name="titulo" value={form.titulo} onChange={handleMudanca} placeholder="Ex: 50 cobertores para o inverno" />
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-ink">Categoria</label>
-            <select name="categoria" value={form.categoria} onChange={handleChange}
+            <select name="categoria" value={form.categoria} onChange={handleMudanca}
               className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary transition">
               {[...categorias, "Vestuário", "Voluntariado"].map((c) => <option key={c}>{c}</option>)}
             </select>
           </div>
           <label className="flex items-center gap-2 cursor-pointer text-sm text-ink font-medium">
-            <input type="checkbox" name="urgente" checked={form.urgente} onChange={handleChange} className="accent-accent" />
+            <input type="checkbox" name="urgente" checked={form.urgente} onChange={handleMudanca} className="accent-accent" />
             Marcar como urgente
           </label>
           <button type="submit" className="self-end bg-primary hover:bg-primary-dark text-white text-sm font-bold px-5 py-2 rounded-lg transition-colors">
@@ -246,20 +246,20 @@ function TabNecessidades({ necessidades, onToggleUrgente, onAtender, onAdicionar
       {abertas.length > 0 && (
         <div className="flex flex-col gap-3">
           <p className="text-xs font-bold text-muted uppercase tracking-wide">Em aberto</p>
-          {abertas.map((n) => <NeedItem key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />)}
+          {abertas.map((n) => <ItemNecessario key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />)}
         </div>
       )}
       {atendidas.length > 0 && (
         <div className="flex flex-col gap-3">
           <p className="text-xs font-bold text-muted uppercase tracking-wide">Atendidas</p>
-          {atendidas.map((n) => <NeedItem key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />)}
+          {atendidas.map((n) => <ItemNecessario key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />)}
         </div>
       )}
     </div>
   )
 }
 
-function NeedItem({ n, onToggleUrgente, onAtender }) {
+function ItemNecessario({ n, onToggleUrgente, onAtender }) {
   return (
     <div className={`bg-white rounded-xl border p-4 flex items-center justify-between gap-3 ${n.status === "atendida" ? "border-line opacity-60" : "border-line"}`}>
       <div className="flex items-center gap-3 min-w-0">
@@ -286,34 +286,34 @@ function NeedItem({ n, onToggleUrgente, onAtender }) {
   )
 }
 
-function TabAtualizacoes({ campas, atualizacoes, onEnviar }) {
-  const [form, setForm] = useState({ campanhaId: campas[0]?.id ?? "", titulo: "", mensagem: "" })
+function AbaAtualizacoes({ campas: campanhas, atualizacoes, onEnviar }) {
+  const [form, setForm] = useState({ campanhaId: campanhas[0]?.id ?? "", titulo: "", mensagem: "" })
   const [enviado, setEnviado] = useState(false)
 
-  function handleChange(e) { setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })) }
-  function handleSubmit(e) {
+  function handleMudanca(e) { setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })) }
+  function handleSubmeter(e) {
     e.preventDefault()
     onEnviar(form)
-    setForm({ campanhaId: campas[0]?.id ?? "", titulo: "", mensagem: "" })
+    setForm({ campanhaId: campanhas[0]?.id ?? "", titulo: "", mensagem: "" })
     setEnviado(true)
     setTimeout(() => setEnviado(false), 3000)
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
+      <form onSubmit={handleSubmeter} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
         <h3 className="text-base font-bold text-ink">Enviar atualização aos doadores</h3>
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-semibold text-ink">Campanha</label>
-          <select name="campanhaId" value={form.campanhaId} onChange={handleChange}
+          <select name="campanhaId" value={form.campanhaId} onChange={handleMudanca}
             className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary transition">
-            {campas.map((c) => <option key={c.id} value={c.id}>{c.titulo}</option>)}
+            {campanhas.map((c) => <option key={c.id} value={c.id}>{c.titulo}</option>)}
           </select>
         </div>
-        <FormField label="Título" name="titulo" value={form.titulo} onChange={handleChange} placeholder="Ex: Meta 80% atingida!" />
+        <FormField label="Título" name="titulo" value={form.titulo} onChange={handleMudanca} placeholder="Ex: Meta 80% atingida!" />
         <div className="flex flex-col gap-1.5">
           <label className="text-sm font-semibold text-ink">Mensagem</label>
-          <textarea name="mensagem" value={form.mensagem} onChange={handleChange} rows={4} required
+          <textarea name="mensagem" value={form.mensagem} onChange={handleMudanca} rows={4} required
             placeholder="Conte aos doadores como está o progresso da campanha..."
             className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary transition resize-none" />
         </div>
