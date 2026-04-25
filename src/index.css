@@ -1,2 +1,36 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;500;600;700;800;900&family=Poppins:wght@600;700;800&display=swap");
+
 @import "tailwindcss";
 
+@theme {
+  --color-primary:       #4B1FA6;
+  --color-primary-dark:  #2D0A73;
+  --color-primary-light: #EEE4FF;
+  --color-secondary:     #6F3DD9;
+  --color-accent:        #FF5C5C;
+  --color-accent-light:  #FFE8E8;
+  --color-success:       #37B26C;
+  --color-success-light: #E8F8EF;
+  --color-warning:       #F59E0B;
+  --color-warning-light: #FFF4D6;
+  --color-page:          #FCFAFF;
+  --color-soft:          #F5F0FF;
+  --color-line:          #E8E2F0;
+  --color-ink:           #1E1538;
+  --color-muted:         #7A6F8C;
+
+  --font-heading: "Poppins", sans-serif;
+  --font-body:    "Nunito Sans", sans-serif;
+}
+
+@layer base {
+  body {
+    font-family: "Nunito Sans", sans-serif;
+    color: #1E1538;
+    background-color: #FCFAFF;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Poppins", sans-serif;
+  }
+}
