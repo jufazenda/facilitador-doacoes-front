@@ -3,7 +3,9 @@ export default function Footer() {
     <footer className="border-t border-purple-100 bg-white py-10 sm:py-14">
       <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 sm:grid-cols-2 sm:px-6 sm:gap-10 lg:grid-cols-5">
         <div className="sm:col-span-2 lg:col-span-1">
-          <h2 className="text-xl font-black text-purple-800 sm:text-2xl">Elo Solidário</h2>
+          <h2 className="text-xl font-black text-purple-800 sm:text-2xl">
+            Faz a Boa
+          </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-500">
             Conectamos doadores com instituições que transformam o mundo.
@@ -36,7 +38,7 @@ export default function Footer() {
           <h3 className="font-black text-purple-950">Contato</h3>
 
           <div className="mt-4 space-y-2 text-sm font-semibold text-slate-500">
-            <p>contato@elosolidario.org</p>
+            <p>contato@fazaboa.org</p>
             <p>+55 11 4002-8922</p>
             <p>Seg a Sex, 9h às 18h</p>
           </div>
@@ -67,7 +69,7 @@ export default function Footer() {
       </div>
 
       <p className="mt-8 text-center text-sm text-slate-400 sm:mt-10">
-        © 2024 Elo Solidário. Todos os direitos reservados.
+        © 2026 Faz a Boa. Todos os direitos reservados.
       </p>
     </footer>
   );
