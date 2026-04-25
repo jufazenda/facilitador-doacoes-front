@@ -4,7 +4,7 @@ import { campanhas } from "../utils/mockData"
 
 const VALORES_PRESET = [10, 25, 50, 100, 200]
 
-export default function Donation() {
+export default function Doacao() {
   const { campanhaId } = useParams()
   const [searchParams] = useSearchParams()
   const campanha = campanhas.find((c) => c.id === Number(campanhaId))
@@ -45,33 +45,33 @@ export default function Donation() {
           <p className="text-xs text-muted mt-0.5">{campanha.instituicao}</p>
         </div>
 
-        <Stepper passo={passo} />
+        <Passo passo={passo} />
 
-        {passo === 1 && <StepValor valor={valor} setValor={setValor} isCustom={isCustom} setIsCustom={setIsCustom} valorCustom={valorCustom} setValorCustom={setValorCustom} tipo={tipo} setTipo={setTipo} intervalo={intervalo} setIntervalo={setIntervalo} onNext={() => setPasso(2)} />}
-        {passo === 2 && <StepPagamento metodo={metodo} setMetodo={setMetodo} cartao={cartao} setCartao={setCartao} copiado={copiado} onCopiarPix={handleCopiarPix} onBack={() => setPasso(1)} onNext={() => setPasso(3)} />}
-        {passo === 3 && <StepConfirmacao campanha={campanha} valor={valorFinal} tipo={tipo} intervalo={intervalo} metodo={metodo} />}
+        {passo === 1 && <PassoValor valor={valor} setValor={setValor} isCustom={isCustom} setIsCustom={setIsCustom} valorCustom={valorCustom} setValorCustom={setValorCustom} tipo={tipo} setTipo={setTipo} intervalo={intervalo} setIntervalo={setIntervalo} onNext={() => setPasso(2)} />}
+        {passo === 2 && <PassoPagamento metodo={metodo} setMetodo={setMetodo} cartao={cartao} setCartao={setCartao} copiado={copiado} onCopiarPix={handleCopiarPix} onBack={() => setPasso(1)} onNext={() => setPasso(3)} />}
+        {passo === 3 && <PassoConfirmacao campanha={campanha} valor={valorFinal} tipo={tipo} intervalo={intervalo} metodo={metodo} />}
       </div>
     </div>
   )
 }
 
-function Stepper({ passo }) {
-  const steps = ["Valor", "Pagamento", "Confirmação"]
+function Passo({ passo }) {
+  const passos = ["Valor", "Pagamento", "Confirmação"]
   return (
     <div className="flex items-center gap-2">
-      {steps.map((label, i) => {
+      {passos.map((label, i) => {
         const num = i + 1
-        const active = num === passo
-        const done = num < passo
+        const ativo = num === passo
+        const feito = num < passo
         return (
           <div key={label} className="flex items-center gap-2 flex-1 last:flex-none">
             <div className="flex items-center gap-2">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${done || active ? "bg-primary text-white" : "bg-soft text-muted"}`}>
-                {done ? "✓" : num}
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${feito || ativo ? "bg-primary text-white" : "bg-soft text-muted"}`}>
+                {feito ? "✓" : num}
               </div>
-              <span className={`text-sm hidden sm:block font-medium ${active ? "text-ink" : "text-muted"}`}>{label}</span>
+              <span className={`text-sm hidden sm:block font-medium ${ativo ? "text-ink" : "text-muted"}`}>{label}</span>
             </div>
-            {i < steps.length - 1 && <div className="flex-1 h-px bg-line mx-1" />}
+            {i < passos.length - 1 && <div className="flex-1 h-px bg-line mx-1" />}
           </div>
         )
       })}
@@ -79,7 +79,7 @@ function Stepper({ passo }) {
   )
 }
 
-function StepValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setValorCustom, tipo, setTipo, intervalo, setIntervalo, onNext }) {
+function PassoValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setValorCustom, tipo, setTipo, intervalo, setIntervalo, onNext }) {
   function handlePreset(v) { setValor(v); setIsCustom(false); setValorCustom("") }
   const valorFinal = isCustom ? Number(valorCustom) || 0 : valor
 
@@ -138,7 +138,7 @@ function StepValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setVal
   )
 }
 
-function StepPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopiarPix, onBack, onNext }) {
+function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopiarPix, onBack, onNext }) {
   function handleCartao(e) { setCartao((prev) => ({ ...prev, [e.target.name]: e.target.value })) }
   const cartaoValido = cartao.numero.length >= 16 && cartao.nome && cartao.validade && cartao.cvv.length >= 3
 
@@ -171,11 +171,11 @@ function StepPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopiar
 
       {metodo === "cartao" && (
         <div className="flex flex-col gap-3">
-          <CardField label="Número do cartão" name="numero" value={cartao.numero} onChange={handleCartao} placeholder="0000 0000 0000 0000" maxLength={16} />
-          <CardField label="Nome no cartão" name="nome" value={cartao.nome} onChange={handleCartao} placeholder="Como aparece no cartão" />
+          <CampoCartao label="Número do cartão" name="numero" value={cartao.numero} onChange={handleCartao} placeholder="0000 0000 0000 0000" maxLength={16} />
+          <CampoCartao label="Nome no cartão" name="nome" value={cartao.nome} onChange={handleCartao} placeholder="Como aparece no cartão" />
           <div className="grid grid-cols-2 gap-3">
-            <CardField label="Validade" name="validade" value={cartao.validade} onChange={handleCartao} placeholder="MM/AA" maxLength={5} />
-            <CardField label="CVV" name="cvv" value={cartao.cvv} onChange={handleCartao} placeholder="000" maxLength={4} />
+            <CampoCartao label="Validade" name="validade" value={cartao.validade} onChange={handleCartao} placeholder="MM/AA" maxLength={5} />
+            <CampoCartao label="CVV" name="cvv" value={cartao.cvv} onChange={handleCartao} placeholder="000" maxLength={4} />
           </div>
         </div>
       )}
@@ -191,7 +191,7 @@ function StepPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopiar
   )
 }
 
-function CardField({ label, name, value, onChange, placeholder, maxLength }) {
+function CampoCartao({ label, name, value, onChange, placeholder, maxLength }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-sm font-semibold text-ink">{label}</label>
@@ -201,7 +201,7 @@ function CardField({ label, name, value, onChange, placeholder, maxLength }) {
   )
 }
 
-function StepConfirmacao({ campanha, valor, tipo, intervalo, metodo }) {
+function PassoConfirmacao({ campanha, valor, tipo, intervalo, metodo }) {
   const metodoLabel = metodo === "pix" ? "Pix" : "Cartão de crédito"
   const tipoLabel = tipo === "unica" ? "Única" : `Recorrente ${intervalo === "mensal" ? "mensal" : "trimestral"}`
 
@@ -214,12 +214,12 @@ function StepConfirmacao({ campanha, valor, tipo, intervalo, metodo }) {
       </div>
 
       <div className="w-full bg-soft rounded-xl p-4 flex flex-col gap-3 text-left">
-        <SummaryRow label="Campanha" value={campanha.titulo} />
-        <SummaryRow label="Instituição" value={campanha.instituicao} />
-        <SummaryRow label="Valor" value={valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} />
-        <SummaryRow label="Tipo" value={tipoLabel} />
-        <SummaryRow label="Pagamento" value={metodoLabel} />
-        <SummaryRow label="Status" value="Pendente" highlight />
+        <LinhaResumo label="Campanha" value={campanha.titulo} />
+        <LinhaResumo label="Instituição" value={campanha.instituicao} />
+        <LinhaResumo label="Valor" value={valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} />
+        <LinhaResumo label="Tipo" value={tipoLabel} />
+        <LinhaResumo label="Pagamento" value={metodoLabel} />
+        <LinhaResumo label="Status" value="Pendente" highlight />
       </div>
 
       <p className="text-xs text-muted">Status: <strong>Pendente → Processado → Confirmado → Aplicado</strong></p>
@@ -237,7 +237,7 @@ function StepConfirmacao({ campanha, valor, tipo, intervalo, metodo }) {
   )
 }
 
-function SummaryRow({ label, value, highlight }) {
+function LinhaResumo({ label, value, highlight }) {
   return (
     <div className="flex justify-between items-start gap-4 text-sm">
       <span className="text-muted shrink-0">{label}</span>

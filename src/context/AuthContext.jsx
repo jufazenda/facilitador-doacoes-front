@@ -4,7 +4,7 @@ const AuthContext = createContext(null)
 
 const STORAGE_KEY = "elo_user"
 
-function loadUser() {
+function carregaUser() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     return raw ? JSON.parse(raw) : null
@@ -14,11 +14,11 @@ function loadUser() {
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(loadUser)
+  const [user, setUser] = useState(carregaUser)
 
-  function login(userData) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
-    setUser(userData)
+  function login(dadosUser) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dadosUser))
+    setUser(dadosUser)
   }
 
   function logout() {

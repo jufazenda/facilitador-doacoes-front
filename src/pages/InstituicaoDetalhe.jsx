@@ -1,8 +1,8 @@
 import { Link, useParams } from "react-router-dom"
 import { instituicoes, campanhas } from "../utils/mockData"
-import CampaignCard from "../components/ui/CampaignCard"
+import CardCampanha from "../components/ui/CardCampanha"
 
-export default function InstitutionDetail() {
+export default function InstituicaoDetalhe() {
   const { id } = useParams()
   const instituicao = instituicoes.find((i) => i.id === Number(id))
 
@@ -56,10 +56,10 @@ export default function InstitutionDetail() {
 
       {/* Stats */}
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        <StatCard value={balancoSocial.familiasBeneficiadas.toLocaleString("pt-BR")} label="Famílias beneficiadas" />
-        <StatCard value={balancoSocial.voluntarios.toLocaleString("pt-BR")} label="Voluntários ativos" />
-        <StatCard value={balancoSocial.arrecadadoTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })} label="Total arrecadado" />
-        <StatCard value={balancoSocial.campanhasRealizadas} label="Campanhas realizadas" />
+        <CardStatus value={balancoSocial.familiasBeneficiadas.toLocaleString("pt-BR")} label="Famílias beneficiadas" />
+        <CardStatus value={balancoSocial.voluntarios.toLocaleString("pt-BR")} label="Voluntários ativos" />
+        <CardStatus value={balancoSocial.arrecadadoTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })} label="Total arrecadado" />
+        <CardStatus value={balancoSocial.campanhasRealizadas} label="Campanhas realizadas" />
       </section>
 
       {/* Video */}
@@ -73,7 +73,7 @@ export default function InstitutionDetail() {
         </div>
       </section>
 
-      {/* Social balance */}
+      {/* Balanço */}
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-bold text-ink">Balanço social</h2>
         <div className="bg-white rounded-xl border border-line p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -84,7 +84,7 @@ export default function InstitutionDetail() {
         </div>
       </section>
 
-      {/* Certifications */}
+      {/* Certificações */}
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-bold text-ink">Certificações</h2>
         <div className="flex flex-wrap gap-2">
@@ -96,14 +96,14 @@ export default function InstitutionDetail() {
         </div>
       </section>
 
-      {/* Active campaigns */}
+      {/* Campanhas ativas */}
       <section className="flex flex-col gap-4">
         <h2 className="text-lg font-bold text-ink">Campanhas ativas</h2>
         {campanhasAtivas.length === 0 ? (
           <p className="text-muted text-sm">Nenhuma campanha ativa no momento.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {campanhasAtivas.map((c) => <CampaignCard key={c.id} campanha={c} />)}
+            {campanhasAtivas.map((c) => <CardCampanha key={c.id} campanha={c} />)}
           </div>
         )}
       </section>
@@ -111,7 +111,7 @@ export default function InstitutionDetail() {
   )
 }
 
-function StatCard({ value, label }) {
+function CardStatus({ value, label }) {
   return (
     <div className="bg-white rounded-xl border border-line p-5 text-center">
       <p className="text-2xl font-bold text-primary">{value}</p>

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import heroImage from "../assets/hero.png";
-import CampaignCard from "../components/ui/CampaignCard";
+import CardCampanha from "../components/ui/CardCampanha";
 import {
   campaigns,
   campaignFilters,
@@ -84,7 +84,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-7">
             {campaigns.map((campaign) => (
-              <CampaignCard key={campaign.id} campaign={campaign} />
+              <CardCampanha key={campaign.id} campaign={campaign} />
             ))}
           </div>
 
@@ -109,18 +109,18 @@ export default function Home() {
       <section className="bg-white pb-12 sm:pb-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-4 rounded-2xl bg-gradient-to-r from-purple-700 via-purple-600 to-purple-950 p-5 text-white shadow-2xl shadow-purple-950/20 sm:gap-6 sm:rounded-3xl sm:p-8 md:grid-cols-3">
-            {platformMetrics.map((metric) => (
-              <div key={metric.label} className="flex items-center gap-4 sm:gap-5">
+            {platformMetrics.map((metrica) => (
+              <div key={metrica.label} className="flex items-center gap-4 sm:gap-5">
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl sm:h-16 sm:w-16 sm:text-3xl">
-                  {metric.icon}
+                  {metrica.icon}
                 </span>
 
                 <div>
                   <strong className="block text-2xl font-black sm:text-3xl">
-                    {metric.value}
+                    {metrica.value}
                   </strong>
-                  <span className="block font-extrabold">{metric.label}</span>
-                  <small className="text-white/70">{metric.description}</small>
+                  <span className="block font-extrabold">{metrica.label}</span>
+                  <small className="text-white/70">{metrica.description}</small>
                 </div>
               </div>
             ))}
