@@ -16,7 +16,8 @@ import AdminArea from "./pages/AdminArea"
 import AboutUs from "./pages/AboutUs"
 
 function ProtectedRoute({ children, tipo }) {
-  const { user } = useAuth()
+  const { user, isLoading } = useAuth()
+  if (isLoading) return null
   if (!user) return <Navigate to="/login" replace />
   if (tipo && user.tipo !== tipo) return <Navigate to="/" replace />
   return children
