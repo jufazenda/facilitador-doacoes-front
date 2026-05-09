@@ -4,6 +4,10 @@ import { Auth0Provider } from "@auth0/auth0-react"
 import "./index.css"
 import App from "./App.jsx"
 
+function onRedirectCallback(appState) {
+  window.history.replaceState({}, document.title, appState?.returnTo ?? window.location.pathname)
+}
+
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <Auth0Provider
@@ -12,7 +16,11 @@ createRoot(document.getElementById("root")).render(
       authorizationParams={{
         redirect_uri: window.location.origin,
         audience: import.meta.env.VITE_AUTH0_AUDIENCE,
+        scope: "openid profile email offline_access",
       }}
+      cacheLocation="localstorage"
+      useRefreshTokens={true}
+      onRedirectCallback={onRedirectCallback}
     >
       <App />
     </Auth0Provider>

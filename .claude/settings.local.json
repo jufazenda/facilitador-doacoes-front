@@ -8,7 +8,10 @@
       "Bash(xargs grep -l \"Auth0\\\\|Actions\\\\|Rules\\\\|custom.*claim\\\\|claim.*role\")",
       "Bash(cmd.exe /c \"cd C:\\\\Users\\\\I774658\\\\Projects\\\\facilitador-de-doacoes && go get github.com/gin-contrib/cors\")",
       "Bash(cmd.exe /c \"cd /d C:\\\\Users\\\\I774658\\\\Projects\\\\facilitador-de-doacoes && go get github.com/gin-contrib/cors 2>&1\")",
-      "Bash(powershell.exe -Command \"Set-Location 'C:\\\\Users\\\\I774658\\\\Projects\\\\facilitador-de-doacoes'; go get github.com/gin-contrib/cors\")"
+      "Bash(powershell.exe -Command \"Set-Location 'C:\\\\Users\\\\I774658\\\\Projects\\\\facilitador-de-doacoes'; go get github.com/gin-contrib/cors\")",
+      "Bash(go build *)",
+      "Bash(go test *)",
+      "Bash(go get *)"
     ]
   }
 }

@@ -1,14 +1,19 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { doadorMock, historicoMock, rankingMock } from "../utils/mockData"
+import { useApiClient } from "../hooks/useApiClient"
+import { getMe } from "../services/users"
+import { getDonations } from "../services/donations"
+import { getCampaigns } from "../services/campaigns"
+import { getInstitutions } from "../services/institutions"
+import { doadorMock, rankingMock } from "../utils/mockData"
 
 const ABAS = ["Perfil", "Histórico", "Ranking"]
 
 const NIVEIS = [
-  { label: "Bronze",   min: 0,    max: 299,      color: "text-amber-700",  bg: "bg-amber-100" },
-  { label: "Prata",    min: 300,  max: 999,       color: "text-muted",      bg: "bg-soft" },
-  { label: "Ouro",     min: 1000, max: 2999,      color: "text-warning",    bg: "bg-warning-light" },
-  { label: "Diamante", min: 3000, max: Infinity,  color: "text-primary",    bg: "bg-primary-light" },
+  { label: "Bronze",   min: 0,    max: 299,     color: "text-amber-700", bg: "bg-amber-100" },
+  { label: "Prata",    min: 300,  max: 999,     color: "text-muted",     bg: "bg-soft" },
+  { label: "Ouro",     min: 1000, max: 2999,    color: "text-warning",   bg: "bg-warning-light" },
+  { label: "Diamante", min: 3000, max: Infinity, color: "text-primary",  bg: "bg-primary-light" },
 ]
 
 const STATUS = {
@@ -18,22 +23,67 @@ const STATUS = {
   aplicado:   { label: "Aplicado",   classes: "bg-success-light text-success" },
 }
 
+function formatCpf(cpf) {
+  if (!cpf) return "-"
+  return cpf.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
+}
+
+function initials(name) {
+  return (name || "?").split(" ").slice(0, 2).map((w) => w[0]).join("")
+}
+
 export default function DonorArea() {
   const [aba, setAba] = useState("Perfil")
-  const d = doadorMock
+  const [user, setUser] = useState(null)
+  const [donations, setDonations] = useState([])
+  const [campaigns, setCampaigns] = useState({})
+  const [institutions, setInstitutions] = useState({})
+  const [loading, setLoading] = useState(true)
+  const client = useApiClient()
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const me = await getMe(client)
+        setUser(me)
+        const [allDonations, allCampaigns, allInstitutions] = await Promise.all([
+          getDonations().catch(() => []),
+          getCampaigns().catch(() => []),
+          getInstitutions().catch(() => []),
+        ])
+        setDonations(allDonations.filter((d) => d.user_id === me.id))
+        setCampaigns(Object.fromEntries(allCampaigns.map((c) => [c.id, c])))
+        setInstitutions(Object.fromEntries(allInstitutions.map((i) => [i.id, i])))
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [client])
+
+  if (loading) {
+    return (
+      <div className="min-h-[70vh] flex items-center justify-center">
+        <p className="text-muted text-sm">Carregando...</p>
+      </div>
+    )
+  }
+
+  const nome = user?.name ?? "Doador"
+  const desde = user?.created_at ?? new Date().toISOString()
+  const totalDoado = donations.reduce((sum, d) => sum + (d.amount ?? 0), 0) / 100
+  const totalDoacoes = donations.length
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shrink-0">
-          <span className="text-white text-xl font-bold">
-            {d.nome.split(" ").slice(0, 2).map((w) => w[0]).join("")}
-          </span>
+          <span className="text-white text-xl font-bold">{initials(nome)}</span>
         </div>
         <div>
-          <h1 className="text-xl font-bold text-ink">{d.nome}</h1>
+          <h1 className="text-xl font-bold text-ink">{nome}</h1>
           <p className="text-sm text-muted">
-            Doador desde {new Date(d.desde).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
+            Doador desde {new Date(desde).toLocaleDateString("pt-BR", { month: "long", year: "numeric" })}
           </p>
         </div>
       </div>
@@ -49,28 +99,39 @@ export default function DonorArea() {
         ))}
       </div>
 
-      {aba === "Perfil"    && <AbaPerfil d={d} />}
-      {aba === "Histórico" && <AbaHistorico />}
-      {aba === "Ranking"   && <AbaRanking d={d} />}
+      {aba === "Perfil" && (
+        <AbaPerfil user={user} totalDoado={totalDoado} totalDoacoes={totalDoacoes} />
+      )}
+      {aba === "Histórico" && (
+        <AbaHistorico donations={donations} campaigns={campaigns} institutions={institutions} />
+      )}
+      {aba === "Ranking" && (
+        <AbaRanking nome={nome} />
+      )}
     </div>
   )
 }
 
-function AbaPerfil({ d }) {
+function AbaPerfil({ user, totalDoado, totalDoacoes }) {
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-        <CardStatus value={d.totalDoado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} label="Total doado" />
-        <CardStatus value={d.totalDoacoes} label="Doações realizadas" />
-        <CardStatus value={d.doacoesRecorrentes} label="Doações recorrentes" />
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <CardStatus
+          value={totalDoado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+          label="Total doado"
+        />
+        <CardStatus value={totalDoacoes} label="Doações realizadas" />
       </div>
       <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-4">
         <h2 className="text-base font-bold text-ink">Dados pessoais</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <InfoLinha label="Nome" value={d.nome} />
-          <InfoLinha label="E-mail" value={d.email} />
-          <InfoLinha label="CPF" value={d.cpf} />
-          <InfoLinha label="Membro desde" value={new Date(d.desde).toLocaleDateString("pt-BR")} />
+          <InfoLinha label="Nome" value={user?.name ?? "-"} />
+          <InfoLinha label="E-mail" value={user?.email ?? "-"} />
+          <InfoLinha label="CPF" value={formatCpf(user?.cpf)} />
+          <InfoLinha
+            label="Membro desde"
+            value={user?.created_at ? new Date(user.created_at).toLocaleDateString("pt-BR") : "-"}
+          />
         </div>
         <button className="self-start mt-2 text-sm text-primary hover:underline font-semibold">Editar dados</button>
       </div>
@@ -78,30 +139,48 @@ function AbaPerfil({ d }) {
   )
 }
 
-function AbaHistorico() {
+function AbaHistorico({ donations, campaigns, institutions }) {
+  if (donations.length === 0) {
+    return (
+      <div className="bg-white rounded-xl border border-line p-8 text-center flex flex-col items-center gap-3">
+        <p className="text-muted text-sm">Você ainda não fez nenhuma doação.</p>
+        <Link to="/campanhas" className="text-sm text-primary hover:underline font-semibold">
+          Ver campanhas disponíveis
+        </Link>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      {historicoMock.map((d) => {
-        const status = STATUS[d.status]
+      {donations.map((d) => {
+        const status = STATUS[d.status] ?? { label: d.status, classes: "bg-soft text-muted" }
+        const campaign = d.campaign_id ? campaigns[d.campaign_id] : null
+        const institution = d.institution_id ? institutions[d.institution_id] : null
+
         return (
           <div key={d.id} className="bg-white rounded-xl border border-line p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex flex-col gap-1 flex-1 min-w-0">
-              <Link to={`/campanha/${d.campanhaId}`}
-                className="text-sm font-bold text-ink hover:text-primary transition-colors truncate">
-                {d.campanha}
-              </Link>
-              <p className="text-xs text-muted">{d.instituicao}</p>
-              <div className="flex items-center gap-2 mt-1 flex-wrap">
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${status.classes}`}>{status.label}</span>
-                <span className="text-xs text-muted">{d.tipo === "recorrente" ? `Recorrente ${d.intervalo}` : "Única"}</span>
-                <span className="text-xs text-muted">{d.metodo === "pix" ? "Pix" : "Cartão"}</span>
+              {campaign ? (
+                <Link to={`/campanha/${d.campaign_id}`}
+                  className="text-sm font-bold text-ink hover:text-primary transition-colors truncate">
+                  {campaign.name}
+                </Link>
+              ) : (
+                <span className="text-sm font-bold text-ink">Doação avulsa</span>
+              )}
+              {institution && <p className="text-xs text-muted">{institution.name}</p>}
+              <div className="flex items-center gap-2 mt-1">
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${status.classes}`}>
+                  {status.label}
+                </span>
               </div>
             </div>
             <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 shrink-0">
               <span className="text-base font-bold text-ink">
-                {d.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                {((d.amount ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
               </span>
-              <span className="text-xs text-muted">{new Date(d.data).toLocaleDateString("pt-BR")}</span>
+              <span className="text-xs text-muted">{new Date(d.created_at).toLocaleDateString("pt-BR")}</span>
             </div>
           </div>
         )
@@ -116,10 +195,13 @@ function AbaHistorico() {
   )
 }
 
-function AbaRanking({ d }) {
+function AbaRanking({ nome }) {
+  const d = doadorMock
   const nivel = NIVEIS.find((t) => d.pontos >= t.min && d.pontos <= t.max)
   const proxNivel = NIVEIS[NIVEIS.indexOf(nivel) + 1]
-  const progresso = proxNivel ? Math.round(((d.pontos - nivel.min) / (proxNivel.min - nivel.min)) * 100) : 100
+  const progresso = proxNivel
+    ? Math.round(((d.pontos - nivel.min) / (proxNivel.min - nivel.min)) * 100)
+    : 100
 
   return (
     <div className="flex flex-col gap-6">
@@ -182,7 +264,7 @@ function AbaRanking({ d }) {
           <div className="flex items-center justify-between px-4 py-3 bg-primary-light">
             <div className="flex items-center gap-3">
               <span className="text-sm font-bold text-primary w-5">#{d.ranking}</span>
-              <span className="text-sm font-bold text-primary">{d.nome} (você)</span>
+              <span className="text-sm font-bold text-primary">{nome} (você)</span>
             </div>
             <span className="text-sm font-bold text-primary">{d.pontos.toLocaleString("pt-BR")} pts</span>
           </div>
