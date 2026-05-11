@@ -9,7 +9,7 @@ function daysLeft(endsAt) {
 }
 
 export default function CampaignCard({ campaign: c, institutionName = "" }) {
-  const bgImage = categoryImages[c.category]
+  const bgImage = categoryImages[c.keywords?.[0]]
   const raised  = (c.total_raised ?? 0) / 100
   const goal    = (c.goal_amount  ?? 0) / 100
   const pct     = goal > 0 ? Math.min(Math.round((raised / goal) * 100), 100) : 0
@@ -17,7 +17,7 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
   const remaining = daysLeft(c.ends_at)
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-xl shadow-purple-950/5 sm:rounded-3xl">
+    <article className="relative overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-xl shadow-purple-950/5 sm:rounded-3xl">
       <div className="relative h-40 overflow-visible sm:h-48">
         <div className="h-full overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
           {bgImage ? (
@@ -41,11 +41,7 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
       </div>
 
       <div className="p-4 pt-8 sm:p-5 sm:pt-9">
-        <h3 className="text-lg font-extrabold text-purple-950 sm:text-xl">
-          <Link to={`/campanha/${c.id}`} className="transition-colors hover:text-purple-700">
-            {c.title}
-          </Link>
-        </h3>
+        <h3 className="text-lg font-extrabold text-purple-950 sm:text-xl">{c.title}</h3>
 
         {institutionName && (
           <p className="mt-1 text-sm font-semibold text-slate-500">
@@ -70,13 +66,17 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
           {remaining && <span className="text-slate-500">{remaining}</span>}
         </div>
 
-        <Link
-          to={`/doacao/${c.id}`}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-2.5 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-purple-800 sm:mt-5 sm:py-3"
-        >
-          ♡ Doe
-        </Link>
+        <div className="relative z-10 mt-4 sm:mt-5">
+          <Link
+            to={`/doacao/${c.id}`}
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-2.5 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-purple-800 sm:py-3"
+          >
+            ♡ Doe
+          </Link>
+        </div>
       </div>
+
+      <Link to={`/campanha/${c.id}`} className="absolute inset-0" aria-label={c.title} />
     </article>
   )
 }

@@ -3,6 +3,8 @@ import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { getInstitutions } from "../services/institutions"
 import { getCampaigns } from "../services/campaigns"
+import Loading from "../components/ui/Loading"
+import Input from "../components/ui/Input"
 
 export default function InstitutionList() {
   const { user } = useAuth()
@@ -11,6 +13,8 @@ export default function InstitutionList() {
   const [busca, setBusca] = useState("")
   const [favoritas, setFavoritas] = useState({})
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => { window.scrollTo(0, 0) }, [])
 
   useEffect(() => {
     Promise.all([getInstitutions(), getCampaigns()])
@@ -48,16 +52,16 @@ export default function InstitutionList() {
         <p className="text-muted mt-1">Conheça as organizações verificadas que fazem a diferença</p>
       </div>
 
-      <input
-        type="text"
-        value={busca}
-        onChange={(e) => setBusca(e.target.value)}
-        placeholder="Buscar por nome, endereço ou causa…"
-        className="w-full max-w-lg rounded-2xl border border-purple-100 bg-white px-5 py-3 text-sm text-purple-950 outline-none shadow-sm focus:border-purple-600 focus:ring-2 focus:ring-purple-100"
-      />
+      <Input
+          type="search"
+          className="w-full max-w-lg"
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          placeholder="Buscar por nome, endereço ou causa…"
+        />
 
       {loading ? (
-        <p className="py-16 text-center text-muted text-sm">Carregando instituições...</p>
+        <Loading />
       ) : resultado.length === 0 ? (
         <p className="py-16 text-center text-muted">Nenhuma instituição encontrada.</p>
       ) : (
@@ -116,7 +120,7 @@ function CardInstituicao({ inst, campanhas, favorita, onToggle, isDoador }) {
         <p className="line-clamp-2 text-sm leading-relaxed text-muted">{inst.description}</p>
       )}
 
-      <div className="grid grid-cols-2 gap-2 border-t border-line pt-4 text-center">
+      <div className=" mt-auto grid grid-cols-2 gap-2 border-t border-line pt-4 text-center">
         <div>
           <p className="text-base font-black text-primary">{campanhas}</p>
           <p className="text-xs text-muted">campanhas</p>

@@ -1,76 +1,73 @@
+import { Link, useNavigate, useLocation } from "react-router-dom"
+import logo from "../../assets/logo.png"
+
+const LINKS = [
+  { label: "Campanhas",      href: "/#campaigns",    hash: "campaigns"    },
+  { label: "Instituições",   href: "/instituicoes",  hash: null           },
+  { label: "Como funciona?", href: "/#how-it-works", hash: "how-it-works" },
+  { label: "Sobre nós",      href: "/sobre-nos",     hash: null           },
+]
+
+function NavLink({ label, href, hash }) {
+  const navigate  = useNavigate()
+  const location  = useLocation()
+  const cls = "group relative text-sm font-semibold text-purple-300 transition-colors duration-200 hover:text-white"
+  const inner = (
+    <>
+      {label}
+      <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-white/60 transition-all duration-300 group-hover:w-full" />
+    </>
+  )
+
+  if (hash) {
+    function handleClick(e) {
+      e.preventDefault()
+      if (location.pathname === "/") {
+        document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" })
+      } else {
+        navigate("/", { state: { scrollTo: hash } })
+      }
+    }
+    return <a href={href} onClick={handleClick} className={cls}>{inner}</a>
+  }
+
+  return <Link to={href} className={cls}>{inner}</Link>
+}
+
 export default function Footer() {
   return (
-    <footer className="border-t border-purple-100 bg-white py-10 sm:py-14">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 sm:grid-cols-2 sm:px-6 sm:gap-10 lg:grid-cols-5">
-        <div className="sm:col-span-2 lg:col-span-1">
-          <h2 className="text-xl font-black text-purple-800 sm:text-2xl">
-            Faz a Boa
-          </h2>
+    <footer className="bg-purple-950 text-white">
+      <div className="mx-auto max-w-7xl px-6 py-14 sm:py-16">
 
-          <p className="mt-3 text-sm leading-6 text-slate-500">
-            Conectamos doadores com instituições que transformam o mundo.
-          </p>
-        </div>
+        <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
 
-        <div>
-          <h3 className="font-black text-purple-950">Navegue</h3>
-
-          <div className="mt-4 flex flex-col gap-2 text-sm font-semibold text-slate-500">
-            <a href="#campaigns">Campanhas</a>
-            <a href="#institutions">Instituições</a>
-            <a href="#how-it-works">Como funciona?</a>
-            <a href="#faq">FAQ</a>
+          {/* Brand */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2.5">
+              <img src={logo} alt="Faz a Boa" className="h-10 w-auto drop-shadow-md" />
+              <span className="text-xl font-black tracking-tight">Faz a Boa</span>
+            </div>
+            <p className="max-w-xs text-sm leading-relaxed text-purple-300">
+              Conectamos doadores com instituições que transformam vidas.
+            </p>
           </div>
+
+          {/* Links */}
+          <nav className="flex flex-col gap-4 sm:items-end">
+            <p className="text-xs font-bold uppercase tracking-widest text-purple-500">Links</p>
+            <div className="flex flex-wrap gap-x-8 gap-y-3 sm:flex-col sm:items-end sm:gap-3">
+              {LINKS.map((link) => <NavLink key={link.label} {...link} />)}
+            </div>
+          </nav>
+
         </div>
 
-        <div>
-          <h3 className="font-black text-purple-950">Institucional</h3>
-
-          <div className="mt-4 flex flex-col gap-2 text-sm font-semibold text-slate-500">
-            <a href="#about">Sobre nós</a>
-            <a href="#transparency">Transparência</a>
-            <a href="#terms">Termos de uso</a>
-            <a href="#privacy">Política de privacidade</a>
-          </div>
+        <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-purple-800/60 pt-6 sm:flex-row">
+          <p className="text-xs text-purple-500">© 2026 Faz a Boa. Todos os direitos reservados.</p>
+          <p className="text-xs text-purple-600">Informática Biomédica · UFCSPA</p>
         </div>
 
-        <div>
-          <h3 className="font-black text-purple-950">Contato</h3>
-
-          <div className="mt-4 space-y-2 text-sm font-semibold text-slate-500">
-            <p>contato@fazaboa.org</p>
-            <p>+55 11 4002-8922</p>
-            <p>Seg a Sex, 9h às 18h</p>
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-primary-light p-4 sm:col-span-2 sm:rounded-3xl sm:p-6 lg:col-span-1">
-          <h3 className="font-black text-purple-950">Inscreva-se</h3>
-
-          <p className="mt-2 text-sm text-slate-600">
-            Inscreva-se no nosso blog e acompanhe histórias!
-          </p>
-
-          <form className="mt-4 space-y-2 sm:space-y-3">
-            <input
-              type="email"
-              placeholder="Seu e-mail"
-              className="w-full rounded-xl border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none focus:border-purple-600"
-            />
-
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-black text-white"
-            >
-              Inscreva-se
-            </button>
-          </form>
-        </div>
       </div>
-
-      <p className="mt-8 text-center text-sm text-slate-400 sm:mt-10">
-        © 2026 Faz a Boa. Todos os direitos reservados.
-      </p>
     </footer>
-  );
+  )
 }

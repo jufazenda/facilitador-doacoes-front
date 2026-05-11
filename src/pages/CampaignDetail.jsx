@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { getCampaignById } from "../services/campaigns"
 import { getInstitutionById } from "../services/institutions"
+import { categoryImages } from "../utils/categoryImages"
+import Loading from "../components/ui/Loading"
 
 export default function CampaignDetail() {
   const { id } = useParams()
@@ -9,6 +11,8 @@ export default function CampaignDetail() {
   const [instituicao, setInstituicao] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+
+  useEffect(() => { window.scrollTo(0, 0) }, [])
 
   useEffect(() => {
     getCampaignById(id)
@@ -21,13 +25,7 @@ export default function CampaignDetail() {
       .finally(() => setLoading(false))
   }, [id])
 
-  if (loading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <p className="text-muted text-sm">Carregando...</p>
-      </div>
-    )
-  }
+  if (loading) return <Loading full />
 
   if (notFound || !campanha) {
     return (
@@ -38,10 +36,11 @@ export default function CampaignDetail() {
     )
   }
 
-  const raised    = (campanha.total_raised ?? 0) / 100
-  const goal      = (campanha.goal_amount  ?? 0) / 100
+  const raised     = (campanha.total_raised ?? 0) / 100
+  const goal       = (campanha.goal_amount  ?? 0) / 100
   const percentual = goal > 0 ? Math.min(Math.round((raised / goal) * 100), 100) : 0
-  const falta     = Math.max(goal - raised, 0)
+  const falta      = Math.max(goal - raised, 0)
+  const bgImage    = categoryImages[campanha.keywords?.[0]]
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -49,17 +48,25 @@ export default function CampaignDetail() {
         ← Voltar para campanhas
       </Link>
 
-      <div className="grid grid-cols-1 gap-6 mt-2 md:grid-cols-3 md:gap-8">
-        <div className="lg:col-span-2 flex flex-col gap-6">
-          <div className="flex gap-2 flex-wrap">
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary-light text-primary">
-              {campanha.category}
-            </span>
-            {campanha.is_urgent && (
-              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-accent-light text-accent">Urgente</span>
-            )}
-          </div>
+      <div className="relative h-56 overflow-hidden rounded-2xl sm:h-72 sm:rounded-3xl">
+        {bgImage ? (
+          <img src={bgImage} alt={campanha.category} className="h-full w-full object-cover" />
+        ) : (
+          <div className="h-full w-full bg-primary-light" />
+        )}
+        <div className="absolute inset-0 bg-linear-to-t from-ink/70 via-ink/20 to-transparent" />
+        <div className="absolute bottom-4 left-4 flex gap-2">
+          <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-extrabold text-white backdrop-blur-sm">
+            {campanha.category}
+          </span>
+          {campanha.is_urgent && (
+            <span className="rounded-full bg-accent px-3 py-1 text-xs font-extrabold text-white">Urgente</span>
+          )}
+        </div>
+      </div>
 
+      <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
+        <div className="md:col-span-2 flex flex-col gap-6">
           <h1 className="text-2xl md:text-3xl font-bold text-ink leading-snug">{campanha.title}</h1>
 
           <p className="text-sm text-muted">
@@ -125,10 +132,6 @@ function CardDoacao({ id, raised, goal, falta, percentual }) {
       <Link to={`/doacao/${id}`}
         className="w-full text-center bg-primary hover:bg-primary-dark text-white font-bold rounded-lg py-3 transition-colors">
         Fazer uma doação
-      </Link>
-      <Link to={`/doacao/${id}?tipo=recorrente`}
-        className="w-full text-center border border-primary text-primary hover:bg-soft font-semibold rounded-lg py-3 transition-colors text-sm">
-        Doação recorrente
       </Link>
 
       <p className="text-xs text-center text-muted">Pagamento seguro via Pix ou cartão</p>
