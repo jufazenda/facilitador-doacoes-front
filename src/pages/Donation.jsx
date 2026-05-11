@@ -1,13 +1,35 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link, useParams, useSearchParams } from "react-router-dom"
-import { campanhas } from "../utils/mockData"
+import { getCampaignById } from "../services/campaigns"
+import { getInstitutionById } from "../services/institutions"
+import Input from "../components/ui/Input"
+import Loading from "../components/ui/Loading"
 
 const VALORES_PRESET = [10, 25, 50, 100, 200]
 
 export default function Donation() {
   const { campanhaId } = useParams()
   const [searchParams] = useSearchParams()
-  const campanha = campanhas.find((c) => c.id === Number(campanhaId))
+  const [campanha, setCampanha] = useState(null)
+  const [institutionName, setInstitutionName] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const c = await getCampaignById(campanhaId)
+        setCampanha(c)
+        const inst = await getInstitutionById(c.institution_id).catch(() => null)
+        if (inst) setInstitutionName(inst.name)
+      } catch {
+        setNotFound(true)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [campanhaId])
 
   const [passo, setPasso] = useState(1)
   const [valor, setValor] = useState(50)
@@ -21,7 +43,9 @@ export default function Donation() {
 
   const valorFinal = isCustom ? Number(valorCustom) || 0 : valor
 
-  if (!campanha) {
+  if (loading) return <Loading full />
+
+  if (notFound || !campanha) {
     return (
       <div className="py-20 text-center text-muted px-4">
         <p className="text-lg">Campanha não encontrada.</p>
@@ -41,15 +65,15 @@ export default function Donation() {
       <div className="w-full max-w-lg flex flex-col gap-6">
         <div className="bg-white rounded-xl border border-line p-4">
           <p className="text-xs text-muted mb-1">Doando para</p>
-          <p className="font-bold text-ink">{campanha.titulo}</p>
-          <p className="text-xs text-muted mt-0.5">{campanha.instituicao}</p>
+          <p className="font-bold text-ink">{campanha.title}</p>
+          <p className="text-xs text-muted mt-0.5">{institutionName}</p>
         </div>
 
         <Passo passo={passo} />
 
         {passo === 1 && <PassoValor valor={valor} setValor={setValor} isCustom={isCustom} setIsCustom={setIsCustom} valorCustom={valorCustom} setValorCustom={setValorCustom} tipo={tipo} setTipo={setTipo} intervalo={intervalo} setIntervalo={setIntervalo} onNext={() => setPasso(2)} />}
         {passo === 2 && <PassoPagamento metodo={metodo} setMetodo={setMetodo} cartao={cartao} setCartao={setCartao} copiado={copiado} onCopiarPix={handleCopiarPix} onBack={() => setPasso(1)} onNext={() => setPasso(3)} />}
-        {passo === 3 && <PassoConfirmacao campanha={campanha} valor={valorFinal} tipo={tipo} intervalo={intervalo} metodo={metodo} />}
+        {passo === 3 && <PassoConfirmacao campanha={campanha} institutionName={institutionName} valor={valorFinal} tipo={tipo} intervalo={intervalo} metodo={metodo} />}
       </div>
     </div>
   )
@@ -100,10 +124,8 @@ function PassoValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setVa
           </button>
         </div>
         {isCustom && (
-          <div className="mt-3 relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted">R$</span>
-            <input type="number" min="1" value={valorCustom} onChange={(e) => setValorCustom(e.target.value)} placeholder="0,00" autoFocus
-              className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-line text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition" />
+          <div className="mt-3">
+            <Input type="money" min="1" value={valorCustom} onChange={(e) => setValorCustom(e.target.value)} placeholder="0,00" autoFocus />
           </div>
         )}
       </div>
@@ -195,13 +217,12 @@ function CampoCartao({ label, name, value, onChange, placeholder, maxLength }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-sm font-semibold text-ink">{label}</label>
-      <input name={name} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength}
-        className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition" />
+      <Input name={name} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} />
     </div>
   )
 }
 
-function PassoConfirmacao({ campanha, valor, tipo, intervalo, metodo }) {
+function PassoConfirmacao({ campanha, institutionName, valor, tipo, intervalo, metodo }) {
   const metodoLabel = metodo === "pix" ? "Pix" : "Cartão de crédito"
   const tipoLabel = tipo === "unica" ? "Única" : `Recorrente ${intervalo === "mensal" ? "mensal" : "trimestral"}`
 
@@ -214,8 +235,8 @@ function PassoConfirmacao({ campanha, valor, tipo, intervalo, metodo }) {
       </div>
 
       <div className="w-full bg-soft rounded-xl p-4 flex flex-col gap-3 text-left">
-        <LinhaResumo label="Campanha" value={campanha.titulo} />
-        <LinhaResumo label="Instituição" value={campanha.instituicao} />
+        <LinhaResumo label="Campanha" value={campanha.title} />
+        <LinhaResumo label="Instituição" value={institutionName} />
         <LinhaResumo label="Valor" value={valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })} />
         <LinhaResumo label="Tipo" value={tipoLabel} />
         <LinhaResumo label="Pagamento" value={metodoLabel} />

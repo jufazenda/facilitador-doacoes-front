@@ -8,6 +8,7 @@ import imgMa     from "../assets/images/us/ma.png"
 import imgBeka   from "../assets/images/us/beka.png"
 import logoUfcspa       from "../assets/images/ufcspa.png"
 import logoInfoBiomedica from "../assets/images/informatica-biomedica.png"
+import { useEffect } from "react"
 
 const TEAM = [
   { name: "Caio Foti",          photo: imgCaio,   linkedin: "https://www.linkedin.com/in/caiofoti/" },
@@ -20,6 +21,9 @@ const TEAM = [
 ]
 
 export default function AboutUs() {
+
+  useEffect(() => { window.scrollTo(0, 0) }, [])
+
   return (
     <div className="flex flex-col">
 

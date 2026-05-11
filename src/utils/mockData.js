@@ -59,19 +59,19 @@ export const campaignFilters = [
 
 export const platformMetrics = [
   {
-    icon: "♡",
+    icon: "💰",
     value: "R$ 124 mil",
     label: "arrecadados",
     description: "em doações com total transparência",
   },
   {
-    icon: "⚑",
+    icon: "🏆",
     value: "86",
     label: "campanhas concluídas",
     description: "impacto real, histórias transformadas",
   },
   {
-    icon: "🛡",
+    icon: "🛡️",
     value: "42",
     label: "instituições verificadas",
     description: "avaliadas com rigor e cuidado",
@@ -80,22 +80,22 @@ export const platformMetrics = [
 
 export const steps = [
   {
-    icon: "⌕",
+    icon: "🔍",
     title: "1. Explore",
     text: "Descubra campanhas e instituições verificadas.",
   },
   {
-    icon: "♡",
+    icon: "💜",
     title: "2. Doe com segurança",
     text: "Sua doação é protegida e o impacto é garantido.",
   },
   {
-    icon: "▥",
+    icon: "📊",
     title: "3. Acompanhe",
     text: "Veja como sua doação está transformando vidas.",
   },
   {
-    icon: "♁",
+    icon: "📣",
     title: "4. Compartilhe",
     text: "Convide outras pessoas para multiplicar o impacto.",
   },

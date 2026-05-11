@@ -6,6 +6,7 @@ import { getDonations } from "../services/donations"
 import { getCampaigns } from "../services/campaigns"
 import { getInstitutions } from "../services/institutions"
 import { doadorMock, rankingMock } from "../utils/mockData"
+import Loading from "../components/ui/Loading"
 
 const ABAS = ["Perfil", "Histórico", "Ranking"]
 
@@ -61,13 +62,7 @@ export default function DonorArea() {
     load()
   }, [client])
 
-  if (loading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <p className="text-muted text-sm">Carregando...</p>
-      </div>
-    )
-  }
+  if (loading) return <Loading full />
 
   const nome = user?.name ?? "Doador"
   const desde = user?.created_at ?? new Date().toISOString()
@@ -88,7 +83,7 @@ export default function DonorArea() {
         </div>
       </div>
 
-      <div className="flex overflow-x-auto border-b border-line gap-1">
+      <div className="flex border-b border-line gap-1">
         {ABAS.map((t) => (
           <button key={t} onClick={() => setAba(t)}
             className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${

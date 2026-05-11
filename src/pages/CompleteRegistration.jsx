@@ -3,6 +3,8 @@ import { useAuth0 } from "@auth0/auth0-react"
 import { useApiClient } from "../hooks/useApiClient"
 import { createUser } from "../services/users"
 import { createInstitution } from "../services/institutions"
+import Input from "../components/ui/Input"
+import Textarea from "../components/ui/Textarea"
 
 function mascararCpf(v) {
   return v.replace(/\D/g, "").slice(0, 11)
@@ -212,10 +214,9 @@ export default function CompleteRegistration() {
               value={instituicao.endereco} onChange={handleInstituicao} placeholder="Rua, número, cidade – UF" />
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-ink" htmlFor="descricao">Descrição</label>
-              <textarea id="descricao" name="descricao" required rows={3}
+              <Textarea id="descricao" name="descricao" required rows={3}
                 value={instituicao.descricao} onChange={handleInstituicao}
-                placeholder="Descreva a missão e o trabalho da sua instituição"
-                className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition resize-none" />
+                placeholder="Descreva a missão e o trabalho da sua instituição" />
             </div>
 
             <label className="flex items-start gap-2 cursor-pointer">
@@ -247,8 +248,7 @@ function Campo({ label, id, ...props }) {
   return (
     <div className="flex flex-col gap-1.5">
       <label className="text-sm font-semibold text-ink" htmlFor={id}>{label}</label>
-      <input id={id} required {...props}
-        className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition" />
+      <Input id={id} required {...props} />
     </div>
   )
 }

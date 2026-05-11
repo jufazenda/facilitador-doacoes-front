@@ -9,13 +9,13 @@ import pet from "../assets/images/category/pet.png"
 import moradia from "../assets/images/category/moradia.png"
 
 export const categoryImages = {
-  "Higiene & Cuidados Pessoais": higiene,
-  "Alimentação": alimentos,
-  "Educação & Escolar": educacao,
-  "Roupas & Calçados": roupas,
-  "Brinquedos & Lazer": brinquedos,
-  "Financeira": financeira,
-  "Saúde & Medicamentos": medicamentos,
-  "Pets": pet,
-  "Moradia & Utensílios": moradia,
+  higiene_cuidados_pessoais: higiene,
+  alimentacao:               alimentos,
+  educacao_escolar:          educacao,
+  roupas_calcados:           roupas,
+  brinquedos_lazer:          brinquedos,
+  financeira:                financeira,
+  saude_medicamentos:        medicamentos,
+  pets:                      pet,
+  moradia_utensilios:        moradia,
 }

@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom"
 import { useAuth0 } from "@auth0/auth0-react"
 import { useApiClient } from "../hooks/useApiClient"
 import { createUser } from "../services/users"
+import Loading from "../components/ui/Loading"
 
 const PENDING_KEY = "pending_donor_registration"
 
@@ -68,13 +69,7 @@ export default function DonorRegistration() {
     })
   }
 
-  if (isLoading || enviando) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <p className="text-muted text-sm">{enviando ? "Criando sua conta..." : "Carregando..."}</p>
-      </div>
-    )
-  }
+  if (isLoading || enviando) return <Loading full text={enviando ? "Criando sua conta..." : "Carregando..."} />
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center py-8 px-4 sm:py-12">

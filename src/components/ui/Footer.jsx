@@ -1,14 +1,16 @@
-import { Link } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import logo from "../../assets/logo.png"
 
 const LINKS = [
-  { label: "Campanhas",      href: "/#campaigns",    external: true  },
-  { label: "Instituições",   href: "/instituicoes",  external: false },
-  { label: "Como funciona?", href: "/#how-it-works", external: true  },
-  { label: "Sobre nós",      href: "/sobre-nos",     external: false },
+  { label: "Campanhas",      href: "/#campaigns",    hash: "campaigns"    },
+  { label: "Instituições",   href: "/instituicoes",  hash: null           },
+  { label: "Como funciona?", href: "/#how-it-works", hash: "how-it-works" },
+  { label: "Sobre nós",      href: "/sobre-nos",     hash: null           },
 ]
 
-function NavLink({ label, href, external }) {
+function NavLink({ label, href, hash }) {
+  const navigate  = useNavigate()
+  const location  = useLocation()
   const cls = "group relative text-sm font-semibold text-purple-300 transition-colors duration-200 hover:text-white"
   const inner = (
     <>
@@ -16,9 +18,20 @@ function NavLink({ label, href, external }) {
       <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-white/60 transition-all duration-300 group-hover:w-full" />
     </>
   )
-  return external
-    ? <a href={href} className={cls}>{inner}</a>
-    : <Link to={href} className={cls}>{inner}</Link>
+
+  if (hash) {
+    function handleClick(e) {
+      e.preventDefault()
+      if (location.pathname === "/") {
+        document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" })
+      } else {
+        navigate("/", { state: { scrollTo: hash } })
+      }
+    }
+    return <a href={href} onClick={handleClick} className={cls}>{inner}</a>
+  }
+
+  return <Link to={href} className={cls}>{inner}</Link>
 }
 
 export default function Footer() {

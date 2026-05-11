@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/logo.png";
@@ -15,6 +15,16 @@ export default function Header() {
   const dropdownRef = useRef(null);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  function handleHashNav(hash) {
+    setMenuOpen(false)
+    if (location.pathname === "/") {
+      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" })
+    } else {
+      navigate("/", { state: { scrollTo: hash } })
+    }
+  }
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -131,12 +141,12 @@ export default function Header() {
             </Link>
           )}
 
-          <a
-            href="/#campaigns"
+          <button
+            onClick={() => handleHashNav("campaigns")}
             className="hidden rounded-2xl bg-accent px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 sm:block sm:px-5 sm:py-3"
           >
             Doe agora ♡
-          </a>
+          </button>
 
           {/* Hamburger */}
           <button
@@ -171,13 +181,12 @@ export default function Header() {
       {menuOpen && (
         <div className="border-t border-purple-100 bg-white px-4 pb-6 pt-4 md:hidden">
           <nav className="flex flex-col gap-1">
-            <a
-              href="/#campaigns"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-xl px-4 py-3 font-semibold text-purple-950 hover:bg-purple-50"
+            <button
+              onClick={() => handleHashNav("campaigns")}
+              className="rounded-xl px-4 py-3 text-left font-semibold text-purple-950 hover:bg-purple-50"
             >
               Campanhas
-            </a>
+            </button>
             <Link
               to="/instituicoes"
               onClick={() => setMenuOpen(false)}
@@ -185,13 +194,12 @@ export default function Header() {
             >
               Instituições
             </Link>
-            <a
-              href="/#how-it-works"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-xl px-4 py-3 font-semibold text-purple-950 hover:bg-purple-50"
+            <button
+              onClick={() => handleHashNav("how-it-works")}
+              className="rounded-xl px-4 py-3 text-left font-semibold text-purple-950 hover:bg-purple-50"
             >
               Como funciona?
-            </a>
+            </button>
           </nav>
 
           <div className="mt-4 border-t border-purple-100 pt-4 flex flex-col gap-3">
@@ -235,9 +243,9 @@ export default function Header() {
                 </Link>
               </>
             )}
-            <a href="/#campaigns" onClick={() => setMenuOpen(false)} className="rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
+            <button onClick={() => handleHashNav("campaigns")} className="rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
               Doe agora ♡
-            </a>
+            </button>
           </div>
         </div>
       )}

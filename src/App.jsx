@@ -4,6 +4,7 @@ import MainLayout from "./layouts/MainLayout"
 
 import Home from "./pages/Home"
 import CampaignDetail from "./pages/CampaignDetail"
+import Campaigns from "./pages/Campaigns"
 import InstitutionDetail from "./pages/InstitutionDetail"
 import InstitutionList from "./pages/InstitutionList"
 import Donation from "./pages/Donation"
@@ -42,6 +43,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<MainLayout><Home /></MainLayout>} />
           <Route path="/campanha/:id" element={<MainLayout><CampaignDetail /></MainLayout>} />
+          <Route path="/campanhas" element={<MainLayout><Campaigns /></MainLayout>} />
           <Route path="/instituicoes" element={<MainLayout><InstitutionList /></MainLayout>} />
           <Route path="/instituicao/:id" element={<MainLayout><InstitutionDetail /></MainLayout>} />
           <Route path="/doacao/:campanhaId" element={<MainLayout><Donation /></MainLayout>} />
