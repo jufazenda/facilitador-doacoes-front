@@ -1,76 +1,62 @@
+import { Link } from "react-router-dom"
+import logo from "../../assets/logo.png"
+
+const LINKS = [
+  { label: "Campanhas",      href: "/#campaigns",    external: true  },
+  { label: "Instituições",   href: "/instituicoes",  external: false },
+  { label: "Como funciona?", href: "/#how-it-works", external: true  },
+  { label: "Sobre nós",      href: "/sobre-nos",     external: false },
+]
+
 export default function Footer() {
   return (
-    <footer className="border-t border-purple-100 bg-white py-10 sm:py-14">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 sm:grid-cols-2 sm:px-6 sm:gap-10 lg:grid-cols-5">
-        <div className="sm:col-span-2 lg:col-span-1">
-          <h2 className="text-xl font-black text-purple-800 sm:text-2xl">
-            Faz a Boa
-          </h2>
+    <footer className="bg-purple-950 text-white">
+      <div className="mx-auto max-w-7xl px-6 py-14 sm:py-16">
 
-          <p className="mt-3 text-sm leading-6 text-slate-500">
-            Conectamos doadores com instituições que transformam o mundo.
-          </p>
-        </div>
+        <div className="flex flex-col items-start justify-between gap-10 sm:flex-row sm:items-center">
 
-        <div>
-          <h3 className="font-black text-purple-950">Navegue</h3>
-
-          <div className="mt-4 flex flex-col gap-2 text-sm font-semibold text-slate-500">
-            <a href="#campaigns">Campanhas</a>
-            <a href="#institutions">Instituições</a>
-            <a href="#how-it-works">Como funciona?</a>
-            <a href="#faq">FAQ</a>
+          {/* Brand */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2.5">
+              <img src={logo} alt="Faz a Boa" className="h-10 w-auto drop-shadow-md" />
+              <span className="text-xl font-black tracking-tight">Faz a Boa</span>
+            </div>
+            <p className="max-w-xs text-sm leading-relaxed text-purple-300">
+              Conectamos doadores com instituições que transformam vidas.
+            </p>
           </div>
+
+          {/* Links */}
+          <nav className="grid grid-cols-2 gap-x-12 gap-y-4">
+            {LINKS.map(({ label, href, external }) =>
+              external ? (
+                <a
+                  key={label}
+                  href={href}
+                  className="text-sm font-semibold text-purple-200 transition-colors hover:text-white"
+                >
+                  {label}
+                </a>
+              ) : (
+                <Link
+                  key={label}
+                  to={href}
+                  className="text-sm font-semibold text-purple-200 transition-colors hover:text-white"
+                >
+                  {label}
+                </Link>
+              )
+            )}
+          </nav>
+
         </div>
 
-        <div>
-          <h3 className="font-black text-purple-950">Institucional</h3>
-
-          <div className="mt-4 flex flex-col gap-2 text-sm font-semibold text-slate-500">
-            <a href="#about">Sobre nós</a>
-            <a href="#transparency">Transparência</a>
-            <a href="#terms">Termos de uso</a>
-            <a href="#privacy">Política de privacidade</a>
-          </div>
+        <div className="mt-12 flex flex-col items-center justify-between gap-2 border-t border-purple-800 pt-6 sm:flex-row">
+          <p className="text-xs text-purple-400">© 2026 Faz a Boa. Todos os direitos reservados.</p>
+          <p className="text-xs text-purple-500">Informática Biomédica · UFCSPA</p>
         </div>
 
-        <div>
-          <h3 className="font-black text-purple-950">Contato</h3>
-
-          <div className="mt-4 space-y-2 text-sm font-semibold text-slate-500">
-            <p>contato@fazaboa.org</p>
-            <p>+55 11 4002-8922</p>
-            <p>Seg a Sex, 9h às 18h</p>
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-primary-light p-4 sm:col-span-2 sm:rounded-3xl sm:p-6 lg:col-span-1">
-          <h3 className="font-black text-purple-950">Inscreva-se</h3>
-
-          <p className="mt-2 text-sm text-slate-600">
-            Inscreva-se no nosso blog e acompanhe histórias!
-          </p>
-
-          <form className="mt-4 space-y-2 sm:space-y-3">
-            <input
-              type="email"
-              placeholder="Seu e-mail"
-              className="w-full rounded-xl border border-purple-100 bg-white px-4 py-2.5 text-sm outline-none focus:border-purple-600"
-            />
-
-            <button
-              type="submit"
-              className="w-full rounded-xl bg-accent px-4 py-2.5 text-sm font-black text-white"
-            >
-              Inscreva-se
-            </button>
-          </form>
-        </div>
       </div>
-
-      <p className="mt-8 text-center text-sm text-slate-400 sm:mt-10">
-        © 2026 Faz a Boa. Todos os direitos reservados.
-      </p>
     </footer>
-  );
+  )
 }
