@@ -1,6 +1,8 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import logo from "../../assets/logo.png";
 
 const TIPO_LABEL = {
@@ -108,7 +110,7 @@ export default function Header() {
                   {user.nome[0]}
                 </span>
                 <span className="text-sm">{user.nome.split(" ")[0]}</span>
-                <span className="text-xs text-purple-400">▾</span>
+                <KeyboardArrowDownIcon style={{ fontSize: 16 }} className="text-purple-400" />
               </button>
 
               {dropdownOpen && (
@@ -146,7 +148,7 @@ export default function Header() {
             onClick={() => handleHashNav("campaigns")}
             className="hidden rounded-2xl bg-accent px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 sm:block sm:px-5 sm:py-3"
           >
-            Doe agora ♡
+            Doe agora <FavoriteBorderIcon style={{ fontSize: 16 }} />
           </button>
           )}
 
@@ -247,7 +249,7 @@ export default function Header() {
             )}
             {user?.tipo !== "instituicao" && (
             <button onClick={() => handleHashNav("campaigns")} className="rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
-              Doe agora ♡
+              Doe agora <FavoriteBorderIcon style={{ fontSize: 16 }} />
             </button>
             )}
           </div>

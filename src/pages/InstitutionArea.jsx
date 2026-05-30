@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react"
 import { useApiClient } from "../hooks/useApiClient"
 import { getMyInstitution, updateInstitution } from "../services/institutions"
+import CheckIcon from "@mui/icons-material/Check"
+import CheckCircleIcon from "@mui/icons-material/CheckCircle"
+import CloseIcon from "@mui/icons-material/Close"
 import { getCampaignsByInstitution, createCampaign, updateCampaign, deleteCampaign } from "../services/campaigns"
 import { getNecessitiesByInstitution, createNecessity, updateNecessity, updateNecessityStatus } from "../services/necessities"
 import { getDonations } from "../services/donations"
@@ -23,7 +26,7 @@ const STATUS_DOACAO = {
 }
 
 const STATUS_INST = {
-  approved: { label: "✓ Verificada", classes: "bg-success-light text-success" },
+  approved: { label: "Verificada", classes: "bg-success-light text-success" },
   pending:  { label: "Em análise",   classes: "bg-warning-light text-warning" },
   rejected: { label: "Rejeitada",    classes: "bg-red-100 text-red-700" },
 }
@@ -605,7 +608,7 @@ function ItemNecessario({ n, onToggleUrgente, onAtender }) {
                 ? "border-accent/30 text-accent bg-accent-light"
                 : "border-line text-muted hover:border-accent hover:text-accent"
             }`}>
-            {n.is_urgent ? "Urgente ✓" : "Urgente"}
+            {n.is_urgent ? <span className="flex items-center gap-1">Urgente <CheckIcon style={{ fontSize: 14 }} /></span> : "Urgente"}
           </button>
           <button onClick={() => onAtender(n.id)}
             className="text-xs px-2.5 py-1.5 rounded-lg border border-success/30 text-success bg-success-light hover:bg-success/20 font-semibold transition-colors">
@@ -614,7 +617,7 @@ function ItemNecessario({ n, onToggleUrgente, onAtender }) {
         </div>
       )}
       {n.status === "attended" && (
-        <span className="text-xs text-success font-semibold shrink-0">✓ Atendida</span>
+        <span className="inline-flex items-center gap-1 text-xs text-success font-semibold shrink-0"><CheckIcon style={{ fontSize: 14 }} /> Atendida</span>
       )}
     </div>
   )
@@ -658,7 +661,7 @@ function AbaAtualizacoes({ campanhas, atualizacoes, onEnviar }) {
                 placeholder="Conte aos doadores como está o progresso da campanha..." />
             </div>
             <div className="flex items-center justify-between">
-              {enviado && <span className="text-sm text-success font-semibold">✓ Atualização enviada!</span>}
+              {enviado && <span className="inline-flex items-center gap-1 text-sm text-success font-semibold"><CheckCircleIcon style={{ fontSize: 16 }} /> Atualização enviada!</span>}
               <button type="submit" className="ml-auto bg-primary hover:bg-primary-dark text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-colors">
                 Enviar para doadores
               </button>
@@ -772,7 +775,7 @@ function ModalCampanha({ campanha, onSalvar, onFechar, salvando }) {
             <h3 className="text-base font-bold text-ink">{isNew ? "Nova campanha" : "Editar campanha"}</h3>
             <button type="button" onClick={onFechar}
               className="flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-soft hover:text-ink">
-              ✕
+              <CloseIcon style={{ fontSize: 18 }} />
             </button>
           </div>
 

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom"
 import { categoryImages } from "../../utils/categoryImages"
 import { useAuth } from "../../context/AuthContext"
+import CheckIcon from "@mui/icons-material/Check"
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder"
 
 function daysLeft(endsAt) {
   if (!endsAt) return null
@@ -49,7 +51,7 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
           <p className="mt-1 text-sm font-semibold text-slate-500">
             {institutionName}
             <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-purple-700 text-xs text-white" aria-label="Instituição verificada">
-              ✓
+              <CheckIcon style={{ fontSize: 12 }} />
             </span>
           </p>
         )}
@@ -74,7 +76,7 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
             to={`/doacao/${c.id}`}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-2.5 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-purple-800 sm:py-3"
           >
-            ♡ Doe
+            <FavoriteBorderIcon style={{ fontSize: 16 }} /> Doe
           </Link>
           )}
         </div>

@@ -3,6 +3,16 @@ import { Link } from "react-router-dom"
 import { useApiClient } from "../hooks/useApiClient"
 import { getMe, updateUser } from "../services/users"
 import { getDonations } from "../services/donations"
+import LockIcon from "@mui/icons-material/Lock"
+import FavoriteIcon from "@mui/icons-material/Favorite"
+import LocalFireDepartmentIcon from "@mui/icons-material/LocalFireDepartment"
+import StarIcon from "@mui/icons-material/Star"
+
+const BADGE_ICONS = {
+  favorite: <FavoriteIcon />,
+  local_fire_department: <LocalFireDepartmentIcon />,
+  star: <StarIcon />,
+}
 import { getCampaigns } from "../services/campaigns"
 import { getInstitutions } from "../services/institutions"
 import { doadorMock, rankingMock } from "../utils/mockData"
@@ -316,13 +326,13 @@ function AbaRanking({ nome }) {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {d.badges.map((b) => (
             <div key={b.id} className="bg-white rounded-xl border border-line p-4 flex flex-col items-center gap-2 text-center">
-              <span className="text-3xl">{b.icon}</span>
+              <span className="text-3xl">{BADGE_ICONS[b.icon]}</span>
               <p className="text-sm font-bold text-ink">{b.label}</p>
               <p className="text-xs text-muted">{b.descricao}</p>
             </div>
           ))}
           <div className="bg-soft rounded-xl border border-dashed border-line p-4 flex flex-col items-center gap-2 text-center opacity-50">
-            <span className="text-3xl">🔒</span>
+            <LockIcon style={{ fontSize: 32 }} className="text-muted" />
             <p className="text-sm font-bold text-muted">10 Doações</p>
             <p className="text-xs text-muted">Complete 10 doações</p>
           </div>

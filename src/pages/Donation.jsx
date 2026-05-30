@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { Link, useParams } from "react-router-dom"
 import { getCampaignById } from "../services/campaigns"
+import CheckIcon from "@mui/icons-material/Check"
 import { getInstitutionById } from "../services/institutions"
 import { createDonation, getDonationById } from "../services/donations"
 import { getMe } from "../services/users"
@@ -246,7 +247,7 @@ function Passo({ passo }) {
           <div key={label} className="flex items-center gap-2 flex-1 last:flex-none">
             <div className="flex items-center gap-2">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${feito || ativo ? "bg-primary text-white" : "bg-soft text-muted"}`}>
-                {feito ? "✓" : num}
+                {feito ? <CheckIcon style={{ fontSize: 14 }} /> : num}
               </div>
               <span className={`text-sm hidden sm:block font-medium ${ativo ? "text-ink" : "text-muted"}`}>{label}</span>
             </div>

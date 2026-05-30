@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { useAuth0 } from "@auth0/auth0-react"
 import { useApiClient } from "../hooks/useApiClient"
+import VolunteerActivismIcon from "@mui/icons-material/VolunteerActivism"
+import AccountBalanceIcon from "@mui/icons-material/AccountBalance"
 import { createUser } from "../services/users"
 import { createInstitution } from "../services/institutions"
 import Input from "../components/ui/Input"
@@ -110,7 +112,7 @@ export default function CompleteRegistration() {
               onClick={() => setPerfil("donor")}
               className="group flex flex-col items-center gap-4 rounded-xl border-2 border-line bg-white p-8 text-center transition hover:border-primary hover:bg-soft"
             >
-              <span className="text-5xl">🤝</span>
+              <VolunteerActivismIcon style={{ fontSize: 48 }} />
               <div>
                 <p className="font-bold text-ink text-lg group-hover:text-primary transition">Sou doador</p>
                 <p className="text-sm text-muted mt-1">Quero apoiar causas e acompanhar minhas doações</p>
@@ -121,7 +123,7 @@ export default function CompleteRegistration() {
               onClick={() => setPerfil("institution")}
               className="group flex flex-col items-center gap-4 rounded-xl border-2 border-line bg-white p-8 text-center transition hover:border-primary hover:bg-soft"
             >
-              <span className="text-5xl">🏛️</span>
+              <AccountBalanceIcon style={{ fontSize: 48 }} />
               <div>
                 <p className="font-bold text-ink text-lg group-hover:text-primary transition">Sou uma instituição</p>
                 <p className="text-sm text-muted mt-1">Quero cadastrar minha ONG e receber doações</p>
