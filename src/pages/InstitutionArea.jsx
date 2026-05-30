@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useApiClient } from "../hooks/useApiClient"
-import { getMyInstitution } from "../services/institutions"
+import { getMyInstitution, updateInstitution } from "../services/institutions"
 import { getCampaignsByInstitution, createCampaign, updateCampaign, deleteCampaign } from "../services/campaigns"
 import { getNecessitiesByInstitution, createNecessity, updateNecessity, updateNecessityStatus } from "../services/necessities"
 import { getDonations } from "../services/donations"
@@ -10,8 +10,9 @@ import Select from "../components/ui/Select"
 import Input from "../components/ui/Input"
 import Textarea from "../components/ui/Textarea"
 import Loading from "../components/ui/Loading"
+import { useToast } from "../components/ui/Toast"
 
-const ABAS = ["Dashboard", "Campanhas", "Necessidades", "Atualizações"]
+const ABAS = ["Dashboard", "Perfil", "Campanhas", "Necessidades", "Atualizações"]
 
 
 const STATUS_DOACAO = {
@@ -36,6 +37,7 @@ export default function InstitutionArea() {
   const [atualizacoes, setAtualizacoes] = useState(atualizacoesMock)
   const [loading, setLoading] = useState(true)
   const client = useApiClient()
+  const { showToast, ToastContainer } = useToast()
 
   useEffect(() => {
     async function load() {
@@ -165,9 +167,147 @@ export default function InstitutionArea() {
       </div>
 
       {aba === "Dashboard"    && <AbaDashboard campanhas={campanhas} doacoes={doacoes} />}
-      {aba === "Campanhas"    && <AbaCampanhas campanhas={campanhas} onToggleUrgente={toggleUrgenteC} onAdicionar={adicionarCampanha} onEditar={editarCampanha} onExcluir={excluirCampanha} />}
+      {aba === "Perfil"       && <AbaPerfil instituicao={instituicao} setInstituicao={setInstituicao} client={client} showToast={showToast} />}
+      {aba === "Campanhas"    && <AbaCampanhas campanhas={campanhas} onToggleUrgente={toggleUrgenteC} onAdicionar={adicionarCampanha} onEditar={editarCampanha} onExcluir={excluirCampanha} showToast={showToast} />}
       {aba === "Necessidades" && <AbaNecessidades necessidades={necessidades} onToggleUrgente={toggleUrgenteN} onAtender={atenderNecessidade} onAdicionar={adicionarNecessidade} />}
       {aba === "Atualizações" && <AbaAtualizacoes campanhas={campanhas} atualizacoes={atualizacoes} onEnviar={enviarAtualizacao} />}
+      <ToastContainer />
+    </div>
+  )
+}
+
+function mascararCnpj(v) {
+  return v.replace(/\D/g, "").slice(0, 14)
+    .replace(/(\d{2})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1/$2")
+    .replace(/(\d{4})(\d{1,2})$/, "$1-$2")
+}
+
+function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
+  const [editando, setEditando] = useState(false)
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState(null)
+  const [form, setForm] = useState({
+    name:        instituicao?.name ?? "",
+    description: instituicao?.description ?? "",
+    address:     instituicao?.address ?? "",
+    phone:       instituicao?.phone ?? "",
+    cnpj:        instituicao?.cnpj ?? "",
+    website:     instituicao?.website ?? "",
+  })
+
+  function handleChange(e) {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: name === "cnpj" ? mascararCnpj(value) : value }))
+  }
+
+  async function handleSalvar(e) {
+    e.preventDefault()
+    setSalvando(true)
+    setErro(null)
+    try {
+      const updated = await updateInstitution(client, instituicao.id, {
+        name:        form.name,
+        description: form.description,
+        address:     form.address,
+        phone:       form.phone,
+        cnpj:        form.cnpj.replace(/\D/g, ""),
+        website:     form.website,
+      })
+      setInstituicao(updated)
+      setEditando(false)
+      showToast("success", "Perfil atualizado com sucesso!")
+    } catch (err) {
+      setErro(err?.response?.data?.error ?? "Erro ao salvar. Tente novamente.")
+    } finally {
+      setSalvando(false)
+    }
+  }
+
+  const statusInst = STATUS_INST[instituicao?.status] ?? STATUS_INST.pending
+
+  return (
+    <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5">
+      <div className="flex items-center justify-between">
+        <h2 className="text-base font-bold text-ink">Dados da instituição</h2>
+        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusInst.classes}`}>
+          {statusInst.label}
+        </span>
+      </div>
+
+      {!editando ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InfoLinha label="Nome" value={instituicao?.name ?? "-"} />
+            <InfoLinha label="CNPJ" value={instituicao?.cnpj || "-"} />
+            <InfoLinha label="Telefone" value={instituicao?.phone || "-"} />
+            <InfoLinha label="Website" value={instituicao?.website || "-"} />
+            <InfoLinha label="Endereço" value={instituicao?.address || "-"} />
+          </div>
+          {instituicao?.description && (
+            <div className="flex flex-col gap-0.5">
+              <p className="text-xs text-muted">Descrição</p>
+              <p className="text-sm text-ink font-semibold leading-relaxed">{instituicao.description}</p>
+            </div>
+          )}
+          <button onClick={() => setEditando(true)}
+            className="self-start text-sm text-primary hover:underline font-semibold">
+            Editar dados
+          </button>
+        </>
+      ) : (
+        <form onSubmit={handleSalvar} className="flex flex-col gap-4">
+          {erro && (
+            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2.5 text-sm text-red-700">
+              {erro}
+            </div>
+          )}
+          <CampoEdicao label="Nome da instituição" name="name" value={form.name} onChange={handleChange} required />
+          <CampoEdicao label="CNPJ" name="cnpj" value={form.cnpj} onChange={handleChange} placeholder="00.000.000/0000-00" inputMode="numeric" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <CampoEdicao label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
+            <CampoEdicao label="Website" name="website" value={form.website} onChange={handleChange} placeholder="https://..." />
+          </div>
+          <CampoEdicao label="Endereço" name="address" value={form.address} onChange={handleChange} placeholder="Rua, número, cidade - estado" />
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs text-muted">Descrição</label>
+            <Textarea name="description" value={form.description} onChange={handleChange} rows={3}
+              placeholder="Conte sobre a missão e os projetos da sua instituição" />
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={() => { setEditando(false); setErro(null) }}
+              className="flex-1 border border-line text-muted hover:border-ink rounded-lg py-2.5 text-sm font-semibold transition-colors">
+              Cancelar
+            </button>
+            <button type="submit" disabled={salvando}
+              className="flex-1 bg-primary hover:bg-primary-dark disabled:opacity-40 text-white font-bold rounded-lg py-2.5 text-sm transition-colors">
+              {salvando ? "Salvando..." : "Salvar"}
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  )
+}
+
+function CampoEdicao({ label, ...props }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs text-muted">{label}</label>
+      <input
+        className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition"
+        {...props}
+      />
+    </div>
+  )
+}
+
+function InfoLinha({ label, value }) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <p className="text-xs text-muted">{label}</p>
+      <p className="text-sm text-ink font-semibold">{value}</p>
     </div>
   )
 }
@@ -238,28 +378,21 @@ function AbaDashboard({ campanhas, doacoes }) {
   )
 }
 
-function AbaCampanhas({ campanhas, onToggleUrgente, onAdicionar, onEditar, onExcluir }) {
+function AbaCampanhas({ campanhas, onToggleUrgente, onAdicionar, onEditar, onExcluir, showToast }) {
   const [criando, setCriando] = useState(false)
   const [editando, setEditando] = useState(null)
   const [salvando, setSalvando] = useState(false)
   const [paraExcluir, setParaExcluir] = useState(null)
   const [excluindo, setExcluindo] = useState(false)
-  const [toast, setToast] = useState(null)
-
-  useEffect(() => {
-    if (!toast) return
-    const id = setTimeout(() => setToast(null), 4000)
-    return () => clearTimeout(id)
-  }, [toast])
 
   async function handleCriar(form) {
     setSalvando(true)
     try {
       await onAdicionar(form)
       setCriando(false)
-      setToast({ type: "success", msg: "Campanha criada com sucesso!" })
+      showToast("success", "Campanha criada com sucesso!")
     } catch {
-      setToast({ type: "error", msg: "Erro ao criar campanha. Tente novamente." })
+      showToast("error", "Erro ao criar campanha. Tente novamente.")
     } finally {
       setSalvando(false)
     }
@@ -270,9 +403,9 @@ function AbaCampanhas({ campanhas, onToggleUrgente, onAdicionar, onEditar, onExc
     try {
       await onEditar(editando.id, form)
       setEditando(null)
-      setToast({ type: "success", msg: "Campanha atualizada com sucesso!" })
+      showToast("success", "Campanha atualizada com sucesso!")
     } catch {
-      setToast({ type: "error", msg: "Erro ao salvar alterações. Tente novamente." })
+      showToast("error", "Erro ao salvar alterações. Tente novamente.")
     } finally {
       setSalvando(false)
     }
@@ -282,10 +415,10 @@ function AbaCampanhas({ campanhas, onToggleUrgente, onAdicionar, onEditar, onExc
     setExcluindo(true)
     try {
       await onExcluir(paraExcluir.id)
-      setToast({ type: "success", msg: `"${paraExcluir.title}" foi excluída.` })
+      showToast("success", `"${paraExcluir.title}" foi excluída.`)
       setParaExcluir(null)
     } catch {
-      setToast({ type: "error", msg: "Erro ao excluir campanha. Tente novamente." })
+      showToast("error", "Erro ao excluir campanha. Tente novamente.")
     } finally {
       setExcluindo(false)
     }
@@ -369,8 +502,6 @@ function AbaCampanhas({ campanhas, onToggleUrgente, onAdicionar, onEditar, onExc
           excluindo={excluindo}
         />
       )}
-
-      {toast && <Toast toast={toast} onClose={() => setToast(null)} />}
     </div>
   )
 }
@@ -612,29 +743,6 @@ function ModalConfirmarExclusao({ titulo, onConfirmar, onCancelar, excluindo }) 
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-
-function Toast({ toast, onClose }) {
-  const isSuccess = toast.type === "success"
-  return (
-    <div className={`fixed bottom-6 right-6 z-60 flex items-center gap-3 rounded-xl border px-4 py-3 shadow-xl w-80 ${
-      isSuccess ? "bg-white border-success/30" : "bg-white border-red-200"
-    }`}>
-      <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-        isSuccess ? "bg-success-light text-success" : "bg-red-100 text-red-700"
-      }`}>
-        {isSuccess ? "✓" : "✕"}
-      </span>
-      <span className="text-sm font-semibold text-ink flex-1">{toast.msg}</span>
-      <button
-        onClick={onClose}
-        className="text-muted hover:text-ink transition-colors ml-1 shrink-0">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </button>
     </div>
   )
 }
