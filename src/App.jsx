@@ -23,6 +23,13 @@ function ProtectedRoute({ children, tipo }) {
   return children
 }
 
+function BlockedForInstituicao({ children }) {
+  const { user, isLoading } = useAuth()
+  if (isLoading) return null
+  if (user?.tipo === "instituicao") return <Navigate to="/" replace />
+  return children
+}
+
 // Redireciona usuários autenticados sem role para completar o cadastro
 function NewUserRedirect() {
   const { user, isLoading } = useAuth()
@@ -46,7 +53,7 @@ export default function App() {
           <Route path="/campanhas" element={<MainLayout><Campaigns /></MainLayout>} />
           <Route path="/instituicoes" element={<MainLayout><InstitutionList /></MainLayout>} />
           <Route path="/instituicao/:id" element={<MainLayout><InstitutionDetail /></MainLayout>} />
-          <Route path="/doacao/:campanhaId" element={<MainLayout><Donation /></MainLayout>} />
+          <Route path="/doacao/:campanhaId" element={<MainLayout><BlockedForInstituicao><Donation /></BlockedForInstituicao></MainLayout>} />
           <Route path="/sobre-nos" element={<MainLayout><AboutUs /></MainLayout>} />
           <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
           <Route path="/completar-cadastro" element={<MainLayout><CompleteRegistration /></MainLayout>} />

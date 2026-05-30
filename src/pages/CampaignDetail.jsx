@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom"
 import { getCampaignById } from "../services/campaigns"
 import { getInstitutionById } from "../services/institutions"
 import { categoryImages } from "../utils/categoryImages"
+import { useAuth } from "../context/AuthContext"
 import Loading from "../components/ui/Loading"
 
 export default function CampaignDetail() {
@@ -103,6 +104,7 @@ export default function CampaignDetail() {
 }
 
 function CardDoacao({ id, raised, goal, falta, percentual }) {
+  const { user } = useAuth()
   return (
     <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5">
       <div>
@@ -129,10 +131,12 @@ function CardDoacao({ id, raised, goal, falta, percentual }) {
         para atingir a meta.
       </p>
 
-      <Link to={`/doacao/${id}`}
-        className="w-full text-center bg-primary hover:bg-primary-dark text-white font-bold rounded-lg py-3 transition-colors">
-        Fazer uma doação
-      </Link>
+      {user?.tipo !== "instituicao" && (
+        <Link to={`/doacao/${id}`}
+          className="w-full text-center bg-primary hover:bg-primary-dark text-white font-bold rounded-lg py-3 transition-colors">
+          Fazer uma doação
+        </Link>
+      )}
 
       <p className="text-xs text-center text-muted">Pagamento seguro via Pix ou cartão</p>
     </div>
