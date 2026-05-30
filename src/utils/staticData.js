@@ -1,3 +1,8 @@
+import SearchIcon from "@mui/icons-material/Search"
+import FavoriteIcon from "@mui/icons-material/Favorite"
+import BarChartIcon from "@mui/icons-material/BarChart"
+import CampaignIcon from "@mui/icons-material/Campaign"
+
 export function slugify(str) {
   return str
     .normalize("NFD")
@@ -21,22 +26,22 @@ export const categorias = [
 
 export const steps = [
   {
-    icon: "🔍",
+    Icon: SearchIcon,
     title: "1. Explore",
     text: "Descubra campanhas e instituições verificadas.",
   },
   {
-    icon: "💜",
+    Icon: FavoriteIcon,
     title: "2. Doe com segurança",
     text: "Sua doação é protegida e o impacto é garantido.",
   },
   {
-    icon: "📊",
+    Icon: BarChartIcon,
     title: "3. Acompanhe",
     text: "Veja como sua doação está transformando vidas.",
   },
   {
-    icon: "📣",
+    Icon: CampaignIcon,
     title: "4. Compartilhe",
     text: "Convide outras pessoas para multiplicar o impacto.",
   },
