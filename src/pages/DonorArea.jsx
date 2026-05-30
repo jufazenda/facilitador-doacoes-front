@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { useApiClient } from "../hooks/useApiClient"
-import { getMe } from "../services/users"
+import { getMe, updateUser } from "../services/users"
 import { getDonations } from "../services/donations"
 import { getCampaigns } from "../services/campaigns"
 import { getInstitutions } from "../services/institutions"
 import { doadorMock, rankingMock } from "../utils/mockData"
 import Loading from "../components/ui/Loading"
+import { useToast } from "../components/ui/Toast"
 
 const ABAS = ["Perfil", "Histórico", "Ranking"]
 
@@ -41,6 +42,7 @@ export default function DonorArea() {
   const [institutions, setInstitutions] = useState({})
   const [loading, setLoading] = useState(true)
   const client = useApiClient()
+  const { showToast, ToastContainer } = useToast()
 
   useEffect(() => {
     async function load() {
@@ -95,7 +97,7 @@ export default function DonorArea() {
       </div>
 
       {aba === "Perfil" && (
-        <AbaPerfil user={user} totalDoado={totalDoado} totalDoacoes={totalDoacoes} />
+        <AbaPerfil user={user} setUser={setUser} client={client} showToast={showToast} totalDoado={totalDoado} totalDoacoes={totalDoacoes} />
       )}
       {aba === "Histórico" && (
         <AbaHistorico donations={donations} campaigns={campaigns} institutions={institutions} />
@@ -103,11 +105,49 @@ export default function DonorArea() {
       {aba === "Ranking" && (
         <AbaRanking nome={nome} />
       )}
+      <ToastContainer />
     </div>
   )
 }
 
-function AbaPerfil({ user, totalDoado, totalDoacoes }) {
+function mascararCpf(v) {
+  return v.replace(/\D/g, "").slice(0, 11)
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+}
+
+function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes }) {
+  const [editando, setEditando] = useState(false)
+  const [form, setForm] = useState({ name: user?.name ?? "", phone: user?.phone ?? "", cpf: formatCpf(user?.cpf) })
+  const [salvando, setSalvando] = useState(false)
+  const [erro, setErro] = useState(null)
+
+  function handleChange(e) {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: name === "cpf" ? mascararCpf(value) : value }))
+  }
+
+  async function handleSalvar(e) {
+    e.preventDefault()
+    setSalvando(true)
+    setErro(null)
+    try {
+      const updated = await updateUser(client, user.id, {
+        name: form.name,
+        phone: form.phone,
+        cpf: form.cpf.replace(/\D/g, ""),
+      })
+      setUser(updated)
+      setEditando(false)
+      showToast("success", "Dados atualizados com sucesso!")
+    } catch (err) {
+      setErro(err?.response?.data?.error ?? "Erro ao salvar. Tente novamente.")
+    } finally {
+      setSalvando(false)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -117,19 +157,65 @@ function AbaPerfil({ user, totalDoado, totalDoacoes }) {
         />
         <CardStatus value={totalDoacoes} label="Doações realizadas" />
       </div>
+
       <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-4">
-        <h2 className="text-base font-bold text-ink">Dados pessoais</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <InfoLinha label="Nome" value={user?.name ?? "-"} />
-          <InfoLinha label="E-mail" value={user?.email ?? "-"} />
-          <InfoLinha label="CPF" value={formatCpf(user?.cpf)} />
-          <InfoLinha
-            label="Membro desde"
-            value={user?.created_at ? new Date(user.created_at).toLocaleDateString("pt-BR") : "-"}
-          />
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-bold text-ink">Dados pessoais</h2>
+          {!editando && (
+            <button onClick={() => { setEditando(true) }}
+              className="text-sm text-primary hover:underline font-semibold">
+              Editar dados
+            </button>
+          )}
         </div>
-        <button className="self-start mt-2 text-sm text-primary hover:underline font-semibold">Editar dados</button>
+
+        {!editando ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InfoLinha label="Nome" value={user?.name ?? "-"} />
+            <InfoLinha label="E-mail" value={user?.email ?? "-"} />
+            <InfoLinha label="CPF" value={formatCpf(user?.cpf)} />
+            <InfoLinha label="Telefone" value={user?.phone || "-"} />
+            <InfoLinha
+              label="Membro desde"
+              value={user?.created_at ? new Date(user.created_at).toLocaleDateString("pt-BR") : "-"}
+            />
+          </div>
+        ) : (
+          <form onSubmit={handleSalvar} className="flex flex-col gap-4">
+            {erro && (
+              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2.5 text-sm text-red-700">
+                {erro}
+              </div>
+            )}
+            <CampoEdicao label="Nome completo" name="name" value={form.name} onChange={handleChange} required />
+            <CampoEdicao label="CPF" name="cpf" value={form.cpf} onChange={handleChange} placeholder="000.000.000-00" inputMode="numeric" />
+            <CampoEdicao label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
+            <InfoLinha label="E-mail" value={user?.email ?? "-"} />
+            <div className="flex gap-3 pt-1">
+              <button type="button" onClick={() => { setEditando(false); setErro(null) }}
+                className="flex-1 border border-line text-muted hover:border-ink rounded-lg py-2.5 text-sm font-semibold transition-colors">
+                Cancelar
+              </button>
+              <button type="submit" disabled={salvando}
+                className="flex-1 bg-primary hover:bg-primary-dark disabled:opacity-40 text-white font-bold rounded-lg py-2.5 text-sm transition-colors">
+                {salvando ? "Salvando..." : "Salvar"}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
+    </div>
+  )
+}
+
+function CampoEdicao({ label, ...props }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs text-muted">{label}</label>
+      <input
+        className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition"
+        {...props}
+      />
     </div>
   )
 }
