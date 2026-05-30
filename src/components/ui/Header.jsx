@@ -141,12 +141,14 @@ export default function Header() {
             </Link>
           )}
 
+          {user?.tipo !== "instituicao" && (
           <button
             onClick={() => handleHashNav("campaigns")}
             className="hidden rounded-2xl bg-accent px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 sm:block sm:px-5 sm:py-3"
           >
             Doe agora ♡
           </button>
+          )}
 
           {/* Hamburger */}
           <button
@@ -243,9 +245,11 @@ export default function Header() {
                 </Link>
               </>
             )}
+            {user?.tipo !== "instituicao" && (
             <button onClick={() => handleHashNav("campaigns")} className="rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
               Doe agora ♡
             </button>
+            )}
           </div>
         </div>
       )}

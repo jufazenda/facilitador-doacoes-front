@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { categoryImages } from "../../utils/categoryImages"
+import { useAuth } from "../../context/AuthContext"
 
 function daysLeft(endsAt) {
   if (!endsAt) return null
@@ -9,6 +10,7 @@ function daysLeft(endsAt) {
 }
 
 export default function CampaignCard({ campaign: c, institutionName = "" }) {
+  const { user } = useAuth()
   const bgImage = categoryImages[c.keywords?.[0]]
   const raised  = (c.total_raised ?? 0) / 100
   const goal    = (c.goal_amount  ?? 0) / 100
@@ -67,12 +69,14 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
         </div>
 
         <div className="relative z-10 mt-4 sm:mt-5">
+          {user?.tipo !== "instituicao" && (
           <Link
             to={`/doacao/${c.id}`}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-2.5 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-purple-800 sm:py-3"
           >
             ♡ Doe
           </Link>
+          )}
         </div>
       </div>
 
