@@ -17,7 +17,6 @@ import { useToast } from "../components/ui/Toast"
 
 const ABAS = ["Dashboard", "Perfil", "Campanhas", "Necessidades", "Atualizações"]
 
-
 const STATUS_DOACAO = {
   pendente:   { label: "Pendente",   classes: "bg-warning-light text-warning" },
   processado: { label: "Processado", classes: "bg-blue-100 text-blue-700" },
