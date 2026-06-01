@@ -3,6 +3,15 @@ import { Link, useParams } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { getInstitutionById } from "../services/institutions"
 import { getCampaignsByInstitution } from "../services/campaigns"
+import LocationOnIcon from "@mui/icons-material/LocationOn"
+import CheckIcon from "@mui/icons-material/Check"
+import EmailIcon from "@mui/icons-material/Email"
+import PhoneIcon from "@mui/icons-material/Phone"
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd"
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth"
+import FavoriteIcon from "@mui/icons-material/Favorite"
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder"
+import FlagIcon from "@mui/icons-material/Flag"
 import { getNecessitiesByInstitution } from "../services/necessities"
 import { categoryImages } from "../utils/categoryImages"
 import Loading from "../components/ui/Loading"
@@ -79,9 +88,9 @@ export default function InstitutionDetail() {
                   <p className="mt-0.5 text-xs text-muted">{inst.legal_name}</p>
                 )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                  {inst.address && <span className="text-sm text-muted">📍 {inst.address}</span>}
+                  {inst.address && <span className="inline-flex items-center gap-1 text-sm text-muted"><LocationOnIcon style={{ fontSize: 16 }} />{inst.address}</span>}
                   <span className="inline-flex items-center gap-1 rounded-full bg-success-light px-2.5 py-0.5 text-xs font-semibold text-success">
-                    ✓ Verificada
+                    <CheckIcon style={{ fontSize: 12 }} /> Verificada
                   </span>
                 </div>
               </div>
@@ -101,7 +110,7 @@ export default function InstitutionDetail() {
                       : "bg-purple-700 text-white hover:bg-purple-800"
                   }`}
                 >
-                  {apoiando ? "♥ Apoiando" : "♡ Apoiar instituição"}
+                {apoiando ? <><FavoriteIcon style={{ fontSize: 16 }} /> Apoiando</> : <><FavoriteBorderIcon style={{ fontSize: 16 }} /> Apoiar instituição</>}
                 </button>
               )}
               {campanhasAtivas.length > 0 && (
@@ -121,17 +130,17 @@ export default function InstitutionDetail() {
 
       {/* Info */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {inst.email    && <InfoCard icon="✉️" label="E-mail"        value={inst.email} />}
-        {inst.phone    && <InfoCard icon="📞" label="Telefone"      value={inst.phone} />}
-        {inst.cnpj     && <InfoCard icon="📋" label="CNPJ"          value={inst.cnpj} />}
-        <InfoCard icon="📅" label="Membro desde"
+        {inst.email    && <InfoCard icon={<EmailIcon style={{ fontSize: 14 }} />}         label="E-mail"        value={inst.email} />}
+        {inst.phone    && <InfoCard icon={<PhoneIcon style={{ fontSize: 14 }} />}          label="Telefone"      value={inst.phone} />}
+        {inst.cnpj     && <InfoCard icon={<AssignmentIndIcon style={{ fontSize: 14 }} />}  label="CNPJ"          value={inst.cnpj} />}
+        <InfoCard icon={<CalendarMonthIcon style={{ fontSize: 14 }} />} label="Membro desde"
           value={new Date(inst.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })} />
       </div>
 
       {/* Necessidades */}
       {necessidades.length > 0 && (
         <section className="flex flex-col gap-4">
-          <h2 className="text-lg font-black text-purple-950">❤️ Necessidades atuais</h2>
+          <h2 className="text-lg font-black text-purple-950"><FavoriteIcon style={{ fontSize: 18 }} className="mr-1 text-accent" /> Necessidades atuais</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {necessidades.map((n) => <CartaoNecessidade key={n.id} necessidade={n} />)}
           </div>
@@ -140,7 +149,7 @@ export default function InstitutionDetail() {
 
       {/* Campanhas */}
       <section id="campanhas" className="flex flex-col gap-4">
-        <h2 className="text-lg font-black text-purple-950">🚩 Campanhas ativas</h2>
+        <h2 className="text-lg font-black text-purple-950"><FlagIcon style={{ fontSize: 18 }} className="mr-1" /> Campanhas ativas</h2>
         {campanhasAtivas.length === 0 ? (
           <p className="text-sm text-muted">Nenhuma campanha ativa no momento.</p>
         ) : (
@@ -160,10 +169,6 @@ function IllustracaoHero({ iniciais }) {
       <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-purple-200/50" />
       <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-primary/10" />
       <div className="absolute bottom-16 right-10 h-28 w-28 rounded-full bg-purple-300/30" />
-      <div className="absolute inset-0 bg-[radial-gradient(#4b1fa6_2px,transparent_2px)] bg-size-[22px_22px] opacity-[0.07]" />
-      <span className="absolute left-6 top-8 select-none text-4xl text-purple-300/50">♡</span>
-      <span className="absolute right-10 top-10 select-none text-2xl text-purple-400/40">♡</span>
-      <span className="absolute bottom-8 left-14 select-none text-3xl text-purple-300/50">♡</span>
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white shadow-xl shadow-purple-950/10 ring-8 ring-white/60">
           <span className="text-3xl font-black text-primary">{iniciais}</span>

@@ -3,6 +3,10 @@ import { Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import { getInstitutions } from "../services/institutions"
 import { getCampaigns } from "../services/campaigns"
+import FavoriteIcon from "@mui/icons-material/Favorite"
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder"
+import LocationOnIcon from "@mui/icons-material/LocationOn"
+import CheckIcon from "@mui/icons-material/Check"
 import Loading from "../components/ui/Loading"
 import Input from "../components/ui/Input"
 
@@ -95,7 +99,7 @@ function CardInstituicao({ inst, campanhas, favorita, onToggle, isDoador }) {
               : "border-line text-muted hover:border-accent hover:text-accent"
           }`}
           aria-label={favorita ? "Remover dos favoritos" : "Favoritar instituição"}>
-          {favorita ? "♥" : "♡"}
+          {favorita ? <FavoriteIcon style={{ fontSize: 18 }} /> : <FavoriteBorderIcon style={{ fontSize: 18 }} />}
         </button>
       )}
 
@@ -109,9 +113,9 @@ function CardInstituicao({ inst, campanhas, favorita, onToggle, isDoador }) {
         </div>
         <div className="min-w-0">
           <h3 className="font-extrabold leading-snug text-purple-950">{inst.name}</h3>
-          {inst.address && <p className="mt-0.5 text-xs text-muted">📍 {inst.address}</p>}
+          {inst.address && <p className="mt-0.5 text-xs text-muted inline-flex items-center gap-0.5"><LocationOnIcon style={{ fontSize: 13 }} />{inst.address}</p>}
           <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-success-light px-2 py-0.5 text-xs font-semibold text-success">
-            ✓ Verificada
+            <CheckIcon style={{ fontSize: 12 }} /> Verificada
           </span>
         </div>
       </div>

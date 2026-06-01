@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { instituicoesPendentesMock } from "../utils/mockData"
 import Textarea from "../components/ui/Textarea"
+import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings"
+import DescriptionIcon from "@mui/icons-material/Description"
 
 const ABAS = ["Pendentes", "Aprovadas", "Rejeitadas"]
 
@@ -53,7 +55,7 @@ export default function AdminArea() {
     <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
       <div className="flex items-center gap-3">
         <div className="w-14 h-14 rounded-2xl bg-primary-dark flex items-center justify-center shrink-0">
-          <span className="text-white text-xl">🛡️</span>
+          <AdminPanelSettingsIcon className="text-white" fontSize="medium" />
         </div>
         <div>
           <div className="flex items-center gap-2">
@@ -176,7 +178,7 @@ function InstituicaoCard({
           <div>
             <p className="text-xs font-bold text-muted uppercase tracking-wide mb-1">Documento</p>
             <button className="text-sm text-primary hover:underline">
-              📄 {inst.documento}
+              <DescriptionIcon fontSize="small" className="mr-1" /> {inst.documento}
             </button>
           </div>
           {inst.motivoRejeicao && (

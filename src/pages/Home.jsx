@@ -52,7 +52,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-2 lg:gap-12">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3 py-1.5 text-xs font-extrabold text-purple-950 sm:px-4 sm:py-2 sm:text-sm">
-              🛡️ Instituições verificadas, impacto real
+              Instituições verificadas, impacto real
             </span>
 
             <h1 className="mt-5 text-3xl font-black leading-tight tracking-tight text-purple-950 sm:text-4xl md:text-5xl lg:text-6xl">
@@ -93,7 +93,6 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mb-6 flex items-end justify-between sm:mb-8">
             <div>
-              <span className="text-xl text-purple-600 sm:text-2xl">✦</span>
               <h2 className="text-2xl font-black text-purple-950 sm:text-3xl">Campanhas</h2>
             </div>
             <Link to="/campanhas" className="text-sm font-extrabold text-purple-700 transition hover:text-purple-900 hover:underline">
@@ -154,7 +153,7 @@ export default function Home() {
             {steps.map((step) => (
               <article key={step.title} className="rounded-2xl bg-white p-4 sm:rounded-3xl sm:p-6">
                 <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary-light text-2xl text-purple-700 sm:h-16 sm:w-16 sm:text-3xl">
-                  {step.icon}
+                  <step.Icon fontSize="inherit" />
                 </span>
                 <h3 className="mt-4 font-black text-purple-950 sm:mt-5">{step.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-500">{step.text}</p>
@@ -193,21 +192,21 @@ function IllustracaoHero() {
         <div className="h-48 w-48 rounded-full bg-accent/10 blur-[56px]" />
       </div>
 
-      {/* Floating hearts — white */}
-      <span className="absolute left-5 top-5 select-none text-6xl text-white/[0.07]">♡</span>
-      <span className="absolute bottom-6 left-8 select-none text-5xl text-white/[0.07]">♡</span>
-      <span className="absolute left-1/4 top-1/3 select-none text-2xl text-white/6">♡</span>
+      {/* Floating accent dots */}
+      <div className="absolute left-5 top-5 h-10 w-10 rounded-full bg-white/[0.07]" />
+      <div className="absolute bottom-6 left-8 h-8 w-8 rounded-full bg-white/[0.07]" />
+      <div className="absolute left-1/4 top-1/3 h-5 w-5 rounded-full bg-white/6" />
 
-      {/* Floating hearts — accent */}
-      <span className="absolute right-5 top-6 select-none text-4xl text-accent/45">♥</span>
-      <span className="absolute bottom-8 right-8 select-none text-3xl text-accent/30">♡</span>
-      <span className="absolute right-1/4 top-1/3 select-none text-xl text-accent/25">♥</span>
+      {/* Floating accent dots — accent */}
+      <div className="absolute right-5 top-6 h-7 w-7 rounded-full bg-accent/45" />
+      <div className="absolute bottom-8 right-8 h-6 w-6 rounded-full bg-accent/30" />
+      <div className="absolute right-1/4 top-1/3 h-4 w-4 rounded-full bg-accent/25" />
 
-      {/* Sparkles */}
-      <span className="absolute left-[22%] top-5 select-none text-sm text-accent/55">✦</span>
-      <span className="absolute right-[22%] bottom-5 select-none text-sm text-accent/40">✦</span>
-      <span className="absolute right-[30%] top-4 select-none text-xs text-white/25">✦</span>
-      <span className="absolute left-[30%] bottom-4 select-none text-[10px] text-white/20">✦</span>
+      {/* Accent sparkle dots */}
+      <div className="absolute left-[22%] top-5 h-2 w-2 rounded-full bg-accent/55" />
+      <div className="absolute right-[22%] bottom-5 h-2 w-2 rounded-full bg-accent/40" />
+      <div className="absolute right-[30%] top-4 h-1.5 w-1.5 rounded-full bg-white/25" />
+      <div className="absolute left-[30%] bottom-4 h-1.5 w-1.5 rounded-full bg-white/20" />
 
       {/* Logo — big and centered */}
       <div className="absolute inset-0 flex items-center justify-center">
