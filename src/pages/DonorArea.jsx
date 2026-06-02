@@ -371,7 +371,7 @@ function AbaRanking({ nome, donations, userId }) {
                   {r.user_name}{r.user_id === userId ? " (você)" : ""}
                 </span>
               </div>
-              <span className={`text-sm font-bold ${r.user_id === userId ? "text-primary" : "text-primary"}`}>{r.points.toLocaleString("pt-BR")} pts</span>
+              <span className={`text-sm font-bold ${r.user_id === userId ? "text-primary" : "text-primary"}`}>{Math.floor(r.total_donated / 100).toLocaleString("pt-BR")} pts</span>
             </div>
           ))}
           {posicaoFromRanking < 0 && pontos > 0 && (
