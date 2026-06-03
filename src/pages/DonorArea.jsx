@@ -5,7 +5,7 @@ import { getMe, updateUser } from "../services/users"
 import { getDonations } from "../services/donations"
 import { getCampaigns } from "../services/campaigns"
 import { getInstitutions } from "../services/institutions"
-import { doadorMock, rankingMock } from "../utils/mockData"
+import { getRanking } from "../services/ranking"
 import Loading from "../components/ui/Loading"
 import { useToast } from "../components/ui/Toast"
 
@@ -103,7 +103,7 @@ export default function DonorArea() {
         <AbaHistorico donations={donations} campaigns={campaigns} institutions={institutions} />
       )}
       {aba === "Ranking" && (
-        <AbaRanking nome={nome} />
+        <AbaRanking nome={nome} donations={donations} userId={user?.id} />
       )}
       <ToastContainer />
     </div>
@@ -276,13 +276,39 @@ function AbaHistorico({ donations, campaigns, institutions }) {
   )
 }
 
-function AbaRanking({ nome }) {
-  const d = doadorMock
-  const nivel = NIVEIS.find((t) => d.pontos >= t.min && d.pontos <= t.max)
+function AbaRanking({ nome, donations, userId }) {
+  const [ranking, setRanking] = useState([])
+  const [loadingRanking, setLoadingRanking] = useState(true)
+
+  useEffect(() => {
+    getRanking(10)
+      .then((data) => setRanking(data || []))
+      .catch(() => setRanking([]))
+      .finally(() => setLoadingRanking(false))
+  }, [])
+
+  const paidDonations = (donations || []).filter((d) => d.status === "PAID")
+  const totalDoadoCents = paidDonations.reduce((sum, d) => sum + (d.amount ?? 0), 0)
+  const pontos = Math.floor(totalDoadoCents / 100)
+  const totalDoacoes = paidDonations.length
+
+  const posicaoFromRanking = ranking.findIndex((r) => r.user_id === userId)
+  const posicao = posicaoFromRanking >= 0 ? posicaoFromRanking + 1 : ranking.length + 1
+
+  const nivel = NIVEIS.find((t) => pontos >= t.min && pontos <= t.max)
   const proxNivel = NIVEIS[NIVEIS.indexOf(nivel) + 1]
   const progresso = proxNivel
-    ? Math.round(((d.pontos - nivel.min) / (proxNivel.min - nivel.min)) * 100)
+    ? Math.round(((pontos - nivel.min) / (proxNivel.min - nivel.min)) * 100)
     : 100
+
+  const badges = []
+  if (totalDoacoes >= 1) badges.push({ id: 1, icon: "\u{1F49C}", label: "Primeiro passo", descricao: "Realizou a primeira doação" })
+  if (totalDoacoes >= 3) badges.push({ id: 2, icon: "\u{1F525}", label: "Doador constante", descricao: "3 doações confirmadas" })
+  if (totalDoacoes >= 5) badges.push({ id: 3, icon: "\u{2B50}", label: "Impacto real", descricao: "5 doações confirmadas" })
+  if (totalDoacoes >= 10) badges.push({ id: 4, icon: "\u{1F3C6}", label: "Top 10", descricao: "10 doações confirmadas" })
+  if (pontos >= 1000) badges.push({ id: 5, icon: "\u{1F48E}", label: "Generoso", descricao: "Mais de R$ 1.000 doados" })
+
+  if (loadingRanking) return <Loading />
 
   return (
     <div className="flex flex-col gap-6">
@@ -294,61 +320,72 @@ function AbaRanking({ nome }) {
           </div>
           <div className="text-right">
             <p className="text-xs text-muted">Pontos</p>
-            <p className="text-2xl font-bold text-primary">{d.pontos.toLocaleString("pt-BR")}</p>
+            <p className="text-2xl font-bold text-primary">{pontos.toLocaleString("pt-BR")}</p>
           </div>
         </div>
         {proxNivel && (
           <div>
             <div className="flex justify-between text-xs text-muted mb-1.5">
               <span>{nivel.label}</span>
-              <span>{proxNivel.label} em {(proxNivel.min - d.pontos).toLocaleString("pt-BR")} pts</span>
+              <span>{proxNivel.label} em {(proxNivel.min - pontos).toLocaleString("pt-BR")} pts</span>
             </div>
             <div className="w-full bg-soft rounded-full h-2">
               <div className="bg-primary h-2 rounded-full" style={{ width: `${progresso}%` }} />
             </div>
           </div>
         )}
-        <p className="text-xs text-muted">Posição global: <span className="font-bold text-ink">#{d.ranking}</span></p>
+        <p className="text-xs text-muted">Posição global: <span className="font-bold text-ink">#{posicao}</span></p>
       </div>
 
       <div>
         <h2 className="text-base font-bold text-ink mb-3">Conquistas</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {d.badges.map((b) => (
+          {badges.map((b) => (
             <div key={b.id} className="bg-white rounded-xl border border-line p-4 flex flex-col items-center gap-2 text-center">
               <span className="text-3xl">{b.icon}</span>
               <p className="text-sm font-bold text-ink">{b.label}</p>
               <p className="text-xs text-muted">{b.descricao}</p>
             </div>
           ))}
-          <div className="bg-soft rounded-xl border border-dashed border-line p-4 flex flex-col items-center gap-2 text-center opacity-50">
-            <span className="text-3xl">🔒</span>
-            <p className="text-sm font-bold text-muted">10 Doações</p>
-            <p className="text-xs text-muted">Complete 10 doações</p>
-          </div>
+          {totalDoacoes < 10 && (
+            <div className="bg-soft rounded-xl border border-dashed border-line p-4 flex flex-col items-center gap-2 text-center opacity-50">
+              <span className="text-3xl">{"\u{1F512}"}</span>
+              <p className="text-sm font-bold text-muted">10 Doações</p>
+              <p className="text-xs text-muted">Complete 10 doações</p>
+            </div>
+          )}
         </div>
       </div>
 
       <div>
         <h2 className="text-base font-bold text-ink mb-3">Top doadores</h2>
         <div className="bg-white rounded-xl border border-line divide-y divide-line">
-          {rankingMock.map((r) => (
-            <div key={r.posicao} className="flex items-center justify-between px-4 py-3">
+          {ranking.length === 0 && (
+            <div className="px-4 py-6 text-center text-sm text-muted">Nenhuma doação confirmada ainda.</div>
+          )}
+          {ranking.map((r) => (
+            <div key={r.user_id} className={`flex items-center justify-between px-4 py-3 ${r.user_id === userId ? "bg-primary-light" : ""}`}>
               <div className="flex items-center gap-3">
-                <span className="text-sm font-bold text-muted w-5">#{r.posicao}</span>
-                <span className="text-sm text-ink">{r.nome}</span>
+                <span className={`text-sm font-bold w-5 ${r.user_id === userId ? "text-primary" : "text-muted"}`}>#{r.position}</span>
+                <span className={`text-sm ${r.user_id === userId ? "font-bold text-primary" : "text-ink"}`}>
+                  {r.user_name}{r.user_id === userId ? " (você)" : ""}
+                </span>
               </div>
-              <span className="text-sm font-bold text-primary">{r.pontos.toLocaleString("pt-BR")} pts</span>
+              <span className={`text-sm font-bold ${r.user_id === userId ? "text-primary" : "text-primary"}`}>{Math.floor(r.total_donated / 100).toLocaleString("pt-BR")} pts</span>
             </div>
           ))}
-          <div className="px-4 py-1 text-center text-xs text-muted">• • •</div>
-          <div className="flex items-center justify-between px-4 py-3 bg-primary-light">
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-bold text-primary w-5">#{d.ranking}</span>
-              <span className="text-sm font-bold text-primary">{nome} (você)</span>
-            </div>
-            <span className="text-sm font-bold text-primary">{d.pontos.toLocaleString("pt-BR")} pts</span>
-          </div>
+          {posicaoFromRanking < 0 && pontos > 0 && (
+            <>
+              <div className="px-4 py-1 text-center text-xs text-muted">• • •</div>
+              <div className="flex items-center justify-between px-4 py-3 bg-primary-light">
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-bold text-primary w-5">#{posicao}</span>
+                  <span className="text-sm font-bold text-primary">{nome} (você)</span>
+                </div>
+                <span className="text-sm font-bold text-primary">{pontos.toLocaleString("pt-BR")} pts</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
