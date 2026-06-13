@@ -22,9 +22,6 @@ export default function AdminArea() {
   const client = useApiClient()
   const { showToast, ToastContainer } = useToast()
 
-  // GAP: GET /api/v1/institutions is the public listing endpoint and may only
-  // return approved institutions. There's no admin-scoped endpoint yet that
-  // returns institutions across all statuses (pending/rejected included).
   useEffect(() => {
     getInstitutions()
       .then((insts) => setInstitutions(insts ?? []))
