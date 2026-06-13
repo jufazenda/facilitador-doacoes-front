@@ -3,6 +3,7 @@ import CampaignCard from "../components/ui/CampaignCard"
 import Select from "../components/ui/Select"
 import Input from "../components/ui/Input"
 import Loading from "../components/ui/Loading"
+import EmptyState from "../components/ui/EmptyState"
 import { getCampaigns } from "../services/campaigns"
 import { getInstitutions } from "../services/institutions"
 import { categories, slugify } from "../utils/staticData"
@@ -83,7 +84,7 @@ export default function Campaigns() {
         {loading ? (
           <Loading />
         ) : visible.length === 0 ? (
-          <p className="py-12 text-center text-sm text-muted">Nenhuma campanha encontrada.</p>
+          <EmptyState message="Nenhuma campanha encontrada." />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-7">
             {visible.map((c) => (

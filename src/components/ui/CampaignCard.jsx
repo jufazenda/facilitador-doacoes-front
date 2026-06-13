@@ -2,6 +2,8 @@ import { Link } from "react-router-dom"
 import { categoryImages } from "../../utils/categoryImages"
 import { useAuth } from "../../hooks/useAuth"
 import { getInitials } from "../../utils/strings"
+import Badge from "./Badge"
+import { IconHeart, IconCircleCheck } from "@tabler/icons-react"
 
 function daysLeft(endsAt) {
   if (!endsAt) return null
@@ -31,9 +33,7 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
         </div>
 
         {c.is_urgent && (
-          <span className="absolute left-3 top-3 rounded-full bg-accent px-2.5 py-0.5 text-xs font-extrabold text-white sm:left-4 sm:top-4 sm:px-3 sm:py-1">
-            Urgente
-          </span>
+          <Badge variant="urgent" className="absolute left-3 top-3 sm:left-4 sm:top-4" />
         )}
 
         <div className="absolute -bottom-5 left-4 h-10 w-10 overflow-hidden rounded-full border-2 border-white bg-purple-700 shadow-md sm:h-11 sm:w-11">
@@ -49,8 +49,8 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
         {institutionName && (
           <p className="mt-1 text-sm font-semibold text-slate-500">
             {institutionName}
-            <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-purple-700 text-xs text-white" aria-label="Instituição verificada">
-              ✓
+            <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-purple-700 text-white" aria-label="Instituição verificada">
+              <IconCircleCheck size={13} stroke={2.5} />
             </span>
           </p>
         )}
@@ -75,7 +75,7 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
             to={`/doacao/${c.id}`}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-2.5 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-purple-800 sm:py-3"
           >
-            ♡ Doe
+            <IconHeart size={18} /> Doe
           </Link>
           )}
         </div>

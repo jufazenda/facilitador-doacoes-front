@@ -2,6 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import logo from "../../assets/logo.png";
+import { IconHeart } from "@tabler/icons-react";
 
 const TYPE_LABEL = {
   doador: "Doador",
@@ -144,9 +145,9 @@ export default function Header() {
           {user?.type !== "instituicao" && (
           <button
             onClick={() => handleHashNav("campaigns")}
-            className="hidden rounded-2xl bg-accent px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 sm:block sm:px-5 sm:py-3"
+            className="hidden items-center gap-1.5 rounded-2xl bg-accent px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 sm:inline-flex sm:px-5 sm:py-3"
           >
-            Doe agora ♡
+            Doe agora <IconHeart size={16} />
           </button>
           )}
 
@@ -246,8 +247,8 @@ export default function Header() {
               </>
             )}
             {user?.type !== "instituicao" && (
-            <button onClick={() => handleHashNav("campaigns")} className="rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
-              Doe agora ♡
+            <button onClick={() => handleHashNav("campaigns")} className="flex items-center justify-center gap-1.5 rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
+              Doe agora <IconHeart size={16} />
             </button>
             )}
           </div>

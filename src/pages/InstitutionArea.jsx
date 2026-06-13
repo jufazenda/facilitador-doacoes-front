@@ -15,14 +15,17 @@ import Loading from "../components/ui/Loading"
 import StatCard from "../components/ui/StatCard"
 import TabBar from "../components/ui/TabBar"
 import InfoLinha from "../components/ui/InfoLinha"
+import Badge from "../components/ui/Badge"
+import EmptyState from "../components/ui/EmptyState"
 import { useToast } from "../hooks/useToast"
+import { IconCircleCheck } from "@tabler/icons-react"
 
 const TABS = ["Dashboard", "Perfil", "Campanhas", "Necessidades", "Atualizações"]
 
-const INSTITUTION_STATUS = {
-  approved: { label: "✓ Verificada", classes: "bg-success-light text-success" },
-  pending:  { label: "Em análise",   classes: "bg-warning-light text-warning" },
-  rejected: { label: "Rejeitada",    classes: "bg-red-100 text-red-700" },
+const INSTITUTION_STATUS_LABEL = {
+  approved: "Verificada",
+  pending:  "Em análise",
+  rejected: "Rejeitada",
 }
 
 export default function InstitutionArea() {
@@ -130,7 +133,7 @@ export default function InstitutionArea() {
 
   if (loading) return <Loading full />
 
-  const statusInstitution = INSTITUTION_STATUS[institution?.status] ?? INSTITUTION_STATUS.pending
+  const institutionStatusKey = INSTITUTION_STATUS_LABEL[institution?.status] ? institution.status : "pending"
   const initials = getInitials(institution?.name)
 
   return (
@@ -142,9 +145,7 @@ export default function InstitutionArea() {
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl font-bold text-ink">{institution?.name}</h1>
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusInstitution.classes}`}>
-              {statusInstitution.label}
-            </span>
+            <Badge variant={institutionStatusKey} label={INSTITUTION_STATUS_LABEL[institutionStatusKey]} />
           </div>
           {institution?.address && (
             <p className="text-sm text-muted">{institution.address}</p>
@@ -205,15 +206,13 @@ function ProfileTab({ institution, setInstitution, client, showToast }) {
     }
   }
 
-  const statusInstitution = INSTITUTION_STATUS[institution?.status] ?? INSTITUTION_STATUS.pending
+  const institutionStatusKey = INSTITUTION_STATUS_LABEL[institution?.status] ? institution.status : "pending"
 
   return (
     <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold text-ink">Dados da instituição</h2>
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusInstitution.classes}`}>
-          {statusInstitution.label}
-        </span>
+        <Badge variant={institutionStatusKey} label={INSTITUTION_STATUS_LABEL[institutionStatusKey]} />
       </div>
 
       {!editing ? (
@@ -542,7 +541,7 @@ function NecessitiesTab({ necessities, onToggleUrgente, onAtender, onAdicionar }
         </div>
       )}
       {necessities.length === 0 && (
-        <p className="text-sm text-muted text-center py-4">Nenhuma necessidade cadastrada ainda.</p>
+        <EmptyState message="Nenhuma necessidade cadastrada ainda." />
       )}
     </div>
   )
@@ -566,7 +565,7 @@ function NecessityItem({ n, onToggleUrgente, onAtender }) {
                 ? "border-accent/30 text-accent bg-accent-light"
                 : "border-line text-muted hover:border-accent hover:text-accent"
             }`}>
-            {n.is_urgent ? "Urgente ✓" : "Urgente"}
+            Urgente
           </button>
           <button onClick={() => onAtender(n.id)}
             className="text-xs px-2.5 py-1.5 rounded-lg border border-success/30 text-success bg-success-light hover:bg-success/20 font-semibold transition-colors">
@@ -574,9 +573,7 @@ function NecessityItem({ n, onToggleUrgente, onAtender }) {
           </button>
         </div>
       )}
-      {n.status === "attended" && (
-        <span className="text-xs text-success font-semibold shrink-0">✓ Atendida</span>
-      )}
+      {n.status === "attended" && <Badge variant="completed" />}
     </div>
   )
 }
@@ -619,7 +616,11 @@ function UpdatesTab({ campaigns, updates, onEnviar }) {
                 placeholder="Conte aos doadores como está o progresso da campanha..." />
             </div>
             <div className="flex items-center justify-between">
-              {sent && <span className="text-sm text-success font-semibold">✓ Atualização enviada!</span>}
+              {sent && (
+                <span className="flex items-center gap-1.5 text-sm text-success font-semibold">
+                  <IconCircleCheck size={16} /> Atualização enviada!
+                </span>
+              )}
               <button type="submit" className="ml-auto bg-primary hover:bg-primary-dark text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-colors">
                 Enviar para doadores
               </button>

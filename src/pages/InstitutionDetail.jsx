@@ -6,7 +6,13 @@ import { getCampaignsByInstitution } from "../services/campaigns"
 import { getNecessitiesByInstitution } from "../services/necessities"
 import { categoryImages } from "../utils/categoryImages"
 import Loading from "../components/ui/Loading"
+import Badge from "../components/ui/Badge"
+import EmptyState from "../components/ui/EmptyState"
 import { getInitials } from "../utils/strings"
+import {
+  IconHeart, IconHeartFilled, IconMapPin, IconMail, IconPhone,
+  IconFileText, IconCalendar, IconHeartHandshake, IconFlag,
+} from "@tabler/icons-react"
 
 export default function InstitutionDetail() {
   const { id } = useParams()
@@ -80,10 +86,12 @@ export default function InstitutionDetail() {
                   <p className="mt-0.5 text-xs text-muted">{institution.legal_name}</p>
                 )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                  {institution.address && <span className="text-sm text-muted">📍 {institution.address}</span>}
-                  <span className="inline-flex items-center gap-1 rounded-full bg-success-light px-2.5 py-0.5 text-xs font-semibold text-success">
-                    ✓ Verificada
-                  </span>
+                  {institution.address && (
+                    <span className="inline-flex items-center gap-1 text-sm text-muted">
+                      <IconMapPin size={15} /> {institution.address}
+                    </span>
+                  )}
+                  <Badge variant="verified" />
                 </div>
               </div>
             </div>
@@ -102,7 +110,8 @@ export default function InstitutionDetail() {
                       : "bg-purple-700 text-white hover:bg-purple-800"
                   }`}
                 >
-                  {supporting ? "♥ Apoiando" : "♡ Apoiar instituição"}
+                  {supporting ? <IconHeartFilled size={16} /> : <IconHeart size={16} />}
+                  {supporting ? "Apoiando" : "Apoiar instituição"}
                 </button>
               )}
               {activeCampaigns.length > 0 && (
@@ -122,17 +131,19 @@ export default function InstitutionDetail() {
 
       {/* Info */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {institution.email    && <InfoCard icon="✉️" label="E-mail"        value={institution.email} />}
-        {institution.phone    && <InfoCard icon="📞" label="Telefone"      value={institution.phone} />}
-        {institution.cnpj     && <InfoCard icon="📋" label="CNPJ"          value={institution.cnpj} />}
-        <InfoCard icon="📅" label="Membro desde"
+        {institution.email    && <InfoCard icon={IconMail} label="E-mail"        value={institution.email} />}
+        {institution.phone    && <InfoCard icon={IconPhone} label="Telefone"      value={institution.phone} />}
+        {institution.cnpj     && <InfoCard icon={IconFileText} label="CNPJ"          value={institution.cnpj} />}
+        <InfoCard icon={IconCalendar} label="Membro desde"
           value={new Date(institution.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })} />
       </div>
 
       {/* Necessidades */}
       {necessities.length > 0 && (
         <section className="flex flex-col gap-4">
-          <h2 className="text-lg font-black text-purple-950">❤️ Necessidades atuais</h2>
+          <h2 className="flex items-center gap-2 text-lg font-black text-purple-950">
+            <IconHeartHandshake size={20} className="text-primary" /> Necessidades atuais
+          </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {necessities.map((n) => <NecessityCard key={n.id} necessity={n} />)}
           </div>
@@ -141,9 +152,11 @@ export default function InstitutionDetail() {
 
       {/* Campanhas */}
       <section id="campanhas" className="flex flex-col gap-4">
-        <h2 className="text-lg font-black text-purple-950">🚩 Campanhas ativas</h2>
+        <h2 className="flex items-center gap-2 text-lg font-black text-purple-950">
+          <IconFlag size={20} className="text-primary" /> Campanhas ativas
+        </h2>
         {activeCampaigns.length === 0 ? (
-          <p className="text-sm text-muted">Nenhuma campanha ativa no momento.</p>
+          <EmptyState message="Nenhuma campanha ativa no momento." />
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {activeCampaigns.map((c) => <CampaignCardH key={c.id} campaign={c} />)}
@@ -174,10 +187,10 @@ function HeroIllustration({ initials }) {
   )
 }
 
-function InfoCard({ icon, label, value }) {
+function InfoCard({ icon: Icon, label, value }) {
   return (
     <div className="flex flex-col gap-1 rounded-2xl border border-purple-100 bg-white p-4">
-      <span className="text-xs text-muted">{icon} {label}</span>
+      <span className="flex items-center gap-1 text-xs text-muted"><Icon size={14} /> {label}</span>
       <span className="truncate text-sm font-bold text-ink">{value}</span>
     </div>
   )
@@ -186,12 +199,7 @@ function InfoCard({ icon, label, value }) {
 function NecessityCard({ necessity: n }) {
   return (
     <div className={`flex flex-col gap-3 rounded-2xl border bg-white p-5 ${n.is_urgent ? "border-accent/30" : "border-line"}`}>
-      {n.is_urgent && (
-        <span className="self-start flex items-center gap-1.5 rounded-full border border-accent/20 bg-red-50 px-2.5 py-0.5 text-xs font-bold text-accent">
-          <span className="h-2 w-2 rounded-full bg-accent" />
-          Urgente
-        </span>
-      )}
+      {n.is_urgent && <Badge variant="urgent" className="self-start" />}
       <div>
         <p className="font-bold text-ink">{n.description}</p>
         <p className="mt-0.5 text-xs text-muted">{n.category}</p>
@@ -220,9 +228,7 @@ function CampaignCardH({ campaign: c }) {
           <h3 className="flex-1 text-sm font-extrabold leading-snug text-purple-950 group-hover:text-purple-700 transition-colors">
             {c.title}
           </h3>
-          {c.is_urgent && (
-            <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white">Urgente</span>
-          )}
+          {c.is_urgent && <Badge variant="urgent" className="shrink-0" />}
         </div>
         {c.description && (
           <p className="line-clamp-2 text-xs text-muted">{c.description}</p>

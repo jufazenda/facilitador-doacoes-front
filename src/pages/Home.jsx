@@ -3,9 +3,11 @@ import { Link, useLocation } from "react-router-dom"
 import logo from "../assets/logo.png"
 import CampaignCard from "../components/ui/CampaignCard"
 import Loading from "../components/ui/Loading"
+import EmptyState from "../components/ui/EmptyState"
 import { getCampaigns } from "../services/campaigns"
 import { getInstitutions } from "../services/institutions"
 import { steps } from "../utils/staticData"
+import { IconShieldCheck } from "@tabler/icons-react"
 
 export default function Home() {
   const [campaigns, setCampaigns] = useState([])
@@ -52,7 +54,7 @@ export default function Home() {
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-2 lg:gap-12">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3 py-1.5 text-xs font-extrabold text-purple-950 sm:px-4 sm:py-2 sm:text-sm">
-              🛡️ Instituições verificadas, impacto real
+              <IconShieldCheck size={16} /> Instituições verificadas, impacto real
             </span>
 
             <h1 className="mt-5 text-3xl font-black leading-tight tracking-tight text-purple-950 sm:text-4xl md:text-5xl lg:text-6xl">
@@ -104,7 +106,7 @@ export default function Home() {
           {loading ? (
             <Loading />
           ) : preview.length === 0 ? (
-            <p className="py-12 text-center text-sm text-muted">Nenhuma campanha encontrada.</p>
+            <EmptyState message="Nenhuma campanha encontrada." />
           ) : (
             <div className="relative">
               {canScrollLeft && (
@@ -153,8 +155,8 @@ export default function Home() {
           <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-12 sm:gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
             {steps.map((step) => (
               <article key={step.title} className="rounded-2xl bg-white p-4 sm:rounded-3xl sm:p-6">
-                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary-light text-2xl text-purple-700 sm:h-16 sm:w-16 sm:text-3xl">
-                  {step.icon}
+                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary-light text-purple-700 sm:h-16 sm:w-16">
+                  <step.icon size={28} stroke={1.75} />
                 </span>
                 <h3 className="mt-4 font-black text-purple-950 sm:mt-5">{step.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-500">{step.text}</p>

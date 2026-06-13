@@ -4,6 +4,9 @@ import { getInitials } from "../utils/strings"
 import Textarea from "../components/ui/Textarea"
 import StatCard from "../components/ui/StatCard"
 import TabBar from "../components/ui/TabBar"
+import Badge from "../components/ui/Badge"
+import EmptyState from "../components/ui/EmptyState"
+import { IconShieldCheck, IconFileText } from "@tabler/icons-react"
 
 const TABS = ["Pendentes", "Aprovadas", "Rejeitadas"]
 
@@ -56,7 +59,7 @@ export default function AdminArea() {
     <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
       <div className="flex items-center gap-3">
         <div className="w-14 h-14 rounded-2xl bg-primary-dark flex items-center justify-center shrink-0">
-          <span className="text-white text-xl">🛡️</span>
+          <IconShieldCheck className="text-white" size={26} />
         </div>
         <div>
           <div className="flex items-center gap-2">
@@ -85,7 +88,7 @@ export default function AdminArea() {
       />
 
       {currentList.length === 0 ? (
-        <p className="text-center text-muted py-12">Nenhuma instituição nesta categoria.</p>
+        <EmptyState message="Nenhuma instituição nesta categoria." />
       ) : (
         <div className="flex flex-col gap-4">
           {currentList.map((inst) => (
@@ -168,8 +171,8 @@ function InstitutionCard({
           </div>
           <div>
             <p className="text-xs font-bold text-muted uppercase tracking-wide mb-1">Documento</p>
-            <button className="text-sm text-primary hover:underline">
-              📄 {institution.document}
+            <button className="flex items-center gap-1.5 text-sm text-primary hover:underline">
+              <IconFileText size={16} /> {institution.document}
             </button>
           </div>
           {institution.rejectionReason && (
@@ -212,16 +215,9 @@ function InstitutionCard({
   )
 }
 
+const STATUS_VARIANT = { pendente: "pending", aprovada: "approved", rejeitada: "rejected" }
+const STATUS_LABEL = { pendente: "Pendente", aprovada: "Aprovada", rejeitada: "Rejeitada" }
+
 function StatusBadge({ status }) {
-  const styles = {
-    pendente:  "bg-warning-light text-warning",
-    aprovada:  "bg-success-light text-success",
-    rejeitada: "bg-accent-light text-accent",
-  }
-  const labels = { pendente: "Pendente", aprovada: "Aprovada", rejeitada: "Rejeitada" }
-  return (
-    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${styles[status]}`}>
-      {labels[status]}
-    </span>
-  )
+  return <Badge variant={STATUS_VARIANT[status]} label={STATUS_LABEL[status]} icon={false} />
 }

@@ -5,7 +5,10 @@ import { getInstitutions } from "../services/institutions"
 import { getCampaigns } from "../services/campaigns"
 import Loading from "../components/ui/Loading"
 import Input from "../components/ui/Input"
+import Badge from "../components/ui/Badge"
+import EmptyState from "../components/ui/EmptyState"
 import { getInitials } from "../utils/strings"
+import { IconHeart, IconHeartFilled, IconMapPin } from "@tabler/icons-react"
 
 export default function InstitutionList() {
   const { user } = useAuth()
@@ -64,7 +67,7 @@ export default function InstitutionList() {
       {loading ? (
         <Loading />
       ) : result.length === 0 ? (
-        <p className="py-16 text-center text-muted">Nenhuma instituição encontrada.</p>
+        <EmptyState message="Nenhuma instituição encontrada." />
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
           {result.map((inst) => (
@@ -96,7 +99,7 @@ function InstitutionCard({ institution, campaigns, favorite, onToggle, isDonor }
               : "border-line text-muted hover:border-accent hover:text-accent"
           }`}
           aria-label={favorite ? "Remover dos favoritos" : "Favoritar instituição"}>
-          {favorite ? "♥" : "♡"}
+          {favorite ? <IconHeartFilled size={18} /> : <IconHeart size={18} />}
         </button>
       )}
 
@@ -110,10 +113,12 @@ function InstitutionCard({ institution, campaigns, favorite, onToggle, isDonor }
         </div>
         <div className="min-w-0">
           <h3 className="font-extrabold leading-snug text-purple-950">{institution.name}</h3>
-          {institution.address && <p className="mt-0.5 text-xs text-muted">📍 {institution.address}</p>}
-          <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-success-light px-2 py-0.5 text-xs font-semibold text-success">
-            ✓ Verificada
-          </span>
+          {institution.address && (
+            <p className="mt-0.5 flex items-center gap-1 text-xs text-muted">
+              <IconMapPin size={13} /> {institution.address}
+            </p>
+          )}
+          <Badge variant="verified" className="mt-1" />
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import { createInstitution } from "../services/institutions"
 import FormField from "../components/ui/FormField"
 import Textarea from "../components/ui/Textarea"
 import { maskCpf, maskCnpj, maskPhone } from "../utils/masks"
+import { IconHeartHandshake, IconBuildingBank } from "@tabler/icons-react"
 
 export default function CompleteRegistration() {
 
@@ -97,7 +98,7 @@ export default function CompleteRegistration() {
               onClick={() => setProfile("donor")}
               className="group flex flex-col items-center gap-4 rounded-xl border-2 border-line bg-white p-8 text-center transition hover:border-primary hover:bg-soft"
             >
-              <span className="text-5xl">🤝</span>
+              <IconHeartHandshake size={48} className="text-primary" />
               <div>
                 <p className="font-bold text-ink text-lg group-hover:text-primary transition">Sou doador</p>
                 <p className="text-sm text-muted mt-1">Quero apoiar causas e acompanhar minhas doações</p>
@@ -108,7 +109,7 @@ export default function CompleteRegistration() {
               onClick={() => setProfile("institution")}
               className="group flex flex-col items-center gap-4 rounded-xl border-2 border-line bg-white p-8 text-center transition hover:border-primary hover:bg-soft"
             >
-              <span className="text-5xl">🏛️</span>
+              <IconBuildingBank size={48} className="text-primary" />
               <div>
                 <p className="font-bold text-ink text-lg group-hover:text-primary transition">Sou uma instituição</p>
                 <p className="text-sm text-muted mt-1">Quero cadastrar minha ONG e receber doações</p>

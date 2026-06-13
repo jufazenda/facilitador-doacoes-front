@@ -14,7 +14,9 @@ import FormField from "../components/ui/FormField"
 import StatCard from "../components/ui/StatCard"
 import TabBar from "../components/ui/TabBar"
 import InfoLinha from "../components/ui/InfoLinha"
+import EmptyState from "../components/ui/EmptyState"
 import { useToast } from "../hooks/useToast"
+import { IconHeartFilled, IconFlame, IconStar, IconTrophy, IconDiamond, IconLock } from "@tabler/icons-react"
 
 const TABS = ["Perfil", "Histórico", "Ranking"]
 
@@ -186,9 +188,9 @@ function ProfileTab({ user, setUser, client, showToast, totalDonated, totalDonat
 function HistoryTab({ donations, campaigns, institutions }) {
   if (donations.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-line p-8 text-center flex flex-col items-center gap-3">
-        <p className="text-muted text-sm">Você ainda não fez nenhuma doação.</p>
-        <Link to="/campanhas" className="text-sm text-primary hover:underline font-semibold">
+      <div className="bg-white rounded-xl border border-line p-8">
+        <EmptyState message="Você ainda não fez nenhuma doação." />
+        <Link to="/campanhas" className="block text-center text-sm text-primary hover:underline font-semibold">
           Ver campanhas disponíveis
         </Link>
       </div>
@@ -265,11 +267,11 @@ function RankingTab({ name, donations, userId }) {
     : 100
 
   const badges = []
-  if (totalDonations >= 1) badges.push({ id: 1, icon: "\u{1F49C}", label: "Primeiro passo", description: "Realizou a primeira doação" })
-  if (totalDonations >= 3) badges.push({ id: 2, icon: "\u{1F525}", label: "Doador constante", description: "3 doações confirmadas" })
-  if (totalDonations >= 5) badges.push({ id: 3, icon: "\u{2B50}", label: "Impacto real", description: "5 doações confirmadas" })
-  if (totalDonations >= 10) badges.push({ id: 4, icon: "\u{1F3C6}", label: "Top 10", description: "10 doações confirmadas" })
-  if (points >= 1000) badges.push({ id: 5, icon: "\u{1F48E}", label: "Generoso", description: "Mais de R$ 1.000 doados" })
+  if (totalDonations >= 1) badges.push({ id: 1, icon: IconHeartFilled, label: "Primeiro passo", description: "Realizou a primeira doação" })
+  if (totalDonations >= 3) badges.push({ id: 2, icon: IconFlame, label: "Doador constante", description: "3 doações confirmadas" })
+  if (totalDonations >= 5) badges.push({ id: 3, icon: IconStar, label: "Impacto real", description: "5 doações confirmadas" })
+  if (totalDonations >= 10) badges.push({ id: 4, icon: IconTrophy, label: "Top 10", description: "10 doações confirmadas" })
+  if (points >= 1000) badges.push({ id: 5, icon: IconDiamond, label: "Generoso", description: "Mais de R$ 1.000 doados" })
 
   if (rankingLoading) return <Loading />
 
@@ -305,14 +307,14 @@ function RankingTab({ name, donations, userId }) {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {badges.map((b) => (
             <div key={b.id} className="bg-white rounded-xl border border-line p-4 flex flex-col items-center gap-2 text-center">
-              <span className="text-3xl">{b.icon}</span>
+              <b.icon size={28} className="text-primary" stroke={1.5} />
               <p className="text-sm font-bold text-ink">{b.label}</p>
               <p className="text-xs text-muted">{b.description}</p>
             </div>
           ))}
           {totalDonations < 10 && (
             <div className="bg-soft rounded-xl border border-dashed border-line p-4 flex flex-col items-center gap-2 text-center opacity-50">
-              <span className="text-3xl">{"\u{1F512}"}</span>
+              <IconLock size={28} className="text-muted" stroke={1.5} />
               <p className="text-sm font-bold text-muted">10 Doações</p>
               <p className="text-xs text-muted">Complete 10 doações</p>
             </div>

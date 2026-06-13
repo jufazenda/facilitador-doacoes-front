@@ -13,6 +13,7 @@ import FormField from "../components/ui/FormField"
 import { STATES } from "../utils/states"
 import { maskCep, maskCardExpiry } from "../utils/masks"
 import { searchAddressByCep, searchCitiesByState } from "../services/address"
+import { IconCheck } from "@tabler/icons-react"
 
 const PRESET_VALUES = [10, 25, 50, 100, 200]
 
@@ -237,7 +238,7 @@ function Step({ step }) {
           <div key={label} className="flex items-center gap-2 flex-1 last:flex-none">
             <div className="flex items-center gap-2">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${done || active ? "bg-primary text-white" : "bg-soft text-muted"}`}>
-                {done ? "✓" : num}
+                {done ? <IconCheck size={14} stroke={3} /> : num}
               </div>
               <span className={`text-sm hidden sm:block font-medium ${active ? "text-ink" : "text-muted"}`}>{label}</span>
             </div>

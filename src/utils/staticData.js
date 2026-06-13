@@ -1,3 +1,5 @@
+import { IconSearch, IconHeartFilled, IconChartBar, IconSpeakerphone } from "@tabler/icons-react"
+
 export function slugify(str) {
   return str
     .normalize("NFD")
@@ -28,22 +30,22 @@ export const DONATION_STATUS = {
 
 export const steps = [
   {
-    icon: "🔍",
+    icon: IconSearch,
     title: "1. Explore",
     text: "Descubra campanhas e instituições verificadas.",
   },
   {
-    icon: "💜",
+    icon: IconHeartFilled,
     title: "2. Doe com segurança",
     text: "Sua doação é protegida e o impacto é garantido.",
   },
   {
-    icon: "📊",
+    icon: IconChartBar,
     title: "3. Acompanhe",
     text: "Veja como sua doação está transformando vidas.",
   },
   {
-    icon: "📣",
+    icon: IconSpeakerphone,
     title: "4. Compartilhe",
     text: "Convide outras pessoas para multiplicar o impacto.",
   },
