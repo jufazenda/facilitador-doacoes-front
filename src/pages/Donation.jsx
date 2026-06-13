@@ -9,6 +9,7 @@ import { useApiClient } from "../hooks/useApiClient"
 import Input from "../components/ui/Input"
 import Select from "../components/ui/Select"
 import Loading from "../components/ui/Loading"
+import FormField from "../components/ui/FormField"
 
 const VALORES_PRESET = [10, 25, 50, 100, 200]
 
@@ -491,11 +492,11 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-3">
             <p className="text-xs font-bold text-muted uppercase tracking-widest">Dados do cartão</p>
-            <CampoCartao label="Número do cartão" name="numero" value={cartao.numero} onChange={handleCartao} placeholder="0000 0000 0000 0000" maxLength={16} inputMode="numeric" />
-            <CampoCartao label="Nome impresso no cartão" name="nome" value={cartao.nome} onChange={handleCartao} placeholder="Como aparece no cartão" />
+            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Número do cartão" name="numero" value={cartao.numero} onChange={handleCartao} placeholder="0000 0000 0000 0000" maxLength={16} inputMode="numeric" />
+            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Nome impresso no cartão" name="nome" value={cartao.nome} onChange={handleCartao} placeholder="Como aparece no cartão" />
             <div className="grid grid-cols-2 gap-3">
-              <CampoCartao label="Validade" name="validade" value={cartao.validade} onChange={handleCartao} placeholder="MM/AA" maxLength={5} />
-              <CampoCartao label="CVV" name="cvv" value={cartao.cvv} onChange={handleCartao} placeholder="000" maxLength={4} inputMode="numeric" />
+              <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Validade" name="validade" value={cartao.validade} onChange={handleCartao} placeholder="MM/AA" maxLength={5} />
+              <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="CVV" name="cvv" value={cartao.cvv} onChange={handleCartao} placeholder="000" maxLength={4} inputMode="numeric" />
             </div>
           </div>
 
@@ -505,13 +506,13 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
             <p className="text-xs font-bold text-muted uppercase tracking-widest">Endereço de cobrança</p>
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-2 flex flex-col gap-1.5 relative">
-                <CampoCartao label="CEP" name="cep" value={cartao.cep} onChange={handleCartao} placeholder="00000-000" maxLength={9} inputMode="numeric" />
+                <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="CEP" name="cep" value={cartao.cep} onChange={handleCartao} placeholder="00000-000" maxLength={9} inputMode="numeric" />
                 {buscandoCep && <span className="absolute right-3 bottom-2.5 w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />}
               </div>
-              <CampoCartao label="Número" name="numero_end" value={cartao.numero_end} onChange={handleCartao} placeholder="123" />
+              <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Número" name="numero_end" value={cartao.numero_end} onChange={handleCartao} placeholder="123" />
             </div>
-            <CampoCartao label="Rua / Logradouro" name="rua" value={cartao.rua} onChange={handleCartao} placeholder="Rua, Avenida, Travessa..." />
-            <CampoCartao label="Bairro" name="bairro" value={cartao.bairro} onChange={handleCartao} placeholder="Bairro" />
+            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Rua / Logradouro" name="rua" value={cartao.rua} onChange={handleCartao} placeholder="Rua, Avenida, Travessa..." />
+            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Bairro" name="bairro" value={cartao.bairro} onChange={handleCartao} placeholder="Bairro" />
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-muted">Estado</label>
@@ -563,15 +564,6 @@ async function fetchCidades(uf) {
     const data = await res.json()
     return data.map((m) => m.nome)
   } catch { return [] }
-}
-
-function CampoCartao({ label, name, value, onChange, placeholder, maxLength, inputMode }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold text-muted">{label}</label>
-      <Input name={name} value={value} onChange={onChange} placeholder={placeholder} maxLength={maxLength} inputMode={inputMode} />
-    </div>
-  )
 }
 
 function PassoConfirmacao({ campanha, institutionName, valor, metodo, donation }) {

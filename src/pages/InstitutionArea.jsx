@@ -6,8 +6,9 @@ import { getNecessitiesByInstitution, createNecessity, updateNecessity, updateNe
 import { getDonations } from "../services/donations"
 import { categorias, slugify } from "../utils/staticData"
 import { atualizacoesMock } from "../utils/mockData"
+import { mascararCnpj } from "../utils/masks"
 import Select from "../components/ui/Select"
-import Input from "../components/ui/Input"
+import FormField from "../components/ui/FormField"
 import Textarea from "../components/ui/Textarea"
 import Loading from "../components/ui/Loading"
 import { useToast } from "../components/ui/Toast"
@@ -176,14 +177,6 @@ export default function InstitutionArea() {
   )
 }
 
-function mascararCnpj(v) {
-  return v.replace(/\D/g, "").slice(0, 14)
-    .replace(/(\d{2})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1/$2")
-    .replace(/(\d{4})(\d{1,2})$/, "$1-$2")
-}
-
 function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
   const [editando, setEditando] = useState(false)
   const [salvando, setSalvando] = useState(false)
@@ -263,13 +256,13 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
               {erro}
             </div>
           )}
-          <CampoEdicao label="Nome da instituição" name="name" value={form.name} onChange={handleChange} required />
-          <CampoEdicao label="CNPJ" name="cnpj" value={form.cnpj} onChange={handleChange} placeholder="00.000.000/0000-00" inputMode="numeric" />
+          <FormField compact label="Nome da instituição" name="name" value={form.name} onChange={handleChange} />
+          <FormField compact required={false} label="CNPJ" name="cnpj" value={form.cnpj} onChange={handleChange} placeholder="00.000.000/0000-00" inputMode="numeric" />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <CampoEdicao label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
-            <CampoEdicao label="Website" name="website" value={form.website} onChange={handleChange} placeholder="https://..." />
+            <FormField compact required={false} label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
+            <FormField compact required={false} label="Website" name="website" value={form.website} onChange={handleChange} placeholder="https://..." />
           </div>
-          <CampoEdicao label="Endereço" name="address" value={form.address} onChange={handleChange} placeholder="Rua, número, cidade - estado" />
+          <FormField compact required={false} label="Endereço" name="address" value={form.address} onChange={handleChange} placeholder="Rua, número, cidade - estado" />
           <div className="flex flex-col gap-1.5">
             <label className="text-xs text-muted">Descrição</label>
             <Textarea name="description" value={form.description} onChange={handleChange} rows={3}
@@ -287,18 +280,6 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
           </div>
         </form>
       )}
-    </div>
-  )
-}
-
-function CampoEdicao({ label, ...props }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs text-muted">{label}</label>
-      <input
-        className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition"
-        {...props}
-      />
     </div>
   )
 }
@@ -691,15 +672,6 @@ function StatCard({ value, label }) {
     <div className="bg-white rounded-xl border border-line p-4 text-center">
       <p className="text-xl font-bold text-primary">{value}</p>
       <p className="text-xs text-muted mt-1">{label}</p>
-    </div>
-  )
-}
-
-function FormField({ label, name, type = "text", value, onChange, placeholder }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-semibold text-ink">{label}</label>
-      <Input type={type} name={name} value={value} onChange={onChange} placeholder={placeholder} required />
     </div>
   )
 }

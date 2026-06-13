@@ -3,25 +3,12 @@ import { useAuth0 } from "@auth0/auth0-react"
 import { useApiClient } from "../hooks/useApiClient"
 import { createUser } from "../services/users"
 import { createInstitution } from "../services/institutions"
-import Input from "../components/ui/Input"
+import FormField from "../components/ui/FormField"
 import Textarea from "../components/ui/Textarea"
-
-function mascararCpf(v) {
-  return v.replace(/\D/g, "").slice(0, 11)
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-}
-
-function mascararCnpj(v) {
-  return v.replace(/\D/g, "").slice(0, 14)
-    .replace(/(\d{2})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1/$2")
-    .replace(/(\d{4})(\d{1,2})$/, "$1-$2")
-}
+import { mascararCpf, mascararCnpj } from "../utils/masks"
 
 export default function CompleteRegistration() {
+  
   const { user: auth0User, loginWithRedirect } = useAuth0()
   const client = useApiClient()
 
@@ -89,7 +76,7 @@ export default function CompleteRegistration() {
 
   if (enviando) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center">
+      <div className="flex-1 flex items-center justify-center">
         <p className="text-muted text-sm">Criando seu perfil...</p>
       </div>
     )
@@ -98,7 +85,7 @@ export default function CompleteRegistration() {
   // Step 1 — escolha de perfil
   if (!perfil) {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center py-8 px-4">
+      <div className="flex-1 flex items-center justify-center py-8 px-4">
         <div className="w-full max-w-lg">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold text-ink">Bem-vindo ao Faz a Boa!</h1>
@@ -136,7 +123,7 @@ export default function CompleteRegistration() {
   // Step 2a — formulário doador
   if (perfil === "donor") {
     return (
-      <div className="min-h-[70vh] flex items-center justify-center py-8 px-4">
+      <div className="flex-1 flex items-center justify-center py-8 px-4">
         <div className="w-full max-w-md">
           <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5 sm:p-8">
             <div className="text-center">
@@ -149,11 +136,11 @@ export default function CompleteRegistration() {
             )}
 
             <form onSubmit={submitDoador} className="flex flex-col gap-4">
-              <Campo label="Nome completo" id="nome" name="nome" type="text"
+              <FormField label="Nome completo" id="nome" name="nome" type="text"
                 value={doador.nome} onChange={handleDoador} placeholder="Seu nome completo" />
-              <Campo label="E-mail" id="email" name="email" type="email"
+              <FormField label="E-mail" id="email" name="email" type="email"
                 value={doador.email} onChange={handleDoador} placeholder="seu@email.com" />
-              <Campo label="CPF" id="cpf" name="cpf" type="text" inputMode="numeric"
+              <FormField label="CPF" id="cpf" name="cpf" type="text" inputMode="numeric"
                 value={doador.cpf} onChange={handleDoador} placeholder="000.000.000-00" />
 
               <label className="flex items-start gap-2 cursor-pointer">
@@ -183,7 +170,7 @@ export default function CompleteRegistration() {
 
   // Step 2b — formulário instituição
   return (
-    <div className="flex items-start justify-center py-8 px-4 sm:py-12">
+    <div className="flex-1 flex items-start justify-center py-8 px-4 sm:py-12">
       <div className="w-full max-w-lg">
         <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5 sm:p-8">
           <div className="text-center">
@@ -200,17 +187,17 @@ export default function CompleteRegistration() {
           )}
 
           <form onSubmit={submitInstituicao} className="flex flex-col gap-4">
-            <Campo label="Nome da instituição" id="nome" name="nome" type="text"
+            <FormField label="Nome da instituição" id="nome" name="nome" type="text"
               value={instituicao.nome} onChange={handleInstituicao} placeholder="Nome como é conhecida" />
-            <Campo label="Razão social" id="razaoSocial" name="razaoSocial" type="text"
+            <FormField label="Razão social" id="razaoSocial" name="razaoSocial" type="text"
               value={instituicao.razaoSocial} onChange={handleInstituicao} placeholder="Nome jurídico completo" />
-            <Campo label="CNPJ" id="cnpj" name="cnpj" type="text" inputMode="numeric"
+            <FormField label="CNPJ" id="cnpj" name="cnpj" type="text" inputMode="numeric"
               value={instituicao.cnpj} onChange={handleInstituicao} placeholder="00.000.000/0000-00" />
-            <Campo label="E-mail institucional" id="email" name="email" type="email"
+            <FormField label="E-mail institucional" id="email" name="email" type="email"
               value={instituicao.email} onChange={handleInstituicao} placeholder="contato@instituicao.org" />
-            <Campo label="Telefone" id="telefone" name="telefone" type="tel"
+            <FormField label="Telefone" id="telefone" name="telefone" type="tel"
               value={instituicao.telefone} onChange={handleInstituicao} placeholder="(00) 00000-0000" />
-            <Campo label="Endereço" id="endereco" name="endereco" type="text"
+            <FormField label="Endereço" id="endereco" name="endereco" type="text"
               value={instituicao.endereco} onChange={handleInstituicao} placeholder="Rua, número, cidade – UF" />
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-ink" htmlFor="descricao">Descrição</label>
@@ -240,15 +227,6 @@ export default function CompleteRegistration() {
           </form>
         </div>
       </div>
-    </div>
-  )
-}
-
-function Campo({ label, id, ...props }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-semibold text-ink" htmlFor={id}>{label}</label>
-      <Input id={id} required {...props} />
     </div>
   )
 }

@@ -4,17 +4,10 @@ import { useAuth0 } from "@auth0/auth0-react"
 import { useApiClient } from "../hooks/useApiClient"
 import { createUser } from "../services/users"
 import Loading from "../components/ui/Loading"
+import FormField from "../components/ui/FormField"
+import { mascararCpf } from "../utils/masks"
 
 const PENDING_KEY = "pending_donor_registration"
-
-function mascararCpf(v) {
-  return v
-    .replace(/\D/g, "")
-    .slice(0, 11)
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-}
 
 export default function DonorRegistration() {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0()
@@ -87,11 +80,11 @@ export default function DonorRegistration() {
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <Campo label="Nome completo" id="nome" name="nome" type="text"
+            <FormField label="Nome completo" id="nome" name="nome" type="text"
               value={form.nome} onChange={handleMudanca} placeholder="Seu nome completo" />
-            <Campo label="E-mail" id="email" name="email" type="email"
+            <FormField label="E-mail" id="email" name="email" type="email"
               value={form.email} onChange={handleMudanca} placeholder="seu@email.com" />
-            <Campo label="CPF" id="cpf" name="cpf" type="text" inputMode="numeric"
+            <FormField label="CPF" id="cpf" name="cpf" type="text" inputMode="numeric"
               value={form.cpf} onChange={handleMudanca} placeholder="000.000.000-00" />
 
             <label className="flex items-start gap-2 cursor-pointer">
@@ -117,16 +110,6 @@ export default function DonorRegistration() {
           </p>
         </div>
       </div>
-    </div>
-  )
-}
-
-function Campo({ label, id, ...props }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-semibold text-ink" htmlFor={id}>{label}</label>
-      <input id={id} required {...props}
-        className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition" />
     </div>
   )
 }

@@ -6,7 +6,9 @@ import { getDonations } from "../services/donations"
 import { getCampaigns } from "../services/campaigns"
 import { getInstitutions } from "../services/institutions"
 import { getRanking } from "../services/ranking"
+import { mascararCpf } from "../utils/masks"
 import Loading from "../components/ui/Loading"
+import FormField from "../components/ui/FormField"
 import { useToast } from "../components/ui/Toast"
 
 const ABAS = ["Perfil", "Histórico", "Ranking"]
@@ -110,13 +112,6 @@ export default function DonorArea() {
   )
 }
 
-function mascararCpf(v) {
-  return v.replace(/\D/g, "").slice(0, 11)
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-}
-
 function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes }) {
   const [editando, setEditando] = useState(false)
   const [form, setForm] = useState({ name: user?.name ?? "", phone: user?.phone ?? "", cpf: formatCpf(user?.cpf) })
@@ -187,9 +182,9 @@ function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes 
                 {erro}
               </div>
             )}
-            <CampoEdicao label="Nome completo" name="name" value={form.name} onChange={handleChange} required />
-            <CampoEdicao label="CPF" name="cpf" value={form.cpf} onChange={handleChange} placeholder="000.000.000-00" inputMode="numeric" />
-            <CampoEdicao label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
+            <FormField compact label="Nome completo" name="name" value={form.name} onChange={handleChange} />
+            <FormField compact required={false} label="CPF" name="cpf" value={form.cpf} onChange={handleChange} placeholder="000.000.000-00" inputMode="numeric" />
+            <FormField compact required={false} label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
             <InfoLinha label="E-mail" value={user?.email ?? "-"} />
             <div className="flex gap-3 pt-1">
               <button type="button" onClick={() => { setEditando(false); setErro(null) }}
@@ -204,18 +199,6 @@ function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes 
           </form>
         )}
       </div>
-    </div>
-  )
-}
-
-function CampoEdicao({ label, ...props }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs text-muted">{label}</label>
-      <input
-        className="rounded-lg border border-line px-3 py-2.5 text-sm text-ink outline-none focus:border-primary focus:ring-2 focus:ring-primary-light transition"
-        {...props}
-      />
     </div>
   )
 }

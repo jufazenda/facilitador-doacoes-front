@@ -1,17 +1,8 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
-import Input from "../components/ui/Input"
+import FormField from "../components/ui/FormField"
 import Textarea from "../components/ui/Textarea"
-
-function mascararCnpj(v) {
-  return v
-    .replace(/\D/g, "")
-    .slice(0, 14)
-    .replace(/(\d{2})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1.$2")
-    .replace(/(\d{3})(\d)/, "$1/$2")
-    .replace(/(\d{4})(\d{1,2})$/, "$1-$2")
-}
+import { mascararCnpj } from "../utils/masks"
 
 export default function InstitutionRegistration() {
   const [form, setForm] = useState({ nome: "", cnpj: "", email: "", telefone: "", cidade: "", estado: "", descricao: "", senha: "", confirmarSenha: "", termos: false })
@@ -69,13 +60,13 @@ export default function InstitutionRegistration() {
                 <input type="file" accept=".jpg,.jpeg,.png,.svg,.webp" className="hidden" onChange={handleLogo} />
               </label>
             </div>
-            <Campo label="Nome da instituição" id="nome" name="nome" type="text" value={form.nome} onChange={handleMudanca} placeholder="Nome oficial da ONG ou entidade" />
-            <Campo label="CNPJ" id="cnpj" name="cnpj" type="text" value={form.cnpj} onChange={handleMudanca} placeholder="00.000.000/0000-00" inputMode="numeric" />
-            <Campo label="E-mail institucional" id="email" name="email" type="email" value={form.email} onChange={handleMudanca} placeholder="contato@instituicao.org" />
-            <Campo label="Telefone" id="telefone" name="telefone" type="tel" value={form.telefone} onChange={handleMudanca} placeholder="(00) 00000-0000" />
+            <FormField label="Nome da instituição" id="nome" name="nome" type="text" value={form.nome} onChange={handleMudanca} placeholder="Nome oficial da ONG ou entidade" />
+            <FormField label="CNPJ" id="cnpj" name="cnpj" type="text" value={form.cnpj} onChange={handleMudanca} placeholder="00.000.000/0000-00" inputMode="numeric" />
+            <FormField label="E-mail institucional" id="email" name="email" type="email" value={form.email} onChange={handleMudanca} placeholder="contato@instituicao.org" />
+            <FormField label="Telefone" id="telefone" name="telefone" type="tel" value={form.telefone} onChange={handleMudanca} placeholder="(00) 00000-0000" />
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <Campo label="Cidade" id="cidade" name="cidade" type="text" value={form.cidade} onChange={handleMudanca} placeholder="São Paulo" />
-              <Campo label="Estado" id="estado" name="estado" type="text" value={form.estado} onChange={handleMudanca} placeholder="SP" />
+              <FormField label="Cidade" id="cidade" name="cidade" type="text" value={form.cidade} onChange={handleMudanca} placeholder="São Paulo" />
+              <FormField label="Estado" id="estado" name="estado" type="text" value={form.estado} onChange={handleMudanca} placeholder="SP" />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-ink" htmlFor="descricao">Descrição</label>
@@ -93,8 +84,8 @@ export default function InstitutionRegistration() {
             </div>
 
             <p className="text-xs font-bold text-muted uppercase tracking-wide mt-2">Dados de acesso</p>
-            <CampoSenha label="Senha" id="senha" name="senha" value={form.senha} onChange={handleMudanca} placeholder="Mínimo 8 caracteres" />
-            <CampoSenha label="Confirmar senha" id="confirmarSenha" name="confirmarSenha" value={form.confirmarSenha} onChange={handleMudanca} placeholder="Repita a senha" />
+            <FormField type="password" label="Senha" id="senha" name="senha" value={form.senha} onChange={handleMudanca} placeholder="Mínimo 8 caracteres" />
+            <FormField type="password" label="Confirmar senha" id="confirmarSenha" name="confirmarSenha" value={form.confirmarSenha} onChange={handleMudanca} placeholder="Repita a senha" />
 
             <label className="flex items-start gap-2 cursor-pointer">
               <input type="checkbox" name="termos" checked={form.termos} onChange={handleMudanca} required className="mt-0.5 accent-primary" />
@@ -118,24 +109,6 @@ export default function InstitutionRegistration() {
           </p>
         </div>
       </div>
-    </div>
-  )
-}
-
-function Campo({ label, id, ...props }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-semibold text-ink" htmlFor={id}>{label}</label>
-      <Input id={id} required {...props} />
-    </div>
-  )
-}
-
-function CampoSenha({ label, id, ...props }) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-sm font-semibold text-ink" htmlFor={id}>{label}</label>
-      <Input id={id} required type="password" {...props} />
     </div>
   )
 }
