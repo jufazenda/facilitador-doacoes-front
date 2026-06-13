@@ -7,6 +7,7 @@ import { getDonations } from "../services/donations"
 import { categorias, slugify } from "../utils/staticData"
 import { atualizacoesMock } from "../utils/mockData"
 import { mascararCnpj } from "../utils/masks"
+import { getInitials } from "../utils/strings"
 import Select from "../components/ui/Select"
 import FormField from "../components/ui/FormField"
 import Textarea from "../components/ui/Textarea"
@@ -135,7 +136,7 @@ export default function InstitutionArea() {
   if (loading) return <Loading full />
 
   const statusInst = STATUS_INST[instituicao?.status] ?? STATUS_INST.pending
-  const iniciais = (instituicao?.name ?? "?").split(" ").slice(0, 2).map((w) => w[0]).join("")
+  const iniciais = getInitials(instituicao?.name)
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">

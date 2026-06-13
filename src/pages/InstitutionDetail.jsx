@@ -6,6 +6,7 @@ import { getCampaignsByInstitution } from "../services/campaigns"
 import { getNecessitiesByInstitution } from "../services/necessities"
 import { categoryImages } from "../utils/categoryImages"
 import Loading from "../components/ui/Loading"
+import { getInitials } from "../utils/strings"
 
 export default function InstitutionDetail() {
   const { id } = useParams()
@@ -45,7 +46,7 @@ export default function InstitutionDetail() {
     )
   }
 
-  const iniciais         = inst.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
+  const iniciais         = getInitials(inst.name)
   const isDoador         = user?.tipo === "doador"
   const campanhasAtivas  = campanhas.filter((c) => c.status === "active")
 

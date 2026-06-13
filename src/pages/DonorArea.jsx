@@ -7,6 +7,7 @@ import { getCampaigns } from "../services/campaigns"
 import { getInstitutions } from "../services/institutions"
 import { getRanking } from "../services/ranking"
 import { mascararCpf } from "../utils/masks"
+import { getInitials } from "../utils/strings"
 import Loading from "../components/ui/Loading"
 import FormField from "../components/ui/FormField"
 import { useToast } from "../components/ui/Toast"
@@ -30,10 +31,6 @@ const STATUS = {
 function formatCpf(cpf) {
   if (!cpf) return "-"
   return cpf.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
-}
-
-function initials(name) {
-  return (name || "?").split(" ").slice(0, 2).map((w) => w[0]).join("")
 }
 
 export default function DonorArea() {
@@ -77,7 +74,7 @@ export default function DonorArea() {
     <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shrink-0">
-          <span className="text-white text-xl font-bold">{initials(nome)}</span>
+          <span className="text-white text-xl font-bold">{getInitials(nome)}</span>
         </div>
         <div>
           <h1 className="text-xl font-bold text-ink">{nome}</h1>

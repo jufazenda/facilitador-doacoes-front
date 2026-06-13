@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { categoryImages } from "../../utils/categoryImages"
 import { useAuth } from "../../context/AuthContext"
+import { getInitials } from "../../utils/strings"
 
 function daysLeft(endsAt) {
   if (!endsAt) return null
@@ -15,7 +16,7 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
   const raised  = (c.total_raised ?? 0) / 100
   const goal    = (c.goal_amount  ?? 0) / 100
   const pct     = goal > 0 ? Math.min(Math.round((raised / goal) * 100), 100) : 0
-  const initials = institutionName.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
+  const initials = getInitials(institutionName)
   const remaining = daysLeft(c.ends_at)
 
   return (

@@ -5,6 +5,7 @@ import { getInstitutions } from "../services/institutions"
 import { getCampaigns } from "../services/campaigns"
 import Loading from "../components/ui/Loading"
 import Input from "../components/ui/Input"
+import { getInitials } from "../utils/strings"
 
 export default function InstitutionList() {
   const { user } = useAuth()
@@ -83,7 +84,7 @@ export default function InstitutionList() {
 }
 
 function CardInstituicao({ inst, campanhas, favorita, onToggle, isDoador }) {
-  const iniciais = inst.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
+  const iniciais = getInitials(inst.name)
 
   return (
     <article className="relative flex flex-col gap-4 rounded-2xl border border-purple-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-md">

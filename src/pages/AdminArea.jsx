@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { instituicoesPendentesMock } from "../utils/mockData"
+import { getInitials } from "../utils/strings"
 import Textarea from "../components/ui/Textarea"
 
 const ABAS = ["Pendentes", "Aprovadas", "Rejeitadas"]
@@ -119,7 +120,7 @@ function InstituicaoCard({
   onAprovar, onIniciarRejeicao, onConfirmarRejeicao, onCancelarRejeicao,
 }) {
   const [expandido, setExpandido] = useState(false)
-  const iniciais = inst.nome.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
+  const iniciais = getInitials(inst.nome)
 
   return (
     <div className="bg-white rounded-xl border border-line overflow-hidden">
