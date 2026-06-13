@@ -1,35 +1,54 @@
-import { useState } from "react"
-import { pendingInstitutionsMock } from "../utils/mockData"
+import { useState, useEffect } from "react"
+import { useApiClient } from "../hooks/useApiClient"
+import { getInstitutions, updateInstitutionStatus } from "../services/institutions"
 import { getInitials } from "../utils/strings"
 import Textarea from "../components/ui/Textarea"
 import StatCard from "../components/ui/StatCard"
 import TabBar from "../components/ui/TabBar"
 import Badge from "../components/ui/Badge"
 import EmptyState from "../components/ui/EmptyState"
+import Loading from "../components/ui/Loading"
+import { useToast } from "../hooks/useToast"
 import { IconShieldCheck, IconFileText } from "@tabler/icons-react"
 
 const TABS = ["Pendentes", "Aprovadas", "Rejeitadas"]
 
 export default function AdminArea() {
-  const [institutions, setInstitutions] = useState(pendingInstitutionsMock)
+  const [institutions, setInstitutions] = useState([])
   const [tab, setTab] = useState("Pendentes")
   const [rejectingId, setRejectingId] = useState(null)
   const [reason, setReason] = useState("")
+  const [loading, setLoading] = useState(true)
+  const client = useApiClient()
+  const { showToast, ToastContainer } = useToast()
 
-  const pending  = institutions.filter((i) => i.status === "pendente")
-  const approved  = institutions.filter((i) => i.status === "aprovada")
-  const rejected = institutions.filter((i) => i.status === "rejeitada")
+  // GAP: GET /api/v1/institutions is the public listing endpoint and may only
+  // return approved institutions. There's no admin-scoped endpoint yet that
+  // returns institutions across all statuses (pending/rejected included).
+  useEffect(() => {
+    getInstitutions()
+      .then((insts) => setInstitutions(insts ?? []))
+      .catch(() => showToast("error", "Não foi possível carregar as instituições."))
+      .finally(() => setLoading(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const pending  = institutions.filter((i) => i.status === "pending")
+  const approved = institutions.filter((i) => i.status === "approved")
+  const rejected = institutions.filter((i) => i.status === "rejected")
 
   const currentList = { Pendentes: pending, Aprovadas: approved, Rejeitadas: rejected }[tab]
 
-  function approve(id) {
-    setInstitutions((prev) =>
-      prev.map((i) =>
-        i.id === id
-          ? { ...i, status: "aprovada", resolvedAt: new Date().toISOString().slice(0, 10) }
-          : i
+  async function approve(id) {
+    try {
+      await updateInstitutionStatus(client, id, "approved")
+      setInstitutions((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, status: "approved" } : i))
       )
-    )
+      showToast("success", "Instituição aprovada.")
+    } catch {
+      showToast("error", "Não foi possível aprovar a instituição.")
+    }
   }
 
   function initiateRejection(id) {
@@ -37,26 +56,26 @@ export default function AdminArea() {
     setReason("")
   }
 
-  function confirmRejection(id) {
+  async function confirmRejection(id) {
     if (!reason.trim()) return
-    setInstitutions((prev) =>
-      prev.map((i) =>
-        i.id === id
-          ? {
-              ...i,
-              status: "rejeitada",
-              rejectionReason: reason.trim(),
-              resolvedAt: new Date().toISOString().slice(0, 10),
-            }
-          : i
+    try {
+      await updateInstitutionStatus(client, id, "rejected")
+      setInstitutions((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, status: "rejected", rejectionReason: reason.trim() } : i))
       )
-    )
-    setRejectingId(null)
-    setReason("")
+      showToast("success", "Instituição rejeitada.")
+      setRejectingId(null)
+      setReason("")
+    } catch {
+      showToast("error", "Não foi possível rejeitar a instituição.")
+    }
   }
+
+  if (loading) return <Loading full />
 
   return (
     <div className="mx-auto w-full max-w-screen-2xl px-4 py-8 sm:px-6 flex flex-col gap-6">
+      <ToastContainer />
       <div className="flex items-center gap-3">
         <div className="w-14 h-14 rounded-2xl bg-primary-dark flex items-center justify-center shrink-0">
           <IconShieldCheck className="text-white" size={26} />
@@ -72,7 +91,7 @@ export default function AdminArea() {
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-6">
         <StatCard value={pending.length}  label="Pendentes"  color="text-warning" size="text-2xl" />
-        <StatCard value={approved.length}  label="Aprovadas"  color="text-success" size="text-2xl" />
+        <StatCard value={approved.length} label="Aprovadas"  color="text-success" size="text-2xl" />
         <StatCard value={rejected.length} label="Rejeitadas" color="text-accent"  size="text-2xl" />
       </div>
 
@@ -136,14 +155,15 @@ function InstitutionCard({
         <div className="flex flex-col gap-1 flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <p className="text-base font-semibold text-ink">{institution.name}</p>
-            <StatusBadge status={institution.status} />
+            <Badge variant={institution.status} icon={false} />
           </div>
-          <p className="text-xs text-muted">{institution.cnpj} · {institution.city}, {institution.state}</p>
+          <p className="text-xs text-muted">{institution.cnpj}{institution.address ? ` · ${institution.address}` : ""}</p>
           <p className="text-xs text-muted">{institution.email} · {institution.phone}</p>
-          <p className="text-xs text-muted mt-1">
-            Submetida em {new Date(institution.submittedAt).toLocaleDateString("pt-BR")}
-            {institution.resolvedAt && ` · Resolvida em ${new Date(institution.resolvedAt).toLocaleDateString("pt-BR")}`}
-          </p>
+          {institution.created_at && (
+            <p className="text-xs text-muted mt-1">
+              Cadastrada em {new Date(institution.created_at).toLocaleDateString("pt-BR")}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:shrink-0 sm:flex-wrap">
@@ -153,7 +173,7 @@ function InstitutionCard({
           >
             {expanded ? "Menos" : "Ver detalhes"}
           </button>
-          {institution.status === "pendente" && (
+          {institution.status === "pending" && (
             <>
               <button
                 onClick={onApprove}
@@ -174,16 +194,20 @@ function InstitutionCard({
 
       {expanded && (
         <div className="border-t border-line px-5 py-4 flex flex-col gap-3 bg-soft">
-          <div>
-            <p className="text-xs font-bold text-muted uppercase tracking-wide mb-1">Descrição</p>
-            <p className="text-sm text-ink leading-relaxed">{institution.description}</p>
-          </div>
-          <div>
-            <p className="text-xs font-bold text-muted uppercase tracking-wide mb-1">Documento</p>
-            <button className="flex items-center gap-1.5 text-sm text-primary hover:underline">
-              <IconFileText size={16} /> {institution.document}
-            </button>
-          </div>
+          {institution.description && (
+            <div>
+              <p className="text-xs font-bold text-muted uppercase tracking-wide mb-1">Descrição</p>
+              <p className="text-sm text-ink leading-relaxed">{institution.description}</p>
+            </div>
+          )}
+          {institution.document && (
+            <div>
+              <p className="text-xs font-bold text-muted uppercase tracking-wide mb-1">Documento</p>
+              <button className="flex items-center gap-1.5 text-sm text-primary hover:underline">
+                <IconFileText size={16} /> {institution.document}
+              </button>
+            </div>
+          )}
           {institution.rejectionReason && (
             <div>
               <p className="text-xs font-bold text-accent uppercase tracking-wide mb-1">Motivo da rejeição</p>
@@ -222,11 +246,4 @@ function InstitutionCard({
       )}
     </div>
   )
-}
-
-const STATUS_VARIANT = { pendente: "pending", aprovada: "approved", rejeitada: "rejected" }
-const STATUS_LABEL = { pendente: "Pendente", aprovada: "Aprovada", rejeitada: "Rejeitada" }
-
-function StatusBadge({ status }) {
-  return <Badge variant={STATUS_VARIANT[status]} label={STATUS_LABEL[status]} icon={false} />
 }
