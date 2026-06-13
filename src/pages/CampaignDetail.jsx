@@ -5,13 +5,13 @@ import { getInstitutionById } from "../services/institutions"
 import { categoryImages } from "../utils/categoryImages"
 import { useAuth } from "../hooks/useAuth"
 import Loading from "../components/ui/Loading"
+import { IconArrowLeft } from "@tabler/icons-react"
 
 export default function CampaignDetail() {
   const { id } = useParams()
   const [campaign, setCampaign] = useState(null)
   const [institution, setInstitution] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [notFound, setNotFound] = useState(false)
 
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
@@ -22,17 +22,19 @@ export default function CampaignDetail() {
         return getInstitutionById(c.institution_id).catch(() => null)
       })
       .then((inst) => setInstitution(inst))
-      .catch(() => setNotFound(true))
+      .catch(() => setCampaign(null))
       .finally(() => setLoading(false))
   }, [id])
 
   if (loading) return <Loading full />
 
-  if (notFound || !campaign) {
+  if (!campaign) {
     return (
       <div className="py-20 text-center text-muted px-4">
         <p className="text-lg">Campanha não encontrada.</p>
-        <Link to="/" className="text-primary hover:underline text-sm mt-2 inline-block">← Voltar para campanhas</Link>
+        <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink border border-line rounded-lg px-4 py-2 hover:bg-soft transition-colors mt-2">
+          <IconArrowLeft size={16} stroke={1.75} /> Voltar para campanhas
+        </Link>
       </div>
     )
   }
@@ -45,8 +47,8 @@ export default function CampaignDetail() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      <Link to="/" className="text-sm text-primary hover:underline inline-flex items-center gap-1 mb-6">
-        ← Voltar para campanhas
+      <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink border border-line rounded-lg px-4 py-2 hover:bg-soft transition-colors mb-6">
+        <IconArrowLeft size={16} stroke={1.75} /> Voltar para campanhas
       </Link>
 
       <div className="relative h-56 overflow-hidden rounded-2xl sm:h-72 sm:rounded-3xl">

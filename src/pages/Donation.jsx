@@ -13,7 +13,7 @@ import FormField from "../components/ui/FormField"
 import { STATES } from "../utils/states"
 import { maskCep, maskCardExpiry } from "../utils/masks"
 import { searchAddressByCep, searchCitiesByState } from "../services/address"
-import { IconCheck } from "@tabler/icons-react"
+import { IconCheck, IconArrowLeft } from "@tabler/icons-react"
 
 const PRESET_VALUES = [10, 25, 50, 100, 200]
 
@@ -164,7 +164,9 @@ export default function Donation() {
     return (
       <div className="py-20 text-center text-muted px-4">
         <p className="text-lg">Campanha não encontrada.</p>
-        <Link to="/" className="text-primary hover:underline text-sm mt-2 inline-block">← Voltar</Link>
+        <Link to="/" className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink border border-line rounded-lg px-4 py-2 hover:bg-soft transition-colors mt-2">
+          <IconArrowLeft size={16} stroke={1.75} /> Voltar
+        </Link>
       </div>
     )
   }
@@ -175,10 +177,8 @@ export default function Donation() {
 
         <div className="flex items-center justify-between">
           <Link to={`/campanha/${campaign.id}`}
-            className="flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors font-semibold">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink border border-line rounded-lg px-4 py-2 hover:bg-soft transition-colors">
+            <IconArrowLeft size={16} stroke={1.75} />
             Voltar para a campanha
           </Link>
         </div>

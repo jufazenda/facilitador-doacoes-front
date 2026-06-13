@@ -56,7 +56,7 @@ export default function AdminArea() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 py-8 sm:px-6 flex flex-col gap-6">
       <div className="flex items-center gap-3">
         <div className="w-14 h-14 rounded-2xl bg-primary-dark flex items-center justify-center shrink-0">
           <IconShieldCheck className="text-white" size={26} />
@@ -70,7 +70,7 @@ export default function AdminArea() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4 lg:gap-6">
         <StatCard value={pending.length}  label="Pendentes"  color="text-warning" size="text-2xl" />
         <StatCard value={approved.length}  label="Aprovadas"  color="text-success" size="text-2xl" />
         <StatCard value={rejected.length} label="Rejeitadas" color="text-accent"  size="text-2xl" />
@@ -80,17 +80,26 @@ export default function AdminArea() {
         tabs={TABS}
         active={tab}
         onChange={setTab}
-        renderBadge={(t) => t === "Pendentes" && pending.length > 0 && (
-          <span className="ml-1.5 bg-warning-light text-warning text-xs font-semibold px-1.5 py-0.5 rounded-full">
-            {pending.length}
-          </span>
-        )}
+        renderBadge={(t) => {
+          const count = { Pendentes: pending.length, Aprovadas: approved.length, Rejeitadas: rejected.length }[t]
+          if (!count) return null
+          const classes = {
+            Pendentes: "bg-warning-light text-warning",
+            Aprovadas: "bg-success-light text-success",
+            Rejeitadas: "bg-accent-light text-accent",
+          }[t]
+          return (
+            <span className={`ml-1.5 ${classes} text-xs font-semibold px-1.5 py-0.5 rounded-full`}>
+              {count}
+            </span>
+          )
+        }}
       />
 
       {currentList.length === 0 ? (
         <EmptyState message="Nenhuma instituição nesta categoria." />
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {currentList.map((inst) => (
             <InstitutionCard
               key={inst.id}

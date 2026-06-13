@@ -65,7 +65,7 @@ export default function DonorArea() {
   const totalDonations = donations.length
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 py-8 sm:px-6 flex flex-col gap-6">
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shrink-0">
           <span className="text-white text-xl font-bold">{getInitials(name)}</span>
@@ -127,7 +127,7 @@ function ProfileTab({ user, setUser, client, showToast, totalDonated, totalDonat
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6">
         <StatCard
           value={totalDonated.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           label="Total doado"
@@ -164,10 +164,12 @@ function ProfileTab({ user, setUser, client, showToast, totalDonated, totalDonat
                 {error}
               </div>
             )}
-            <FormField compact label="Nome completo" name="name" value={form.name} onChange={handleChange} />
-            <FormField compact required={false} label="CPF" name="cpf" value={form.cpf} onChange={handleChange} placeholder="000.000.000-00" inputMode="numeric" />
-            <FormField compact required={false} label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
-            <InfoLinha label="E-mail" value={user?.email ?? "-"} />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField compact label="Nome completo" name="name" value={form.name} onChange={handleChange} />
+              <InfoLinha label="E-mail" value={user?.email ?? "-"} />
+              <FormField compact required={false} label="CPF" name="cpf" value={form.cpf} onChange={handleChange} placeholder="000.000.000-00" inputMode="numeric" />
+              <FormField compact required={false} label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
+            </div>
             <div className="flex gap-3 pt-1">
               <button type="button" onClick={() => { setEditing(false); setError(null) }}
                 className="flex-1 border border-line text-muted hover:border-ink rounded-lg py-2.5 text-sm font-semibold transition-colors">
@@ -304,7 +306,7 @@ function RankingTab({ name, donations, userId }) {
 
       <div>
         <h2 className="text-base font-bold text-ink mb-3">Conquistas</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {badges.map((b) => (
             <div key={b.id} className="bg-white rounded-xl border border-line p-4 flex flex-col items-center gap-2 text-center">
               <b.icon size={28} className="text-primary" stroke={1.5} />

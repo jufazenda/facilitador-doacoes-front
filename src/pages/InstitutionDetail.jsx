@@ -11,7 +11,7 @@ import EmptyState from "../components/ui/EmptyState"
 import { getInitials } from "../utils/strings"
 import {
   IconHeart, IconHeartFilled, IconMapPin, IconMail, IconPhone,
-  IconFileText, IconCalendar, IconHeartHandshake, IconFlag,
+  IconFileText, IconCalendar, IconHeartHandshake, IconFlag, IconArrowLeft,
 } from "@tabler/icons-react"
 
 export default function InstitutionDetail() {
@@ -47,7 +47,9 @@ export default function InstitutionDetail() {
     return (
       <div className="py-20 text-center text-muted px-4">
         <p className="text-lg">Instituição não encontrada.</p>
-        <Link to="/instituicoes" className="text-primary hover:underline text-sm mt-2 inline-block">← Voltar para instituições</Link>
+        <Link to="/instituicoes" className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink border border-line rounded-lg px-4 py-2 hover:bg-soft transition-colors mt-2">
+          <IconArrowLeft size={16} stroke={1.75} /> Voltar para instituições
+        </Link>
       </div>
     )
   }

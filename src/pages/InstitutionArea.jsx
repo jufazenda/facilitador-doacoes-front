@@ -137,7 +137,7 @@ export default function InstitutionArea() {
   const initials = getInitials(institution?.name)
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
+    <div className="mx-auto w-full max-w-screen-2xl px-4 py-8 sm:px-6 flex flex-col gap-6">
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shrink-0">
           <span className="text-white text-xl font-bold">{initials}</span>
@@ -209,7 +209,7 @@ function ProfileTab({ institution, setInstitution, client, showToast }) {
   const institutionStatusKey = INSTITUTION_STATUS_LABEL[institution?.status] ? institution.status : "pending"
 
   return (
-    <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5">
+    <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5 max-w-4xl">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold text-ink">Dados da instituição</h2>
         <Badge variant={institutionStatusKey} label={INSTITUTION_STATUS_LABEL[institutionStatusKey]} />
@@ -286,53 +286,55 @@ function DashboardTab({ campaigns, donations }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 lg:gap-6">
         <StatCard value={totalRaised.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })} label="Total arrecadado" />
         <StatCard value={`${percentage}%`} label="Da meta atingida" />
         <StatCard value={active} label="Campanhas ativas" />
         <StatCard value={donors} label="Doadores únicos" />
       </div>
 
-      <div className="bg-white rounded-xl border border-line p-5 flex flex-col gap-3">
-        <div className="flex justify-between text-sm">
-          <span className="font-semibold text-ink">Progresso geral das campanhas</span>
-          <span className="text-primary font-bold">{percentage}%</span>
-        </div>
-        <div className="w-full bg-soft rounded-full h-3">
-          <div className="bg-primary h-3 rounded-full transition-all" style={{ width: `${Math.min(percentage, 100)}%` }} />
-        </div>
-        <div className="flex justify-between text-xs text-muted">
-          <span>{totalRaised.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
-          <span>Meta: {totalGoal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
-        </div>
-      </div>
-
-      <div>
-        <h2 className="text-base font-bold text-ink mb-3">Doações recentes</h2>
-        {recent.length === 0 ? (
-          <p className="text-sm text-muted">Nenhuma doação recebida ainda.</p>
-        ) : (
-          <div className="bg-white rounded-xl border border-line divide-y divide-line">
-            {recent.map((d) => {
-              const s = DONATION_STATUS[d.status] ?? { label: d.status, classes: "bg-soft text-muted" }
-              const camp = d.campaign_id ? campaignsMap[d.campaign_id] : null
-              return (
-                <div key={d.id} className="flex items-center justify-between px-4 py-3 gap-3">
-                  <div className="flex flex-col gap-0.5 min-w-0">
-                    <span className="text-sm font-semibold text-ink">Doador</span>
-                    <span className="text-xs text-muted truncate">{camp?.title ?? "Doação avulsa"}</span>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${s.classes}`}>{s.label}</span>
-                    <span className="text-sm font-bold text-ink">
-                      {((d.amount ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="bg-white rounded-xl border border-line p-5 flex flex-col gap-3 lg:col-span-1">
+          <div className="flex justify-between text-sm">
+            <span className="font-semibold text-ink">Progresso geral</span>
+            <span className="text-primary font-bold">{percentage}%</span>
           </div>
-        )}
+          <div className="w-full bg-soft rounded-full h-3">
+            <div className="bg-primary h-3 rounded-full transition-all" style={{ width: `${Math.min(percentage, 100)}%` }} />
+          </div>
+          <div className="flex justify-between text-xs text-muted">
+            <span>{totalRaised.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+            <span>Meta: {totalGoal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+          </div>
+        </div>
+
+        <div className="lg:col-span-2">
+          <h2 className="text-base font-bold text-ink mb-3">Doações recentes</h2>
+          {recent.length === 0 ? (
+            <p className="text-sm text-muted">Nenhuma doação recebida ainda.</p>
+          ) : (
+            <div className="bg-white rounded-xl border border-line divide-y divide-line">
+              {recent.map((d) => {
+                const s = DONATION_STATUS[d.status] ?? { label: d.status, classes: "bg-soft text-muted" }
+                const camp = d.campaign_id ? campaignsMap[d.campaign_id] : null
+                return (
+                  <div key={d.id} className="flex items-center justify-between px-4 py-3 gap-3">
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                      <span className="text-sm font-semibold text-ink">Doador</span>
+                      <span className="text-xs text-muted truncate">{camp?.title ?? "Doação avulsa"}</span>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${s.classes}`}>{s.label}</span>
+                      <span className="text-sm font-bold text-ink">
+                        {((d.amount ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -393,6 +395,7 @@ function CampaignsTab({ campaigns, onToggleUrgente, onAdicionar, onEditar, onExc
         </button>
       </div>
 
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       {campaigns.map((c) => {
         const pct = c.goal_amount > 0 ? Math.min(Math.round((c.total_raised / c.goal_amount) * 100), 100) : 0
         return (
@@ -436,6 +439,7 @@ function CampaignsTab({ campaigns, onToggleUrgente, onAdicionar, onEditar, onExc
           </div>
         )
       })}
+      </div>
 
       {creating && (
         <ModalCampaign
@@ -501,7 +505,7 @@ function NecessitiesTab({ necessities, onToggleUrgente, onAtender, onAdicionar }
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4 max-w-2xl">
           <h3 className="text-base font-bold text-ink">Nova necessidade</h3>
           <FormField label="Descrição" name="title" value={form.title} onChange={handleChange} placeholder="Ex: 50 cobertores para o inverno" />
           <div className="flex flex-col gap-1.5">
@@ -527,17 +531,21 @@ function NecessitiesTab({ necessities, onToggleUrgente, onAtender, onAdicionar }
       {open.length > 0 && (
         <div className="flex flex-col gap-3">
           <p className="text-xs font-bold text-muted uppercase tracking-wide">Em aberto</p>
-          {open.map((n) => (
-            <NecessityItem key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />
-          ))}
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            {open.map((n) => (
+              <NecessityItem key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />
+            ))}
+          </div>
         </div>
       )}
       {attended.length > 0 && (
         <div className="flex flex-col gap-3">
           <p className="text-xs font-bold text-muted uppercase tracking-wide">Atendidas</p>
-          {attended.map((n) => (
-            <NecessityItem key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />
-          ))}
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            {attended.map((n) => (
+              <NecessityItem key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />
+            ))}
+          </div>
         </div>
       )}
       {necessities.length === 0 && (
@@ -594,7 +602,7 @@ function UpdatesTab({ campaigns, updates, onEnviar }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4 max-w-2xl">
         <h3 className="text-base font-bold text-ink">Enviar atualização aos doadores</h3>
         {campaigns.length === 0 ? (
           <p className="text-sm text-muted">Crie uma campanha primeiro para enviar atualizações.</p>

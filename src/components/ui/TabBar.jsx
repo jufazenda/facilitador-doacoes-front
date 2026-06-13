@@ -1,6 +1,6 @@
 export default function TabBar({ tabs, active, onChange, renderBadge }) {
   return (
-    <div className="flex overflow-x-auto border-b border-line gap-1">
+    <div className="flex overflow-x-auto overflow-y-hidden border-b border-line gap-1">
       {tabs.map((t) => (
         <button
           key={t}
