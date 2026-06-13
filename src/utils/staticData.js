@@ -19,6 +19,13 @@ export const categorias = [
   "Moradia & Utensílios",
 ]
 
+export const STATUS_DOACAO = {
+  pendente:   { label: "Pendente",   classes: "bg-warning-light text-warning" },
+  processado: { label: "Processado", classes: "bg-blue-100 text-blue-700" },
+  confirmado: { label: "Confirmado", classes: "bg-secondary/10 text-secondary" },
+  aplicado:   { label: "Aplicado",   classes: "bg-success-light text-success" },
+}
+
 export const steps = [
   {
     icon: "🔍",

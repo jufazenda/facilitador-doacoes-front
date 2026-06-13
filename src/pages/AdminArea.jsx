@@ -2,6 +2,8 @@ import { useState } from "react"
 import { instituicoesPendentesMock } from "../utils/mockData"
 import { getInitials } from "../utils/strings"
 import Textarea from "../components/ui/Textarea"
+import StatCard from "../components/ui/StatCard"
+import TabBar from "../components/ui/TabBar"
 
 const ABAS = ["Pendentes", "Aprovadas", "Rejeitadas"]
 
@@ -66,31 +68,21 @@ export default function AdminArea() {
       </div>
 
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
-        <StatCard value={pendentes.length}  label="Pendentes"  color="text-warning" />
-        <StatCard value={aprovadas.length}  label="Aprovadas"  color="text-success" />
-        <StatCard value={rejeitadas.length} label="Rejeitadas" color="text-accent"  />
+        <StatCard value={pendentes.length}  label="Pendentes"  color="text-warning" size="text-2xl" />
+        <StatCard value={aprovadas.length}  label="Aprovadas"  color="text-success" size="text-2xl" />
+        <StatCard value={rejeitadas.length} label="Rejeitadas" color="text-accent"  size="text-2xl" />
       </div>
 
-      <div className="flex overflow-x-auto border-b border-line gap-1">
-        {ABAS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setAba(t)}
-            className={`whitespace-nowrap px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${
-              aba === t
-                ? "border-primary text-primary"
-                : "border-transparent text-muted hover:text-ink"
-            }`}
-          >
-            {t}
-            {t === "Pendentes" && pendentes.length > 0 && (
-              <span className="ml-1.5 bg-warning-light text-warning text-xs font-semibold px-1.5 py-0.5 rounded-full">
-                {pendentes.length}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
+      <TabBar
+        tabs={ABAS}
+        active={aba}
+        onChange={setAba}
+        renderBadge={(t) => t === "Pendentes" && pendentes.length > 0 && (
+          <span className="ml-1.5 bg-warning-light text-warning text-xs font-semibold px-1.5 py-0.5 rounded-full">
+            {pendentes.length}
+          </span>
+        )}
+      />
 
       {listaAtual.length === 0 ? (
         <p className="text-center text-muted py-12">Nenhuma instituição nesta categoria.</p>
@@ -234,11 +226,3 @@ function StatusBadge({ status }) {
   )
 }
 
-function StatCard({ value, label, color }) {
-  return (
-    <div className="bg-white rounded-xl border border-line p-4 text-center">
-      <p className={`text-2xl font-bold ${color}`}>{value}</p>
-      <p className="text-xs text-muted mt-1">{label}</p>
-    </div>
-  )
-}

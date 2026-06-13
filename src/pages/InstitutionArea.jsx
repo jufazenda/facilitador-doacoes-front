@@ -4,7 +4,7 @@ import { getMyInstitution, updateInstitution } from "../services/institutions"
 import { getCampaignsByInstitution, createCampaign, updateCampaign, deleteCampaign } from "../services/campaigns"
 import { getNecessitiesByInstitution, createNecessity, updateNecessity, updateNecessityStatus } from "../services/necessities"
 import { getDonations } from "../services/donations"
-import { categorias, slugify } from "../utils/staticData"
+import { categorias, slugify, STATUS_DOACAO } from "../utils/staticData"
 import { atualizacoesMock } from "../utils/mockData"
 import { mascararCnpj } from "../utils/masks"
 import { getInitials } from "../utils/strings"
@@ -12,17 +12,12 @@ import Select from "../components/ui/Select"
 import FormField from "../components/ui/FormField"
 import Textarea from "../components/ui/Textarea"
 import Loading from "../components/ui/Loading"
+import StatCard from "../components/ui/StatCard"
+import TabBar from "../components/ui/TabBar"
+import InfoLinha from "../components/ui/InfoLinha"
 import { useToast } from "../components/ui/Toast"
 
 const ABAS = ["Dashboard", "Perfil", "Campanhas", "Necessidades", "Atualizações"]
-
-
-const STATUS_DOACAO = {
-  pendente:   { label: "Pendente",   classes: "bg-warning-light text-warning" },
-  processado: { label: "Processado", classes: "bg-blue-100 text-blue-700" },
-  confirmado: { label: "Confirmado", classes: "bg-secondary/10 text-secondary" },
-  aplicado:   { label: "Aplicado",   classes: "bg-success-light text-success" },
-}
 
 const STATUS_INST = {
   approved: { label: "✓ Verificada", classes: "bg-success-light text-success" },
@@ -157,16 +152,7 @@ export default function InstitutionArea() {
         </div>
       </div>
 
-      <div className="flex border-b border-line gap-1 ">
-        {ABAS.map((t) => (
-          <button key={t} onClick={() => setAba(t)}
-            className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px whitespace-nowrap ${
-              aba === t ? "border-primary text-primary" : "border-transparent text-muted hover:text-ink"
-            }`}>
-            {t}
-          </button>
-        ))}
-      </div>
+      <TabBar tabs={ABAS} active={aba} onChange={setAba} />
 
       {aba === "Dashboard"    && <AbaDashboard campanhas={campanhas} doacoes={doacoes} />}
       {aba === "Perfil"       && <AbaPerfil instituicao={instituicao} setInstituicao={setInstituicao} client={client} showToast={showToast} />}
@@ -281,15 +267,6 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
           </div>
         </form>
       )}
-    </div>
-  )
-}
-
-function InfoLinha({ label, value }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <p className="text-xs text-muted">{label}</p>
-      <p className="text-sm text-ink font-semibold">{value}</p>
     </div>
   )
 }
@@ -664,15 +641,6 @@ function AbaAtualizacoes({ campanhas, atualizacoes, onEnviar }) {
           ))}
         </div>
       )}
-    </div>
-  )
-}
-
-function StatCard({ value, label }) {
-  return (
-    <div className="bg-white rounded-xl border border-line p-4 text-center">
-      <p className="text-xl font-bold text-primary">{value}</p>
-      <p className="text-xs text-muted mt-1">{label}</p>
     </div>
   )
 }

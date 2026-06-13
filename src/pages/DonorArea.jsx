@@ -6,10 +6,14 @@ import { getDonations } from "../services/donations"
 import { getCampaigns } from "../services/campaigns"
 import { getInstitutions } from "../services/institutions"
 import { getRanking } from "../services/ranking"
-import { mascararCpf } from "../utils/masks"
+import { mascararCpf, formatarCpf } from "../utils/masks"
 import { getInitials } from "../utils/strings"
+import { STATUS_DOACAO } from "../utils/staticData"
 import Loading from "../components/ui/Loading"
 import FormField from "../components/ui/FormField"
+import StatCard from "../components/ui/StatCard"
+import TabBar from "../components/ui/TabBar"
+import InfoLinha from "../components/ui/InfoLinha"
 import { useToast } from "../components/ui/Toast"
 
 const ABAS = ["Perfil", "Histórico", "Ranking"]
@@ -20,18 +24,6 @@ const NIVEIS = [
   { label: "Ouro",     min: 1000, max: 2999,    color: "text-warning",   bg: "bg-warning-light" },
   { label: "Diamante", min: 3000, max: Infinity, color: "text-primary",  bg: "bg-primary-light" },
 ]
-
-const STATUS = {
-  pendente:   { label: "Pendente",   classes: "bg-warning-light text-warning" },
-  processado: { label: "Processado", classes: "bg-blue-100 text-blue-700" },
-  confirmado: { label: "Confirmado", classes: "bg-secondary/10 text-secondary" },
-  aplicado:   { label: "Aplicado",   classes: "bg-success-light text-success" },
-}
-
-function formatCpf(cpf) {
-  if (!cpf) return "-"
-  return cpf.replace(/\D/g, "").replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4")
-}
 
 export default function DonorArea() {
   const [aba, setAba] = useState("Perfil")
@@ -84,16 +76,7 @@ export default function DonorArea() {
         </div>
       </div>
 
-      <div className="flex border-b border-line gap-1">
-        {ABAS.map((t) => (
-          <button key={t} onClick={() => setAba(t)}
-            className={`px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors -mb-px ${
-              aba === t ? "border-primary text-primary" : "border-transparent text-muted hover:text-ink"
-            }`}>
-            {t}
-          </button>
-        ))}
-      </div>
+      <TabBar tabs={ABAS} active={aba} onChange={setAba} />
 
       {aba === "Perfil" && (
         <AbaPerfil user={user} setUser={setUser} client={client} showToast={showToast} totalDoado={totalDoado} totalDoacoes={totalDoacoes} />
@@ -111,7 +94,7 @@ export default function DonorArea() {
 
 function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes }) {
   const [editando, setEditando] = useState(false)
-  const [form, setForm] = useState({ name: user?.name ?? "", phone: user?.phone ?? "", cpf: formatCpf(user?.cpf) })
+  const [form, setForm] = useState({ name: user?.name ?? "", phone: user?.phone ?? "", cpf: formatarCpf(user?.cpf) })
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState(null)
 
@@ -143,11 +126,11 @@ function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes 
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <CardStatus
+        <StatCard
           value={totalDoado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
           label="Total doado"
         />
-        <CardStatus value={totalDoacoes} label="Doações realizadas" />
+        <StatCard value={totalDoacoes} label="Doações realizadas" />
       </div>
 
       <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-4">
@@ -165,7 +148,7 @@ function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <InfoLinha label="Nome" value={user?.name ?? "-"} />
             <InfoLinha label="E-mail" value={user?.email ?? "-"} />
-            <InfoLinha label="CPF" value={formatCpf(user?.cpf)} />
+            <InfoLinha label="CPF" value={formatarCpf(user?.cpf)} />
             <InfoLinha label="Telefone" value={user?.phone || "-"} />
             <InfoLinha
               label="Membro desde"
@@ -215,7 +198,7 @@ function AbaHistorico({ donations, campaigns, institutions }) {
   return (
     <div className="flex flex-col gap-3">
       {donations.map((d) => {
-        const status = STATUS[d.status] ?? { label: d.status, classes: "bg-soft text-muted" }
+        const status = STATUS_DOACAO[d.status] ?? { label: d.status, classes: "bg-soft text-muted" }
         const campaign = d.campaign_id ? campaigns[d.campaign_id] : null
         const institution = d.institution_id ? institutions[d.institution_id] : null
 
@@ -247,7 +230,7 @@ function AbaHistorico({ donations, campaigns, institutions }) {
         )
       })}
       <div className="mt-2 flex flex-wrap gap-2">
-        {Object.values(STATUS).map((s) => (
+        {Object.values(STATUS_DOACAO).map((s) => (
           <span key={s.label} className={`text-xs px-2 py-0.5 rounded-full ${s.classes}`}>{s.label}</span>
         ))}
       </div>
@@ -372,20 +355,3 @@ function AbaRanking({ nome, donations, userId }) {
   )
 }
 
-function CardStatus({ value, label }) {
-  return (
-    <div className="bg-white rounded-xl border border-line p-4 text-center">
-      <p className="text-xl font-bold text-primary">{value}</p>
-      <p className="text-xs text-muted mt-1">{label}</p>
-    </div>
-  )
-}
-
-function InfoLinha({ label, value }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      <p className="text-xs text-muted">{label}</p>
-      <p className="text-sm text-ink font-semibold">{value}</p>
-    </div>
-  )
-}

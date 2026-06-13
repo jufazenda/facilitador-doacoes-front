@@ -10,20 +10,11 @@ import Input from "../components/ui/Input"
 import Select from "../components/ui/Select"
 import Loading from "../components/ui/Loading"
 import FormField from "../components/ui/FormField"
+import { ESTADOS } from "../utils/estados"
+import { mascararCep, mascararValidadeCartao } from "../utils/masks"
+import { buscarEnderecoPorCep, buscarCidadesPorUf } from "../services/address"
 
 const VALORES_PRESET = [10, 25, 50, 100, 200]
-
-const ESTADOS = [
-  { value: "AC", label: "Acre" }, { value: "AL", label: "Alagoas" }, { value: "AP", label: "Amapá" },
-  { value: "AM", label: "Amazonas" }, { value: "BA", label: "Bahia" }, { value: "CE", label: "Ceará" },
-  { value: "DF", label: "Distrito Federal" }, { value: "ES", label: "Espírito Santo" }, { value: "GO", label: "Goiás" },
-  { value: "MA", label: "Maranhão" }, { value: "MT", label: "Mato Grosso" }, { value: "MS", label: "Mato Grosso do Sul" },
-  { value: "MG", label: "Minas Gerais" }, { value: "PA", label: "Pará" }, { value: "PB", label: "Paraíba" },
-  { value: "PR", label: "Paraná" }, { value: "PE", label: "Pernambuco" }, { value: "PI", label: "Piauí" },
-  { value: "RJ", label: "Rio de Janeiro" }, { value: "RN", label: "Rio Grande do Norte" }, { value: "RS", label: "Rio Grande do Sul" },
-  { value: "RO", label: "Rondônia" }, { value: "RR", label: "Roraima" }, { value: "SC", label: "Santa Catarina" },
-  { value: "SP", label: "São Paulo" }, { value: "SE", label: "Sergipe" }, { value: "TO", label: "Tocantins" },
-]
 
 export default function Donation() {
   const { campanhaId } = useParams()
@@ -216,7 +207,6 @@ export default function Donation() {
             copiado={copiado} onCopiarPix={handleCopiarPix}
             donation={donation} setDonation={setDonation}
             onBack={handleVoltarParaValor}
-            onNext={() => setPasso(3)}
             onConfirmarPix={handleConfirmarPix}
             onConfirmarCartao={handleConfirmarCartao}
             aguardandoPagamento={metodo === "pix" && !!donation && donation.status !== "PAID"}
@@ -329,7 +319,7 @@ function PassoValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setVa
   )
 }
 
-function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopiarPix, donation, setDonation, onBack, onNext, onConfirmarPix, onConfirmarCartao, aguardandoPagamento, criando, erro }) {
+function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopiarPix, donation, setDonation, onBack, onConfirmarPix, onConfirmarCartao, aguardandoPagamento, criando, erro }) {
   const [buscandoCep, setBuscandoCep] = useState(false)
 
   async function handleEscolherMetodo(value) {
@@ -342,15 +332,14 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
   async function handleCartao(e) {
     const { name, value } = e.target
     if (name === "cep") {
-      const v = value.replace(/\D/g, "").slice(0, 8).replace(/(\d{5})(\d)/, "$1-$2")
+      const v = mascararCep(value)
       setCartao((prev) => ({ ...prev, cep: v }))
       if (v.replace(/\D/g, "").length === 8) {
         setBuscandoCep(true)
         try {
-          const res = await fetch(`https://viacep.com.br/ws/${v.replace(/\D/g, "")}/json/`)
-          const data = await res.json()
-          if (!data.erro) {
-            const cidades = await fetchCidades(data.uf)
+          const data = await buscarEnderecoPorCep(v)
+          if (data) {
+            const cidades = await buscarCidadesPorUf(data.uf)
             setCartao((prev) => ({
               ...prev, cep: v,
               rua:    data.logradouro ?? prev.rua,
@@ -360,20 +349,18 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
               cidadesDisponiveis: cidades,
             }))
           }
-        } catch { /* ignora */ } finally { setBuscandoCep(false) }
+        } finally { setBuscandoCep(false) }
       }
       return
     }
     if (name === "estado") {
       setCartao((prev) => ({ ...prev, estado: value, cidade: "", cidadesDisponiveis: [] }))
-      const cidades = await fetchCidades(value)
+      const cidades = await buscarCidadesPorUf(value)
       setCartao((prev) => ({ ...prev, cidadesDisponiveis: cidades }))
       return
     }
     if (name === "validade") {
-      const v = value.replace(/\D/g, "").slice(0, 4)
-      const masked = v.length > 2 ? `${v.slice(0, 2)}/${v.slice(2)}` : v
-      setCartao((prev) => ({ ...prev, validade: masked }))
+      setCartao((prev) => ({ ...prev, validade: mascararValidadeCartao(value) }))
       return
     }
     setCartao((prev) => ({ ...prev, [name]: value }))
@@ -556,14 +543,6 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
       </div>
     </div>
   )
-}
-
-async function fetchCidades(uf) {
-  try {
-    const res = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${uf}/municipios?orderBy=nome`)
-    const data = await res.json()
-    return data.map((m) => m.nome)
-  } catch { return [] }
 }
 
 function PassoConfirmacao({ campanha, institutionName, valor, metodo, donation }) {

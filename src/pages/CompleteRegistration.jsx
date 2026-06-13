@@ -5,7 +5,7 @@ import { createUser } from "../services/users"
 import { createInstitution } from "../services/institutions"
 import FormField from "../components/ui/FormField"
 import Textarea from "../components/ui/Textarea"
-import { mascararCpf, mascararCnpj } from "../utils/masks"
+import { mascararCpf, mascararCnpj, mascararTelefone } from "../utils/masks"
 
 export default function CompleteRegistration() {
   
@@ -26,7 +26,7 @@ export default function CompleteRegistration() {
 
   function handleInstituicao(e) {
     const { name, value, type, checked } = e.target
-    setInstituicao((p) => ({ ...p, [name]: type === "checkbox" ? checked : name === "cnpj" ? mascararCnpj(value) : value }))
+    setInstituicao((p) => ({ ...p, [name]: type === "checkbox" ? checked : name === "cnpj" ? mascararCnpj(value) : name === "telefone" ? mascararTelefone(value) : value }))
   }
 
   async function submitDoador(e) {
@@ -60,7 +60,7 @@ export default function CompleteRegistration() {
         legal_name:  instituicao.razaoSocial,
         cnpj:        instituicao.cnpj.replace(/\D/g, ""),
         email:       instituicao.email,
-        phone:       instituicao.telefone,
+        phone:       instituicao.telefone.replace(/\D/g, ""),
         address:     instituicao.endereco,
         description: instituicao.descricao,
       })
