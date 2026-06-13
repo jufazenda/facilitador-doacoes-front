@@ -238,7 +238,7 @@ function HistoryTab({ donations, campaigns, institutions }) {
           <span key={s.label} className={`text-xs px-2 py-0.5 rounded-full ${s.classes}`}>{s.label}</span>
         ))}
       </div>
-      <p className="text-xs text-muted">Fluxo: Pendente → Processado → Confirmado → Aplicado</p>
+      <p className="text-xs text-muted">Fluxo: Pendente → Pago → Reembolsado (ou Vencido em caso de atraso)</p>
     </div>
   )
 }

@@ -56,7 +56,7 @@ export default function AdminArea() {
   async function confirmRejection(id) {
     if (!reason.trim()) return
     try {
-      await updateInstitutionStatus(client, id, "rejected")
+      await updateInstitutionStatus(client, id, "rejected", reason.trim())
       setInstitutions((prev) =>
         prev.map((i) => (i.id === id ? { ...i, status: "rejected", rejectionReason: reason.trim() } : i))
       )
