@@ -8,19 +8,19 @@ import TabBar from "../components/ui/TabBar"
 const TABS = ["Pendentes", "Aprovadas", "Rejeitadas"]
 
 export default function AdminArea() {
-  const [instituicoes, setInstituicoes] = useState(pendingInstitutionsMock)
+  const [institutions, setInstitutions] = useState(pendingInstitutionsMock)
   const [tab, setTab] = useState("Pendentes")
   const [rejectingId, setRejectingId] = useState(null)
   const [reason, setReason] = useState("")
 
-  const pending  = instituicoes.filter((i) => i.status === "pendente")
-  const approved  = instituicoes.filter((i) => i.status === "aprovada")
-  const rejected = instituicoes.filter((i) => i.status === "rejeitada")
+  const pending  = institutions.filter((i) => i.status === "pendente")
+  const approved  = institutions.filter((i) => i.status === "aprovada")
+  const rejected = institutions.filter((i) => i.status === "rejeitada")
 
   const currentList = { Pendentes: pending, Aprovadas: approved, Rejeitadas: rejected }[tab]
 
   function approve(id) {
-    setInstituicoes((prev) =>
+    setInstitutions((prev) =>
       prev.map((i) =>
         i.id === id
           ? { ...i, status: "aprovada", resolvedAt: new Date().toISOString().slice(0, 10) }
@@ -36,7 +36,7 @@ export default function AdminArea() {
 
   function confirmRejection(id) {
     if (!reason.trim()) return
-    setInstituicoes((prev) =>
+    setInstitutions((prev) =>
       prev.map((i) =>
         i.id === id
           ? {
