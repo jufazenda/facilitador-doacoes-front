@@ -70,7 +70,7 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
         </div>
 
         <div className="relative z-10 mt-4 sm:mt-5">
-          {user?.tipo !== "instituicao" && (
+          {user?.type !== "instituicao" && (
           <Link
             to={`/doacao/${c.id}`}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-2.5 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-purple-800 sm:py-3"

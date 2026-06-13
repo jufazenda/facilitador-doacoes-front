@@ -11,25 +11,25 @@ import { getInitials } from "../utils/strings"
 export default function InstitutionDetail() {
   const { id } = useParams()
   const { user } = useAuth()
-  const [inst, setInst] = useState(null)
-  const [campanhas, setCampanhas] = useState([])
-  const [necessidades, setNecessidades] = useState([])
+  const [institution, setInstitution] = useState(null)
+  const [campaigns, setCampaigns] = useState([])
+  const [necessities, setNecessities] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
-  const [apoiando, setApoiando] = useState(false)
+  const [supporting, setSupporting] = useState(false)
 
   useEffect(() => {
     getInstitutionById(id)
       .then((institution) => {
-        setInst(institution)
+        setInstitution(institution)
         return Promise.all([
           getCampaignsByInstitution(institution.id).catch(() => []),
           getNecessitiesByInstitution(institution.id).catch(() => []),
         ])
       })
       .then(([camps, necess]) => {
-        setCampanhas(camps ?? [])
-        setNecessidades((necess ?? []).filter((n) => n.status === "open"))
+        setCampaigns(camps ?? [])
+        setNecessities((necess ?? []).filter((n) => n.status === "open"))
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
@@ -37,7 +37,7 @@ export default function InstitutionDetail() {
 
   if (loading) return <Loading full />
 
-  if (notFound || !inst) {
+  if (notFound || !institution) {
     return (
       <div className="py-20 text-center text-muted px-4">
         <p className="text-lg">Instituição não encontrada.</p>
@@ -46,9 +46,9 @@ export default function InstitutionDetail() {
     )
   }
 
-  const iniciais         = getInitials(inst.name)
-  const isDoador         = user?.tipo === "doador"
-  const campanhasAtivas  = campanhas.filter((c) => c.status === "active")
+  const initials        = getInitials(institution.name)
+  const isDonor         = user?.type === "doador"
+  const activeCampaigns = campaigns.filter((c) => c.status === "active")
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 flex flex-col gap-8">
@@ -63,24 +63,24 @@ export default function InstitutionDetail() {
               <span>›</span>
               <Link to="/instituicoes" className="hover:text-primary transition-colors">Instituições</Link>
               <span>›</span>
-              <span className="text-ink">{inst.name}</span>
+              <span className="text-ink">{institution.name}</span>
             </nav>
 
             <div className="flex items-start gap-4">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-light">
-                {inst.logo_url ? (
-                  <img src={inst.logo_url} alt={inst.name} className="h-full w-full rounded-2xl object-cover" />
+                {institution.logo_url ? (
+                  <img src={institution.logo_url} alt={institution.name} className="h-full w-full rounded-2xl object-cover" />
                 ) : (
-                  <span className="text-xl font-black text-primary">{iniciais}</span>
+                  <span className="text-xl font-black text-primary">{initials}</span>
                 )}
               </div>
               <div className="min-w-0">
-                <h1 className="text-2xl font-black leading-tight text-purple-950 sm:text-3xl">{inst.name}</h1>
-                {inst.legal_name && (
-                  <p className="mt-0.5 text-xs text-muted">{inst.legal_name}</p>
+                <h1 className="text-2xl font-black leading-tight text-purple-950 sm:text-3xl">{institution.name}</h1>
+                {institution.legal_name && (
+                  <p className="mt-0.5 text-xs text-muted">{institution.legal_name}</p>
                 )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                  {inst.address && <span className="text-sm text-muted">📍 {inst.address}</span>}
+                  {institution.address && <span className="text-sm text-muted">📍 {institution.address}</span>}
                   <span className="inline-flex items-center gap-1 rounded-full bg-success-light px-2.5 py-0.5 text-xs font-semibold text-success">
                     ✓ Verificada
                   </span>
@@ -88,53 +88,53 @@ export default function InstitutionDetail() {
               </div>
             </div>
 
-            {inst.description && (
-              <p className="text-sm leading-relaxed text-muted">{inst.description}</p>
+            {institution.description && (
+              <p className="text-sm leading-relaxed text-muted">{institution.description}</p>
             )}
 
             <div className="flex flex-wrap gap-3">
-              {isDoador && (
+              {isDonor && (
                 <button
-                  onClick={() => setApoiando((v) => !v)}
+                  onClick={() => setSupporting((v) => !v)}
                   className={`flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold transition-colors ${
-                    apoiando
+                    supporting
                       ? "border border-success/30 bg-success-light text-success"
                       : "bg-purple-700 text-white hover:bg-purple-800"
                   }`}
                 >
-                  {apoiando ? "♥ Apoiando" : "♡ Apoiar instituição"}
+                  {supporting ? "♥ Apoiando" : "♡ Apoiar instituição"}
                 </button>
               )}
-              {campanhasAtivas.length > 0 && (
+              {activeCampaigns.length > 0 && (
                 <a href="#campanhas"
                   className="rounded-2xl border border-purple-200 px-5 py-2.5 text-sm font-bold text-purple-700 transition-colors hover:bg-purple-50">
-                  Ver {campanhasAtivas.length} campanha{campanhasAtivas.length !== 1 ? "s" : ""}
+                  Ver {activeCampaigns.length} campanha{activeCampaigns.length !== 1 ? "s" : ""}
                 </a>
               )}
             </div>
           </div>
 
           <div className="h-48 lg:col-span-2 lg:h-auto">
-            <IllustracaoHero iniciais={iniciais} />
+            <HeroIllustration initials={initials} />
           </div>
         </div>
       </section>
 
       {/* Info */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {inst.email    && <InfoCard icon="✉️" label="E-mail"        value={inst.email} />}
-        {inst.phone    && <InfoCard icon="📞" label="Telefone"      value={inst.phone} />}
-        {inst.cnpj     && <InfoCard icon="📋" label="CNPJ"          value={inst.cnpj} />}
+        {institution.email    && <InfoCard icon="✉️" label="E-mail"        value={institution.email} />}
+        {institution.phone    && <InfoCard icon="📞" label="Telefone"      value={institution.phone} />}
+        {institution.cnpj     && <InfoCard icon="📋" label="CNPJ"          value={institution.cnpj} />}
         <InfoCard icon="📅" label="Membro desde"
-          value={new Date(inst.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })} />
+          value={new Date(institution.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })} />
       </div>
 
       {/* Necessidades */}
-      {necessidades.length > 0 && (
+      {necessities.length > 0 && (
         <section className="flex flex-col gap-4">
           <h2 className="text-lg font-black text-purple-950">❤️ Necessidades atuais</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {necessidades.map((n) => <CartaoNecessidade key={n.id} necessidade={n} />)}
+            {necessities.map((n) => <NecessityCard key={n.id} necessity={n} />)}
           </div>
         </section>
       )}
@@ -142,11 +142,11 @@ export default function InstitutionDetail() {
       {/* Campanhas */}
       <section id="campanhas" className="flex flex-col gap-4">
         <h2 className="text-lg font-black text-purple-950">🚩 Campanhas ativas</h2>
-        {campanhasAtivas.length === 0 ? (
+        {activeCampaigns.length === 0 ? (
           <p className="text-sm text-muted">Nenhuma campanha ativa no momento.</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {campanhasAtivas.map((c) => <CartaoCampanhaH key={c.id} campanha={c} />)}
+            {activeCampaigns.map((c) => <CampaignCardH key={c.id} campaign={c} />)}
           </div>
         )}
       </section>
@@ -155,7 +155,7 @@ export default function InstitutionDetail() {
   )
 }
 
-function IllustracaoHero({ iniciais }) {
+function HeroIllustration({ initials }) {
   return (
     <div className="relative h-full overflow-hidden bg-linear-to-br from-purple-50 via-primary-light to-soft">
       <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-purple-200/50" />
@@ -167,7 +167,7 @@ function IllustracaoHero({ iniciais }) {
       <span className="absolute bottom-8 left-14 select-none text-3xl text-purple-300/50">♡</span>
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white shadow-xl shadow-purple-950/10 ring-8 ring-white/60">
-          <span className="text-3xl font-black text-primary">{iniciais}</span>
+          <span className="text-3xl font-black text-primary">{initials}</span>
         </div>
       </div>
     </div>
@@ -183,7 +183,7 @@ function InfoCard({ icon, label, value }) {
   )
 }
 
-function CartaoNecessidade({ necessidade: n }) {
+function NecessityCard({ necessity: n }) {
   return (
     <div className={`flex flex-col gap-3 rounded-2xl border bg-white p-5 ${n.is_urgent ? "border-accent/30" : "border-line"}`}>
       {n.is_urgent && (
@@ -200,7 +200,7 @@ function CartaoNecessidade({ necessidade: n }) {
   )
 }
 
-function CartaoCampanhaH({ campanha: c }) {
+function CampaignCardH({ campaign: c }) {
   const bgImage = categoryImages[c.keywords?.[0]]
   const raised  = (c.total_raised ?? 0) / 100
   const goal    = (c.goal_amount  ?? 0) / 100

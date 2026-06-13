@@ -24,9 +24,9 @@ export function AuthProvider({ children }) {
     if (!isAuthenticated || !auth0User) return null
     const rawRole = ROLE_CLAIM ? auth0User[ROLE_CLAIM] ?? null : null
     return {
-      nome:  auth0User.name ?? auth0User.email,
+      name:  auth0User.name ?? auth0User.email,
       email: auth0User.email,
-      tipo:  rawRole ? (ROLE_MAP[rawRole] ?? rawRole) : null,
+      type:  rawRole ? (ROLE_MAP[rawRole] ?? rawRole) : null,
     }
   }, [isAuthenticated, auth0User])
 

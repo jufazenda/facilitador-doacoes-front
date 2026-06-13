@@ -4,9 +4,9 @@ import { getMyInstitution, updateInstitution } from "../services/institutions"
 import { getCampaignsByInstitution, createCampaign, updateCampaign, deleteCampaign } from "../services/campaigns"
 import { getNecessitiesByInstitution, createNecessity, updateNecessity, updateNecessityStatus } from "../services/necessities"
 import { getDonations } from "../services/donations"
-import { categorias, slugify, STATUS_DOACAO } from "../utils/staticData"
-import { atualizacoesMock } from "../utils/mockData"
-import { mascararCnpj } from "../utils/masks"
+import { categories, slugify, DONATION_STATUS } from "../utils/staticData"
+import { updatesMock } from "../utils/mockData"
+import { maskCnpj } from "../utils/masks"
 import { getInitials } from "../utils/strings"
 import Select from "../components/ui/Select"
 import FormField from "../components/ui/FormField"
@@ -17,21 +17,21 @@ import TabBar from "../components/ui/TabBar"
 import InfoLinha from "../components/ui/InfoLinha"
 import { useToast } from "../components/ui/Toast"
 
-const ABAS = ["Dashboard", "Perfil", "Campanhas", "Necessidades", "Atualizações"]
+const TABS = ["Dashboard", "Perfil", "Campanhas", "Necessidades", "Atualizações"]
 
-const STATUS_INST = {
+const INSTITUTION_STATUS = {
   approved: { label: "✓ Verificada", classes: "bg-success-light text-success" },
   pending:  { label: "Em análise",   classes: "bg-warning-light text-warning" },
   rejected: { label: "Rejeitada",    classes: "bg-red-100 text-red-700" },
 }
 
 export default function InstitutionArea() {
-  const [aba, setAba] = useState("Dashboard")
-  const [instituicao, setInstituicao] = useState(null)
-  const [campanhas, setCampanhas] = useState([])
-  const [necessidades, setNecessidades] = useState([])
-  const [doacoes, setDoacoes] = useState([])
-  const [atualizacoes, setAtualizacoes] = useState(atualizacoesMock)
+  const [tab, setTab] = useState("Dashboard")
+  const [institution, setInstitution] = useState(null)
+  const [campaigns, setCampaigns] = useState([])
+  const [necessities, setNecessities] = useState([])
+  const [donations, setDonations] = useState([])
+  const [updates, setUpdates] = useState(updatesMock)
   const [loading, setLoading] = useState(true)
   const client = useApiClient()
   const { showToast, ToastContainer } = useToast()
@@ -40,15 +40,15 @@ export default function InstitutionArea() {
     async function load() {
       try {
         const inst = await getMyInstitution(client)
-        setInstituicao(inst)
-        const [camps, necess, allDoacoes] = await Promise.all([
+        setInstitution(inst)
+        const [camps, necess, allDonations] = await Promise.all([
           getCampaignsByInstitution(inst.id).catch(() => []),
           getNecessitiesByInstitution(inst.id).catch(() => []),
           getDonations().catch(() => []),
         ])
-        setCampanhas(camps ?? [])
-        setNecessidades(necess ?? [])
-        setDoacoes((allDoacoes ?? []).filter((d) => d.institution_id === inst.id))
+        setCampaigns(camps ?? [])
+        setNecessities(necess ?? [])
+        setDonations((allDonations ?? []).filter((d) => d.institution_id === inst.id))
       } finally {
         setLoading(false)
       }
@@ -56,138 +56,138 @@ export default function InstitutionArea() {
     load()
   }, [client])
 
-  async function toggleUrgenteC(campanha) {
-    const updated = await updateCampaign(client, campanha.id, {
-      title:       campanha.title,
-      description: campanha.description,
-      goal_amount: campanha.goal_amount,
-      category:    campanha.category,
-      is_urgent:   !campanha.is_urgent,
+  async function toggleUrgentCampaign(campaign) {
+    const updated = await updateCampaign(client, campaign.id, {
+      title:       campaign.title,
+      description: campaign.description,
+      goal_amount: campaign.goal_amount,
+      category:    campaign.category,
+      is_urgent:   !campaign.is_urgent,
     })
-    setCampanhas((prev) => prev.map((c) => c.id === campanha.id ? updated : c))
+    setCampaigns((prev) => prev.map((c) => c.id === campaign.id ? updated : c))
   }
 
-  async function adicionarCampanha(form) {
-    const nova = await createCampaign(client, instituicao.id, {
-      title:       form.titulo,
-      description: form.descricao,
-      goal_amount: Math.round(Number(form.meta) * 100),
-      keywords:    [slugify(form.categoria)],
+  async function addCampaign(form) {
+    const nova = await createCampaign(client, institution.id, {
+      title:       form.title,
+      description: form.description,
+      goal_amount: Math.round(Number(form.goal) * 100),
+      keywords:    [slugify(form.category)],
     })
-    setCampanhas((prev) => [nova, ...prev])
+    setCampaigns((prev) => [nova, ...prev])
   }
 
-  async function editarCampanha(id, form) {
-    const campanha = campanhas.find((c) => c.id === id)
+  async function editCampaign(id, form) {
+    const campaign = campaigns.find((c) => c.id === id)
     const updated = await updateCampaign(client, id, {
-      title:       form.titulo,
-      description: form.descricao,
-      goal_amount: Math.round(Number(form.meta) * 100),
-      keywords:    [slugify(form.categoria)],
-      category:    form.categoria,
-      is_urgent:   campanha?.is_urgent ?? false,
+      title:       form.title,
+      description: form.description,
+      goal_amount: Math.round(Number(form.goal) * 100),
+      keywords:    [slugify(form.category)],
+      category:    form.category,
+      is_urgent:   campaign?.is_urgent ?? false,
     })
-    setCampanhas((prev) => prev.map((c) => c.id === id ? updated : c))
+    setCampaigns((prev) => prev.map((c) => c.id === id ? updated : c))
   }
 
-  async function excluirCampanha(id) {
+  async function handleDeleteCampaign(id) {
     await deleteCampaign(client, id)
-    setCampanhas((prev) => prev.filter((c) => c.id !== id))
+    setCampaigns((prev) => prev.filter((c) => c.id !== id))
   }
 
-  async function toggleUrgenteN(necessidade) {
-    const updated = await updateNecessity(client, necessidade.id, {
-      description: necessidade.description,
-      category:    necessidade.category,
-      is_urgent:   !necessidade.is_urgent,
+  async function toggleUrgentNecessity(necessity) {
+    const updated = await updateNecessity(client, necessity.id, {
+      description: necessity.description,
+      category:    necessity.category,
+      is_urgent:   !necessity.is_urgent,
     })
-    setNecessidades((prev) => prev.map((n) => n.id === necessidade.id ? updated : n))
+    setNecessities((prev) => prev.map((n) => n.id === necessity.id ? updated : n))
   }
 
-  async function atenderNecessidade(id) {
+  async function attendNecessity(id) {
     const updated = await updateNecessityStatus(client, id, "attended")
-    setNecessidades((prev) => prev.map((n) => n.id === id ? updated : n))
+    setNecessities((prev) => prev.map((n) => n.id === id ? updated : n))
   }
 
-  async function adicionarNecessidade(form) {
-    const nova = await createNecessity(client, instituicao.id, {
-      description: form.titulo,
-      category:    form.categoria,
-      is_urgent:   form.urgente,
+  async function addNecessity(form) {
+    const nova = await createNecessity(client, institution.id, {
+      description: form.title,
+      category:    form.category,
+      is_urgent:   form.urgent,
     })
-    setNecessidades((prev) => [nova, ...prev])
+    setNecessities((prev) => [nova, ...prev])
   }
 
-  function enviarAtualizacao(update) {
-    const campanha = campanhas.find((c) => c.id === update.campanhaId)
-    setAtualizacoes((prev) => [{
+  function sendUpdate(update) {
+    const campaign = campaigns.find((c) => c.id === update.campanhaId)
+    setUpdates((prev) => [{
       ...update,
-      id:        Date.now(),
-      campanha:  campanha?.title ?? "",
-      enviadaEm: new Date().toISOString().slice(0, 10),
+      id:       Date.now(),
+      campaign: campaign?.title ?? "",
+      sentAt:   new Date().toISOString().slice(0, 10),
     }, ...prev])
   }
 
   if (loading) return <Loading full />
 
-  const statusInst = STATUS_INST[instituicao?.status] ?? STATUS_INST.pending
-  const iniciais = getInitials(instituicao?.name)
+  const statusInstitution = INSTITUTION_STATUS[institution?.status] ?? INSTITUTION_STATUS.pending
+  const initials = getInitials(institution?.name)
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shrink-0">
-          <span className="text-white text-xl font-bold">{iniciais}</span>
+          <span className="text-white text-xl font-bold">{initials}</span>
         </div>
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl font-bold text-ink">{instituicao?.name}</h1>
-            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusInst.classes}`}>
-              {statusInst.label}
+            <h1 className="text-xl font-bold text-ink">{institution?.name}</h1>
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusInstitution.classes}`}>
+              {statusInstitution.label}
             </span>
           </div>
-          {instituicao?.address && (
-            <p className="text-sm text-muted">{instituicao.address}</p>
+          {institution?.address && (
+            <p className="text-sm text-muted">{institution.address}</p>
           )}
         </div>
       </div>
 
-      <TabBar tabs={ABAS} active={aba} onChange={setAba} />
+      <TabBar tabs={TABS} active={tab} onChange={setTab} />
 
-      {aba === "Dashboard"    && <AbaDashboard campanhas={campanhas} doacoes={doacoes} />}
-      {aba === "Perfil"       && <AbaPerfil instituicao={instituicao} setInstituicao={setInstituicao} client={client} showToast={showToast} />}
-      {aba === "Campanhas"    && <AbaCampanhas campanhas={campanhas} onToggleUrgente={toggleUrgenteC} onAdicionar={adicionarCampanha} onEditar={editarCampanha} onExcluir={excluirCampanha} showToast={showToast} />}
-      {aba === "Necessidades" && <AbaNecessidades necessidades={necessidades} onToggleUrgente={toggleUrgenteN} onAtender={atenderNecessidade} onAdicionar={adicionarNecessidade} />}
-      {aba === "Atualizações" && <AbaAtualizacoes campanhas={campanhas} atualizacoes={atualizacoes} onEnviar={enviarAtualizacao} />}
+      {tab === "Dashboard"    && <DashboardTab campaigns={campaigns} donations={donations} />}
+      {tab === "Perfil"       && <ProfileTab institution={institution} setInstitution={setInstitution} client={client} showToast={showToast} />}
+      {tab === "Campanhas"    && <CampaignsTab campaigns={campaigns} onToggleUrgente={toggleUrgentCampaign} onAdicionar={addCampaign} onEditar={editCampaign} onExcluir={handleDeleteCampaign} showToast={showToast} />}
+      {tab === "Necessidades" && <NecessitiesTab necessities={necessities} onToggleUrgente={toggleUrgentNecessity} onAtender={attendNecessity} onAdicionar={addNecessity} />}
+      {tab === "Atualizações" && <UpdatesTab campaigns={campaigns} updates={updates} onEnviar={sendUpdate} />}
       <ToastContainer />
     </div>
   )
 }
 
-function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
-  const [editando, setEditando] = useState(false)
-  const [salvando, setSalvando] = useState(false)
-  const [erro, setErro] = useState(null)
+function ProfileTab({ institution, setInstitution, client, showToast }) {
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
   const [form, setForm] = useState({
-    name:        instituicao?.name ?? "",
-    description: instituicao?.description ?? "",
-    address:     instituicao?.address ?? "",
-    phone:       instituicao?.phone ?? "",
-    cnpj:        instituicao?.cnpj ?? "",
-    website:     instituicao?.website ?? "",
+    name:        institution?.name ?? "",
+    description: institution?.description ?? "",
+    address:     institution?.address ?? "",
+    phone:       institution?.phone ?? "",
+    cnpj:        institution?.cnpj ?? "",
+    website:     institution?.website ?? "",
   })
 
   function handleChange(e) {
     const { name, value } = e.target
-    setForm((prev) => ({ ...prev, [name]: name === "cnpj" ? mascararCnpj(value) : value }))
+    setForm((prev) => ({ ...prev, [name]: name === "cnpj" ? maskCnpj(value) : value }))
   }
 
-  async function handleSalvar(e) {
+  async function handleSave(e) {
     e.preventDefault()
-    setSalvando(true)
-    setErro(null)
+    setSaving(true)
+    setError(null)
     try {
-      const updated = await updateInstitution(client, instituicao.id, {
+      const updated = await updateInstitution(client, institution.id, {
         name:        form.name,
         description: form.description,
         address:     form.address,
@@ -195,52 +195,52 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
         cnpj:        form.cnpj.replace(/\D/g, ""),
         website:     form.website,
       })
-      setInstituicao(updated)
-      setEditando(false)
+      setInstitution(updated)
+      setEditing(false)
       showToast("success", "Perfil atualizado com sucesso!")
     } catch (err) {
-      setErro(err?.response?.data?.error ?? "Erro ao salvar. Tente novamente.")
+      setError(err?.response?.data?.error ?? "Erro ao salvar. Tente novamente.")
     } finally {
-      setSalvando(false)
+      setSaving(false)
     }
   }
 
-  const statusInst = STATUS_INST[instituicao?.status] ?? STATUS_INST.pending
+  const statusInstitution = INSTITUTION_STATUS[institution?.status] ?? INSTITUTION_STATUS.pending
 
   return (
     <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold text-ink">Dados da instituição</h2>
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusInst.classes}`}>
-          {statusInst.label}
+        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusInstitution.classes}`}>
+          {statusInstitution.label}
         </span>
       </div>
 
-      {!editando ? (
+      {!editing ? (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <InfoLinha label="Nome" value={instituicao?.name ?? "-"} />
-            <InfoLinha label="CNPJ" value={instituicao?.cnpj || "-"} />
-            <InfoLinha label="Telefone" value={instituicao?.phone || "-"} />
-            <InfoLinha label="Website" value={instituicao?.website || "-"} />
-            <InfoLinha label="Endereço" value={instituicao?.address || "-"} />
+            <InfoLinha label="Nome" value={institution?.name ?? "-"} />
+            <InfoLinha label="CNPJ" value={institution?.cnpj || "-"} />
+            <InfoLinha label="Telefone" value={institution?.phone || "-"} />
+            <InfoLinha label="Website" value={institution?.website || "-"} />
+            <InfoLinha label="Endereço" value={institution?.address || "-"} />
           </div>
-          {instituicao?.description && (
+          {institution?.description && (
             <div className="flex flex-col gap-0.5">
               <p className="text-xs text-muted">Descrição</p>
-              <p className="text-sm text-ink font-semibold leading-relaxed">{instituicao.description}</p>
+              <p className="text-sm text-ink font-semibold leading-relaxed">{institution.description}</p>
             </div>
           )}
-          <button onClick={() => setEditando(true)}
+          <button onClick={() => setEditing(true)}
             className="self-start text-sm text-primary hover:underline font-semibold">
             Editar dados
           </button>
         </>
       ) : (
-        <form onSubmit={handleSalvar} className="flex flex-col gap-4">
-          {erro && (
+        <form onSubmit={handleSave} className="flex flex-col gap-4">
+          {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-2.5 text-sm text-red-700">
-              {erro}
+              {error}
             </div>
           )}
           <FormField compact label="Nome da instituição" name="name" value={form.name} onChange={handleChange} />
@@ -256,13 +256,13 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
               placeholder="Conte sobre a missão e os projetos da sua instituição" />
           </div>
           <div className="flex gap-3 pt-1">
-            <button type="button" onClick={() => { setEditando(false); setErro(null) }}
+            <button type="button" onClick={() => { setEditing(false); setError(null) }}
               className="flex-1 border border-line text-muted hover:border-ink rounded-lg py-2.5 text-sm font-semibold transition-colors">
               Cancelar
             </button>
-            <button type="submit" disabled={salvando}
+            <button type="submit" disabled={saving}
               className="flex-1 bg-primary hover:bg-primary-dark disabled:opacity-40 text-white font-bold rounded-lg py-2.5 text-sm transition-colors">
-              {salvando ? "Salvando..." : "Salvar"}
+              {saving ? "Salvando..." : "Salvar"}
             </button>
           </div>
         </form>
@@ -271,50 +271,50 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
   )
 }
 
-function AbaDashboard({ campanhas, doacoes }) {
-  const totalArrecadado = campanhas.reduce((s, c) => s + (c.total_raised ?? 0), 0) / 100
-  const totalMeta       = campanhas.reduce((s, c) => s + (c.goal_amount ?? 0), 0) / 100
-  const percentual      = totalMeta > 0 ? Math.round((totalArrecadado / totalMeta) * 100) : 0
-  const ativas          = campanhas.filter((c) => c.status === "active").length
-  const doadores        = new Set(doacoes.map((d) => d.user_id)).size
+function DashboardTab({ campaigns, donations }) {
+  const totalRaised = campaigns.reduce((s, c) => s + (c.total_raised ?? 0), 0) / 100
+  const totalGoal   = campaigns.reduce((s, c) => s + (c.goal_amount ?? 0), 0) / 100
+  const percentage  = totalGoal > 0 ? Math.round((totalRaised / totalGoal) * 100) : 0
+  const active      = campaigns.filter((c) => c.status === "active").length
+  const donors      = new Set(donations.map((d) => d.user_id)).size
 
-  const campanhasMap = Object.fromEntries(campanhas.map((c) => [c.id, c]))
-  const recentes = [...doacoes]
+  const campaignsMap = Object.fromEntries(campaigns.map((c) => [c.id, c]))
+  const recent = [...donations]
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
     .slice(0, 5)
 
   return (
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        <StatCard value={totalArrecadado.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })} label="Total arrecadado" />
-        <StatCard value={`${percentual}%`} label="Da meta atingida" />
-        <StatCard value={ativas} label="Campanhas ativas" />
-        <StatCard value={doadores} label="Doadores únicos" />
+        <StatCard value={totalRaised.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })} label="Total arrecadado" />
+        <StatCard value={`${percentage}%`} label="Da meta atingida" />
+        <StatCard value={active} label="Campanhas ativas" />
+        <StatCard value={donors} label="Doadores únicos" />
       </div>
 
       <div className="bg-white rounded-xl border border-line p-5 flex flex-col gap-3">
         <div className="flex justify-between text-sm">
           <span className="font-semibold text-ink">Progresso geral das campanhas</span>
-          <span className="text-primary font-bold">{percentual}%</span>
+          <span className="text-primary font-bold">{percentage}%</span>
         </div>
         <div className="w-full bg-soft rounded-full h-3">
-          <div className="bg-primary h-3 rounded-full transition-all" style={{ width: `${Math.min(percentual, 100)}%` }} />
+          <div className="bg-primary h-3 rounded-full transition-all" style={{ width: `${Math.min(percentage, 100)}%` }} />
         </div>
         <div className="flex justify-between text-xs text-muted">
-          <span>{totalArrecadado.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
-          <span>Meta: {totalMeta.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+          <span>{totalRaised.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
+          <span>Meta: {totalGoal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</span>
         </div>
       </div>
 
       <div>
         <h2 className="text-base font-bold text-ink mb-3">Doações recentes</h2>
-        {recentes.length === 0 ? (
+        {recent.length === 0 ? (
           <p className="text-sm text-muted">Nenhuma doação recebida ainda.</p>
         ) : (
           <div className="bg-white rounded-xl border border-line divide-y divide-line">
-            {recentes.map((d) => {
-              const s = STATUS_DOACAO[d.status] ?? { label: d.status, classes: "bg-soft text-muted" }
-              const camp = d.campaign_id ? campanhasMap[d.campaign_id] : null
+            {recent.map((d) => {
+              const s = DONATION_STATUS[d.status] ?? { label: d.status, classes: "bg-soft text-muted" }
+              const camp = d.campaign_id ? campaignsMap[d.campaign_id] : null
               return (
                 <div key={d.id} className="flex items-center justify-between px-4 py-3 gap-3">
                   <div className="flex flex-col gap-0.5 min-w-0">
@@ -337,62 +337,62 @@ function AbaDashboard({ campanhas, doacoes }) {
   )
 }
 
-function AbaCampanhas({ campanhas, onToggleUrgente, onAdicionar, onEditar, onExcluir, showToast }) {
-  const [criando, setCriando] = useState(false)
-  const [editando, setEditando] = useState(null)
-  const [salvando, setSalvando] = useState(false)
-  const [paraExcluir, setParaExcluir] = useState(null)
-  const [excluindo, setExcluindo] = useState(false)
+function CampaignsTab({ campaigns, onToggleUrgente, onAdicionar, onEditar, onExcluir, showToast }) {
+  const [creating, setCreating] = useState(false)
+  const [editing, setEditing] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [toDelete, setToDelete] = useState(null)
+  const [deleting, setDeleting] = useState(false)
 
-  async function handleCriar(form) {
-    setSalvando(true)
+  async function handleCreate(form) {
+    setSaving(true)
     try {
       await onAdicionar(form)
-      setCriando(false)
+      setCreating(false)
       showToast("success", "Campanha criada com sucesso!")
     } catch {
       showToast("error", "Erro ao criar campanha. Tente novamente.")
     } finally {
-      setSalvando(false)
+      setSaving(false)
     }
   }
 
-  async function handleSalvarEdicao(form) {
-    setSalvando(true)
+  async function handleSaveEdit(form) {
+    setSaving(true)
     try {
-      await onEditar(editando.id, form)
-      setEditando(null)
+      await onEditar(editing.id, form)
+      setEditing(null)
       showToast("success", "Campanha atualizada com sucesso!")
     } catch {
       showToast("error", "Erro ao salvar alterações. Tente novamente.")
     } finally {
-      setSalvando(false)
+      setSaving(false)
     }
   }
 
-  async function handleConfirmarExclusao() {
-    setExcluindo(true)
+  async function handleConfirmDelete() {
+    setDeleting(true)
     try {
-      await onExcluir(paraExcluir.id)
-      showToast("success", `"${paraExcluir.title}" foi excluída.`)
-      setParaExcluir(null)
+      await onExcluir(toDelete.id)
+      showToast("success", `"${toDelete.title}" foi excluída.`)
+      setToDelete(null)
     } catch {
       showToast("error", "Erro ao excluir campanha. Tente novamente.")
     } finally {
-      setExcluindo(false)
+      setDeleting(false)
     }
   }
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end">
-        <button onClick={() => setCriando(true)}
+        <button onClick={() => setCreating(true)}
           className="text-sm bg-primary hover:bg-primary-dark text-white font-bold px-4 py-2 rounded-lg transition-colors">
           + Nova campanha
         </button>
       </div>
 
-      {campanhas.map((c) => {
+      {campaigns.map((c) => {
         const pct = c.goal_amount > 0 ? Math.min(Math.round((c.total_raised / c.goal_amount) * 100), 100) : 0
         return (
           <div key={c.id} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-3">
@@ -413,11 +413,11 @@ function AbaCampanhas({ campanhas, onToggleUrgente, onAdicionar, onEditar, onExc
                   }`}>
                   {c.is_urgent ? "Remover urgência" : "Marcar urgente"}
                 </button>
-                <button onClick={() => setEditando(c)}
+                <button onClick={() => setEditing(c)}
                   className="text-xs px-3 py-1.5 rounded-lg border border-line text-muted hover:border-primary hover:text-primary font-semibold transition-colors">
                   Editar
                 </button>
-                <button onClick={() => setParaExcluir(c)}
+                <button onClick={() => setToDelete(c)}
                   className="text-xs px-3 py-1.5 rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 font-semibold transition-colors">
                   Excluir
                 </button>
@@ -436,59 +436,59 @@ function AbaCampanhas({ campanhas, onToggleUrgente, onAdicionar, onEditar, onExc
         )
       })}
 
-      {criando && (
-        <ModalCampanha
-          onSalvar={handleCriar}
-          onFechar={() => setCriando(false)}
-          salvando={salvando}
+      {creating && (
+        <ModalCampaign
+          onSalvar={handleCreate}
+          onFechar={() => setCreating(false)}
+          salvando={saving}
         />
       )}
 
-      {editando && (
-        <ModalCampanha
-          campanha={editando}
-          onSalvar={handleSalvarEdicao}
-          onFechar={() => setEditando(null)}
-          salvando={salvando}
+      {editing && (
+        <ModalCampaign
+          campanha={editing}
+          onSalvar={handleSaveEdit}
+          onFechar={() => setEditing(null)}
+          salvando={saving}
         />
       )}
 
-      {paraExcluir && (
-        <ModalConfirmarExclusao
-          titulo={paraExcluir.title}
-          onConfirmar={handleConfirmarExclusao}
-          onCancelar={() => setParaExcluir(null)}
-          excluindo={excluindo}
+      {toDelete && (
+        <ModalConfirmDelete
+          titulo={toDelete.title}
+          onConfirmar={handleConfirmDelete}
+          onCancelar={() => setToDelete(null)}
+          excluindo={deleting}
         />
       )}
     </div>
   )
 }
 
-function AbaNecessidades({ necessidades, onToggleUrgente, onAtender, onAdicionar }) {
+function NecessitiesTab({ necessities, onToggleUrgente, onAtender, onAdicionar }) {
   const [showForm, setShowForm] = useState(false)
-  const [enviando, setEnviando] = useState(false)
-  const [form, setForm] = useState({ titulo: "", categoria: categorias[0], urgente: false })
+  const [sending, setSending] = useState(false)
+  const [form, setForm] = useState({ title: "", category: categories[0], urgent: false })
 
-  function handleMudanca(e) {
+  function handleChange(e) {
     const { name, value, type, checked } = e.target
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }))
   }
 
-  async function handleSubmeter(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    setEnviando(true)
+    setSending(true)
     try {
       await onAdicionar(form)
-      setForm({ titulo: "", categoria: categorias[0], urgente: false })
+      setForm({ title: "", category: categories[0], urgent: false })
       setShowForm(false)
     } finally {
-      setEnviando(false)
+      setSending(false)
     }
   }
 
-  const abertas   = necessidades.filter((n) => n.status === "open")
-  const atendidas = necessidades.filter((n) => n.status === "attended")
+  const open      = necessities.filter((n) => n.status === "open")
+  const attended  = necessities.filter((n) => n.status === "attended")
 
   return (
     <div className="flex flex-col gap-4">
@@ -500,53 +500,53 @@ function AbaNecessidades({ necessidades, onToggleUrgente, onAtender, onAdicionar
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmeter} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
           <h3 className="text-base font-bold text-ink">Nova necessidade</h3>
-          <FormField label="Descrição" name="titulo" value={form.titulo} onChange={handleMudanca} placeholder="Ex: 50 cobertores para o inverno" />
+          <FormField label="Descrição" name="title" value={form.title} onChange={handleChange} placeholder="Ex: 50 cobertores para o inverno" />
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-ink">Categoria</label>
             <Select
-              name="categoria"
-              value={form.categoria}
-              onChange={handleMudanca}
-              options={[...categorias, "Vestuário", "Voluntariado"].map((c) => ({ value: c, label: c }))}
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              options={[...categories, "Vestuário", "Voluntariado"].map((c) => ({ value: c, label: c }))}
             />
           </div>
           <label className="flex items-center gap-2 cursor-pointer text-sm text-ink font-medium">
-            <input type="checkbox" name="urgente" checked={form.urgente} onChange={handleMudanca} className="accent-accent" />
+            <input type="checkbox" name="urgent" checked={form.urgent} onChange={handleChange} className="accent-accent" />
             Marcar como urgente
           </label>
-          <button type="submit" disabled={enviando}
+          <button type="submit" disabled={sending}
             className="self-end bg-primary hover:bg-primary-dark disabled:opacity-60 text-white text-sm font-bold px-5 py-2 rounded-lg transition-colors">
-            {enviando ? "Adicionando..." : "Adicionar necessidade"}
+            {sending ? "Adicionando..." : "Adicionar necessidade"}
           </button>
         </form>
       )}
 
-      {abertas.length > 0 && (
+      {open.length > 0 && (
         <div className="flex flex-col gap-3">
           <p className="text-xs font-bold text-muted uppercase tracking-wide">Em aberto</p>
-          {abertas.map((n) => (
-            <ItemNecessario key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />
+          {open.map((n) => (
+            <NecessityItem key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />
           ))}
         </div>
       )}
-      {atendidas.length > 0 && (
+      {attended.length > 0 && (
         <div className="flex flex-col gap-3">
           <p className="text-xs font-bold text-muted uppercase tracking-wide">Atendidas</p>
-          {atendidas.map((n) => (
-            <ItemNecessario key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />
+          {attended.map((n) => (
+            <NecessityItem key={n.id} n={n} onToggleUrgente={onToggleUrgente} onAtender={onAtender} />
           ))}
         </div>
       )}
-      {necessidades.length === 0 && (
+      {necessities.length === 0 && (
         <p className="text-sm text-muted text-center py-4">Nenhuma necessidade cadastrada ainda.</p>
       )}
     </div>
   )
 }
 
-function ItemNecessario({ n, onToggleUrgente, onAtender }) {
+function NecessityItem({ n, onToggleUrgente, onAtender }) {
   return (
     <div className={`bg-white rounded-xl border p-4 flex items-center justify-between gap-3 ${n.status === "attended" ? "border-line opacity-60" : "border-line"}`}>
       <div className="flex items-center gap-3 min-w-0">
@@ -579,25 +579,25 @@ function ItemNecessario({ n, onToggleUrgente, onAtender }) {
   )
 }
 
-function AbaAtualizacoes({ campanhas, atualizacoes, onEnviar }) {
-  const [form, setForm] = useState({ campanhaId: campanhas[0]?.id ?? "", titulo: "", mensagem: "" })
-  const [enviado, setEnviado] = useState(false)
+function UpdatesTab({ campaigns, updates, onEnviar }) {
+  const [form, setForm] = useState({ campanhaId: campaigns[0]?.id ?? "", title: "", message: "" })
+  const [sent, setSent] = useState(false)
 
-  function handleMudanca(e) { setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })) }
+  function handleChange(e) { setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })) }
 
-  function handleSubmeter(e) {
+  function handleSubmit(e) {
     e.preventDefault()
     onEnviar(form)
-    setForm({ campanhaId: campanhas[0]?.id ?? "", titulo: "", mensagem: "" })
-    setEnviado(true)
-    setTimeout(() => setEnviado(false), 3000)
+    setForm({ campanhaId: campaigns[0]?.id ?? "", title: "", message: "" })
+    setSent(true)
+    setTimeout(() => setSent(false), 3000)
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <form onSubmit={handleSubmeter} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4">
         <h3 className="text-base font-bold text-ink">Enviar atualização aos doadores</h3>
-        {campanhas.length === 0 ? (
+        {campaigns.length === 0 ? (
           <p className="text-sm text-muted">Crie uma campanha primeiro para enviar atualizações.</p>
         ) : (
           <>
@@ -606,18 +606,18 @@ function AbaAtualizacoes({ campanhas, atualizacoes, onEnviar }) {
               <Select
                 name="campanhaId"
                 value={form.campanhaId}
-                onChange={handleMudanca}
-                options={campanhas.map((c) => ({ value: c.id, label: c.title }))}
+                onChange={handleChange}
+                options={campaigns.map((c) => ({ value: c.id, label: c.title }))}
               />
             </div>
-            <FormField label="Título" name="titulo" value={form.titulo} onChange={handleMudanca} placeholder="Ex: Meta 80% atingida!" />
+            <FormField label="Título" name="title" value={form.title} onChange={handleChange} placeholder="Ex: Meta 80% atingida!" />
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-ink">Mensagem</label>
-              <Textarea name="mensagem" value={form.mensagem} onChange={handleMudanca} rows={4} required
+              <Textarea name="message" value={form.message} onChange={handleChange} rows={4} required
                 placeholder="Conte aos doadores como está o progresso da campanha..." />
             </div>
             <div className="flex items-center justify-between">
-              {enviado && <span className="text-sm text-success font-semibold">✓ Atualização enviada!</span>}
+              {sent && <span className="text-sm text-success font-semibold">✓ Atualização enviada!</span>}
               <button type="submit" className="ml-auto bg-primary hover:bg-primary-dark text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-colors">
                 Enviar para doadores
               </button>
@@ -626,17 +626,17 @@ function AbaAtualizacoes({ campanhas, atualizacoes, onEnviar }) {
         )}
       </form>
 
-      {atualizacoes.length > 0 && (
+      {updates.length > 0 && (
         <div className="flex flex-col gap-3">
           <p className="text-xs font-bold text-muted uppercase tracking-wide">Atualizações enviadas</p>
-          {atualizacoes.map((a) => (
+          {updates.map((a) => (
             <div key={a.id} className="bg-white rounded-xl border border-line p-4 flex flex-col gap-2">
               <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-bold text-ink">{a.titulo}</p>
-                <span className="text-xs text-muted shrink-0">{new Date(a.enviadaEm).toLocaleDateString("pt-BR")}</span>
+                <p className="text-sm font-bold text-ink">{a.title}</p>
+                <span className="text-xs text-muted shrink-0">{new Date(a.sentAt).toLocaleDateString("pt-BR")}</span>
               </div>
-              <p className="text-xs text-muted">{a.campanha}</p>
-              <p className="text-sm text-muted leading-relaxed">{a.mensagem}</p>
+              <p className="text-xs text-muted">{a.campaign}</p>
+              <p className="text-sm text-muted leading-relaxed">{a.message}</p>
             </div>
           ))}
         </div>
@@ -645,7 +645,7 @@ function AbaAtualizacoes({ campanhas, atualizacoes, onEnviar }) {
   )
 }
 
-function ModalConfirmarExclusao({ titulo, onConfirmar, onCancelar, excluindo }) {
+function ModalConfirmDelete({ titulo, onConfirmar, onCancelar, excluindo }) {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4 backdrop-blur-sm"
@@ -688,13 +688,13 @@ function ModalConfirmarExclusao({ titulo, onConfirmar, onCancelar, excluindo }) 
   )
 }
 
-function ModalCampanha({ campanha, onSalvar, onFechar, salvando }) {
+function ModalCampaign({ campanha, onSalvar, onFechar, salvando }) {
   const isNew = !campanha
   const [form, setForm] = useState({
-    titulo:    campanha?.title ?? "",
-    categoria: campanha ? (categorias.find((c) => slugify(c) === campanha.keywords?.[0]) ?? categorias[0]) : categorias[0],
-    meta:      campanha ? String((campanha.goal_amount ?? 0) / 100) : "",
-    descricao: campanha?.description ?? "",
+    title:       campanha?.title ?? "",
+    category:    campanha ? (categories.find((c) => slugify(c) === campanha.keywords?.[0]) ?? categories[0]) : categories[0],
+    goal:        campanha ? String((campanha.goal_amount ?? 0) / 100) : "",
+    description: campanha?.description ?? "",
   })
 
   function handleChange(e) { setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })) }
@@ -717,24 +717,24 @@ function ModalCampanha({ campanha, onSalvar, onFechar, salvando }) {
             </button>
           </div>
 
-          <FormField label="Título" name="titulo" value={form.titulo} onChange={handleChange} placeholder="Nome da campanha" />
+          <FormField label="Título" name="title" value={form.title} onChange={handleChange} placeholder="Nome da campanha" />
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-ink">Categoria</label>
               <Select
-                name="categoria"
-                value={form.categoria}
+                name="category"
+                value={form.category}
                 onChange={handleChange}
-                options={categorias.map((c) => ({ value: c, label: c }))}
+                options={categories.map((c) => ({ value: c, label: c }))}
               />
             </div>
-            <FormField label="Meta" name="meta" type="money" value={form.meta} onChange={handleChange} placeholder="0" />
+            <FormField label="Meta" name="goal" type="money" value={form.goal} onChange={handleChange} placeholder="0" />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label className="text-sm font-semibold text-ink">Descrição</label>
-            <Textarea name="descricao" value={form.descricao} onChange={handleChange} rows={3} required
+            <Textarea name="description" value={form.description} onChange={handleChange} rows={3} required
               placeholder="Descreva o objetivo desta campanha" />
           </div>
 

@@ -8,8 +8,8 @@ import { getInstitutions } from "../services/institutions"
 import { steps } from "../utils/staticData"
 
 export default function Home() {
-  const [campanhas, setCampanhas] = useState([])
-  const [instMap, setInstMap] = useState({})
+  const [campaigns, setCampaigns] = useState([])
+  const [institutionMap, setInstitutionMap] = useState({})
   const [loading, setLoading] = useState(true)
   const scrollRef = useRef(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
@@ -37,14 +37,14 @@ export default function Home() {
   useEffect(() => {
     Promise.all([getCampaigns(), getInstitutions()])
       .then(([camps, insts]) => {
-        setCampanhas(camps ?? [])
-        setInstMap(Object.fromEntries((insts ?? []).map((i) => [i.id, i.name])))
+        setCampaigns(camps ?? [])
+        setInstitutionMap(Object.fromEntries((insts ?? []).map((i) => [i.id, i.name])))
       })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
 
-  const preview = campanhas.slice(0, 6)
+  const preview = campaigns.slice(0, 6)
 
   return (
     <>
@@ -85,7 +85,7 @@ export default function Home() {
             </div>
           </div>
 
-          <IllustracaoHero />
+          <HeroIllustration />
         </div>
       </section>
 
@@ -126,7 +126,7 @@ export default function Home() {
                 <div className="flex gap-6">
                   {preview.map((c) => (
                     <div key={c.id} className="w-96 shrink-0">
-                      <CampaignCard campaign={c} institutionName={instMap[c.institution_id] ?? ""} />
+                      <CampaignCard campaign={c} institutionName={institutionMap[c.institution_id] ?? ""} />
                     </div>
                   ))}
                 </div>
@@ -167,7 +167,7 @@ export default function Home() {
   )
 }
 
-function IllustracaoHero() {
+function HeroIllustration() {
   return (
     <div className="relative h-56 w-full overflow-hidden rounded-2xl sm:h-72 sm:rounded-4xl lg:h-115 bg-linear-to-br from-purple-700 via-purple-800 to-purple-950 shadow-2xl shadow-purple-950/20">
       {/* Deep background blobs */}

@@ -7,7 +7,7 @@ export function slugify(str) {
     .replace(/^_|_$/g, "")
 }
 
-export const categorias = [
+export const categories = [
   "Higiene & Cuidados Pessoais",
   "Alimentação",
   "Educação & Escolar",
@@ -19,7 +19,7 @@ export const categorias = [
   "Moradia & Utensílios",
 ]
 
-export const STATUS_DOACAO = {
+export const DONATION_STATUS = {
   pendente:   { label: "Pendente",   classes: "bg-warning-light text-warning" },
   processado: { label: "Processado", classes: "bg-blue-100 text-blue-700" },
   confirmado: { label: "Confirmado", classes: "bg-secondary/10 text-secondary" },

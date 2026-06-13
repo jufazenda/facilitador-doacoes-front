@@ -5,76 +5,76 @@ import { createUser } from "../services/users"
 import { createInstitution } from "../services/institutions"
 import FormField from "../components/ui/FormField"
 import Textarea from "../components/ui/Textarea"
-import { mascararCpf, mascararCnpj, mascararTelefone } from "../utils/masks"
+import { maskCpf, maskCnpj, maskPhone } from "../utils/masks"
 
 export default function CompleteRegistration() {
-  
+
   const { user: auth0User, loginWithRedirect } = useAuth0()
   const client = useApiClient()
 
-  const [perfil, setPerfil] = useState(null) // "donor" | "institution"
-  const [enviando, setEnviando] = useState(false)
-  const [erro, setErro] = useState("")
+  const [profile, setProfile] = useState(null) // "donor" | "institution"
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState("")
 
-  const [doador, setDoador] = useState({ nome: auth0User?.name ?? "", email: auth0User?.email ?? "", cpf: "", termos: false })
-  const [instituicao, setInstituicao] = useState({ nome: "", razaoSocial: "", cnpj: "", email: auth0User?.email ?? "", telefone: "", endereco: "", descricao: "", termos: false })
+  const [donor, setDonor] = useState({ nome: auth0User?.name ?? "", email: auth0User?.email ?? "", cpf: "", terms: false })
+  const [institution, setInstitution] = useState({ nome: "", legalName: "", cnpj: "", email: auth0User?.email ?? "", phone: "", address: "", description: "", terms: false })
 
-  function handleDoador(e) {
+  function handleDonor(e) {
     const { name, value, type, checked } = e.target
-    setDoador((p) => ({ ...p, [name]: type === "checkbox" ? checked : name === "cpf" ? mascararCpf(value) : value }))
+    setDonor((p) => ({ ...p, [name]: type === "checkbox" ? checked : name === "cpf" ? maskCpf(value) : value }))
   }
 
-  function handleInstituicao(e) {
+  function handleInstitution(e) {
     const { name, value, type, checked } = e.target
-    setInstituicao((p) => ({ ...p, [name]: type === "checkbox" ? checked : name === "cnpj" ? mascararCnpj(value) : name === "telefone" ? mascararTelefone(value) : value }))
+    setInstitution((p) => ({ ...p, [name]: type === "checkbox" ? checked : name === "cnpj" ? maskCnpj(value) : name === "phone" ? maskPhone(value) : value }))
   }
 
-  async function submitDoador(e) {
+  async function submitDonor(e) {
     e.preventDefault()
-    setErro("")
-    setEnviando(true)
+    setError("")
+    setSending(true)
     try {
       await createUser(client, {
-        name:  doador.nome,
-        email: doador.email,
-        cpf:   doador.cpf.replace(/\D/g, ""),
+        name:  donor.nome,
+        email: donor.email,
+        cpf:   donor.cpf.replace(/\D/g, ""),
         role:  "donor",
       })
       // Força novo token com o role setado
       await loginWithRedirect({ appState: { returnTo: "/area/doador" } })
     } catch (err) {
-      setErro(err?.response?.data?.error === "email already in use"
+      setError(err?.response?.data?.error === "email already in use"
         ? "Este e-mail já está cadastrado."
         : "Erro ao criar conta. Tente novamente.")
-      setEnviando(false)
+      setSending(false)
     }
   }
 
-  async function submitInstituicao(e) {
+  async function submitInstitution(e) {
     e.preventDefault()
-    setErro("")
-    setEnviando(true)
+    setError("")
+    setSending(true)
     try {
       await createInstitution(client, {
-        name:        instituicao.nome,
-        legal_name:  instituicao.razaoSocial,
-        cnpj:        instituicao.cnpj.replace(/\D/g, ""),
-        email:       instituicao.email,
-        phone:       instituicao.telefone.replace(/\D/g, ""),
-        address:     instituicao.endereco,
-        description: instituicao.descricao,
+        name:        institution.nome,
+        legal_name:  institution.legalName,
+        cnpj:        institution.cnpj.replace(/\D/g, ""),
+        email:       institution.email,
+        phone:       institution.phone.replace(/\D/g, ""),
+        address:     institution.address,
+        description: institution.description,
       })
       // Força novo token com o role setado
       await loginWithRedirect({ appState: { returnTo: "/area/instituicao" } })
     } catch (err) {
-      setErro(err?.response?.data?.error === "cnpj already in use"
+      setError(err?.response?.data?.error === "cnpj already in use"
         ? "Este CNPJ já está cadastrado."
         : "Erro ao cadastrar instituição. Tente novamente.")
-      setEnviando(false)
+      setSending(false)
     }
   }
 
-  if (enviando) {
+  if (sending) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <p className="text-muted text-sm">Criando seu perfil...</p>
@@ -83,7 +83,7 @@ export default function CompleteRegistration() {
   }
 
   // Step 1 — escolha de perfil
-  if (!perfil) {
+  if (!profile) {
     return (
       <div className="flex-1 flex items-center justify-center py-8 px-4">
         <div className="w-full max-w-lg">
@@ -94,7 +94,7 @@ export default function CompleteRegistration() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <button
-              onClick={() => setPerfil("donor")}
+              onClick={() => setProfile("donor")}
               className="group flex flex-col items-center gap-4 rounded-xl border-2 border-line bg-white p-8 text-center transition hover:border-primary hover:bg-soft"
             >
               <span className="text-5xl">🤝</span>
@@ -105,7 +105,7 @@ export default function CompleteRegistration() {
             </button>
 
             <button
-              onClick={() => setPerfil("institution")}
+              onClick={() => setProfile("institution")}
               className="group flex flex-col items-center gap-4 rounded-xl border-2 border-line bg-white p-8 text-center transition hover:border-primary hover:bg-soft"
             >
               <span className="text-5xl">🏛️</span>
@@ -121,7 +121,7 @@ export default function CompleteRegistration() {
   }
 
   // Step 2a — formulário doador
-  if (perfil === "donor") {
+  if (profile === "donor") {
     return (
       <div className="flex-1 flex items-center justify-center py-8 px-4">
         <div className="w-full max-w-md">
@@ -131,28 +131,28 @@ export default function CompleteRegistration() {
               <p className="text-sm text-muted mt-1">Só mais alguns dados para finalizar</p>
             </div>
 
-            {erro && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">{erro}</div>
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">{error}</div>
             )}
 
-            <form onSubmit={submitDoador} className="flex flex-col gap-4">
+            <form onSubmit={submitDonor} className="flex flex-col gap-4">
               <FormField label="Nome completo" id="nome" name="nome" type="text"
-                value={doador.nome} onChange={handleDoador} placeholder="Seu nome completo" />
+                value={donor.nome} onChange={handleDonor} placeholder="Seu nome completo" />
               <FormField label="E-mail" id="email" name="email" type="email"
-                value={doador.email} onChange={handleDoador} placeholder="seu@email.com" />
+                value={donor.email} onChange={handleDonor} placeholder="seu@email.com" />
               <FormField label="CPF" id="cpf" name="cpf" type="text" inputMode="numeric"
-                value={doador.cpf} onChange={handleDoador} placeholder="000.000.000-00" />
+                value={donor.cpf} onChange={handleDonor} placeholder="000.000.000-00" />
 
               <label className="flex items-start gap-2 cursor-pointer">
-                <input type="checkbox" name="termos" checked={doador.termos}
-                  onChange={handleDoador} required className="mt-0.5 accent-primary" />
+                <input type="checkbox" name="terms" checked={donor.terms}
+                  onChange={handleDonor} required className="mt-0.5 accent-primary" />
                 <span className="text-xs text-muted">
                   Concordo com os <a href="#" className="text-primary hover:underline">Termos de Uso</a> e a <a href="#" className="text-primary hover:underline">Política de Privacidade</a>
                 </span>
               </label>
 
               <div className="flex gap-3 mt-2">
-                <button type="button" onClick={() => { setPerfil(null); setErro("") }}
+                <button type="button" onClick={() => { setProfile(null); setError("") }}
                   className="flex-1 border border-line rounded-lg py-3 text-sm font-semibold text-ink hover:bg-soft transition">
                   Voltar
                 </button>
@@ -182,40 +182,40 @@ export default function CompleteRegistration() {
             Sua instituição só aparecerá publicamente após a verificação dos documentos pelo nosso time.
           </div>
 
-          {erro && (
-            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">{erro}</div>
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 text-sm text-red-700">{error}</div>
           )}
 
-          <form onSubmit={submitInstituicao} className="flex flex-col gap-4">
+          <form onSubmit={submitInstitution} className="flex flex-col gap-4">
             <FormField label="Nome da instituição" id="nome" name="nome" type="text"
-              value={instituicao.nome} onChange={handleInstituicao} placeholder="Nome como é conhecida" />
-            <FormField label="Razão social" id="razaoSocial" name="razaoSocial" type="text"
-              value={instituicao.razaoSocial} onChange={handleInstituicao} placeholder="Nome jurídico completo" />
+              value={institution.nome} onChange={handleInstitution} placeholder="Nome como é conhecida" />
+            <FormField label="Razão social" id="legalName" name="legalName" type="text"
+              value={institution.legalName} onChange={handleInstitution} placeholder="Nome jurídico completo" />
             <FormField label="CNPJ" id="cnpj" name="cnpj" type="text" inputMode="numeric"
-              value={instituicao.cnpj} onChange={handleInstituicao} placeholder="00.000.000/0000-00" />
+              value={institution.cnpj} onChange={handleInstitution} placeholder="00.000.000/0000-00" />
             <FormField label="E-mail institucional" id="email" name="email" type="email"
-              value={instituicao.email} onChange={handleInstituicao} placeholder="contato@instituicao.org" />
-            <FormField label="Telefone" id="telefone" name="telefone" type="tel"
-              value={instituicao.telefone} onChange={handleInstituicao} placeholder="(00) 00000-0000" />
-            <FormField label="Endereço" id="endereco" name="endereco" type="text"
-              value={instituicao.endereco} onChange={handleInstituicao} placeholder="Rua, número, cidade – UF" />
+              value={institution.email} onChange={handleInstitution} placeholder="contato@instituicao.org" />
+            <FormField label="Telefone" id="phone" name="phone" type="tel"
+              value={institution.phone} onChange={handleInstitution} placeholder="(00) 00000-0000" />
+            <FormField label="Endereço" id="address" name="address" type="text"
+              value={institution.address} onChange={handleInstitution} placeholder="Rua, número, cidade – UF" />
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-ink" htmlFor="descricao">Descrição</label>
-              <Textarea id="descricao" name="descricao" required rows={3}
-                value={instituicao.descricao} onChange={handleInstituicao}
+              <label className="text-sm font-semibold text-ink" htmlFor="description">Descrição</label>
+              <Textarea id="description" name="description" required rows={3}
+                value={institution.description} onChange={handleInstitution}
                 placeholder="Descreva a missão e o trabalho da sua instituição" />
             </div>
 
             <label className="flex items-start gap-2 cursor-pointer">
-              <input type="checkbox" name="termos" checked={instituicao.termos}
-                onChange={handleInstituicao} required className="mt-0.5 accent-primary" />
+              <input type="checkbox" name="terms" checked={institution.terms}
+                onChange={handleInstitution} required className="mt-0.5 accent-primary" />
               <span className="text-xs text-muted">
                 Concordo com os <a href="#" className="text-primary hover:underline">Termos de Uso</a> e a <a href="#" className="text-primary hover:underline">Política de Privacidade</a>
               </span>
             </label>
 
             <div className="flex gap-3 mt-2">
-              <button type="button" onClick={() => { setPerfil(null); setErro("") }}
+              <button type="button" onClick={() => { setProfile(null); setError("") }}
                 className="flex-1 border border-line rounded-lg py-3 text-sm font-semibold text-ink hover:bg-soft transition">
                 Voltar
               </button>

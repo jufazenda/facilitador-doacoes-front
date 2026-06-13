@@ -10,15 +10,15 @@ import Input from "../components/ui/Input"
 import Select from "../components/ui/Select"
 import Loading from "../components/ui/Loading"
 import FormField from "../components/ui/FormField"
-import { ESTADOS } from "../utils/estados"
-import { mascararCep, mascararValidadeCartao } from "../utils/masks"
-import { buscarEnderecoPorCep, buscarCidadesPorUf } from "../services/address"
+import { STATES } from "../utils/estados"
+import { maskCep, maskCardExpiry } from "../utils/masks"
+import { searchAddressByCep, searchCitiesByState } from "../services/address"
 
-const VALORES_PRESET = [10, 25, 50, 100, 200]
+const PRESET_VALUES = [10, 25, 50, 100, 200]
 
 export default function Donation() {
-  const { campanhaId } = useParams()
-  const [campanha, setCampanha] = useState(null)
+  const { campaignId } = useParams()
+  const [campaign, setCampaign] = useState(null)
   const [institutionName, setInstitutionName] = useState("")
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -28,14 +28,14 @@ export default function Donation() {
   const [userId, setUserId] = useState(null)
   const [userPhone, setUserPhone] = useState("")
 
-  
+
   useEffect(() => { window.scrollTo(0, 0) }, [])
 
   useEffect(() => {
     async function load() {
       try {
-        const c = await getCampaignById(campanhaId)
-        setCampanha(c)
+        const c = await getCampaignById(campaignId)
+        setCampaign(c)
         const inst = await getInstitutionById(c.institution_id).catch(() => null)
         if (inst) setInstitutionName(inst.name)
       } catch {
@@ -45,29 +45,29 @@ export default function Donation() {
       }
     }
     load()
-  }, [campanhaId])
+  }, [campaignId])
 
   useEffect(() => {
     if (!authUser) return
     getMe(client).then((me) => { setUserId(me.id); setUserPhone(me.phone ?? "") }).catch(() => {})
   }, [authUser, client])
 
-  const [passo, setPasso] = useState(1)
-  const [valor, setValor] = useState(50)
-  const [valorCustom, setValorCustom] = useState("")
+  const [step, setStep] = useState(1)
+  const [value, setValue] = useState(50)
+  const [customValue, setCustomValue] = useState("")
   const [isCustom, setIsCustom] = useState(false)
-  const [metodo, setMetodo] = useState(null)
-  const [copiado, setCopiado] = useState(false)
-  const [cartao, setCartao] = useState({ numero: "", nome: "", validade: "", cvv: "", telefone: "", cep: "", numero_end: "", rua: "", bairro: "", cidade: "", estado: "", cidadesDisponiveis: [] })
+  const [method, setMethod] = useState(null)
+  const [copied, setCopied] = useState(false)
+  const [card, setCard] = useState({ numero: "", nome: "", validade: "", cvv: "", telefone: "", cep: "", numero_end: "", rua: "", bairro: "", cidade: "", estado: "", cidadesDisponiveis: [] })
   const [donation, setDonation] = useState(null)
-  const [criando, setCriando] = useState(false)
-  const [erroCriacao, setErroCriacao] = useState(null)
-  const valorFinal = isCustom ? Number(valorCustom) || 0 : valor
+  const [creating, setCreating] = useState(false)
+  const [creationError, setCreationError] = useState(null)
+  const finalValue = isCustom ? Number(customValue) || 0 : value
 
   const pollingRef = useRef(null)
 
   useEffect(() => {
-    if (passo !== 2 || metodo !== "pix" || !donation?.id) return
+    if (step !== 2 || method !== "pix" || !donation?.id) return
 
     pollingRef.current = setInterval(async () => {
       try {
@@ -75,91 +75,91 @@ export default function Donation() {
         if (updated.status === "PAID") {
           clearInterval(pollingRef.current)
           setDonation(updated)
-          setPasso(3)
+          setStep(3)
         }
       } catch { /* tenta no próximo tick */ }
     }, 5000)
 
     return () => clearInterval(pollingRef.current)
-  }, [passo, metodo, donation?.id])
+  }, [step, method, donation?.id])
 
-  async function handleAvancarPagamento() {
-    if (!authUser) { setErroCriacao("Faça login para continuar com a doação."); return }
-    if (!userId)   { setErroCriacao("Carregando seus dados, aguarde um momento."); return }
+  async function handleAdvancePayment() {
+    if (!authUser) { setCreationError("Faça login para continuar com a doação."); return }
+    if (!userId)   { setCreationError("Carregando seus dados, aguarde um momento."); return }
     // passo 1 só avança — método escolhido no passo 2
-    setPasso(2)
+    setStep(2)
   }
 
-  async function handleConfirmarPix() {
-    setCriando(true)
-    setErroCriacao(null)
+  async function handleConfirmPix() {
+    setCreating(true)
+    setCreationError(null)
     try {
       const d = await createDonation(client, {
         user_id: userId,
-        amount: Math.round(valorFinal * 100),
-        campaign_id: campanhaId,
+        amount: Math.round(finalValue * 100),
+        campaign_id: campaignId,
         payment_method: "PIX",
       })
       setDonation(d)
     } catch (err) {
       const raw = err?.response?.data?.error ?? ""
       const isCpfError = raw.toLowerCase().includes("cpf") || raw.toLowerCase().includes("cnpj")
-      setErroCriacao({
+      setCreationError({
         msg: isCpfError ? "CPF inválido ou ausente no seu perfil. Atualize seus dados pessoais antes de continuar." : raw || "Não foi possível iniciar a doação. Tente novamente.",
         isCpfError,
       })
     } finally {
-      setCriando(false)
+      setCreating(false)
     }
   }
 
-  async function handleConfirmarCartao() {
+  async function handleConfirmCard() {
     if (!authUser || !userId) return
-    setCriando(true)
-    setErroCriacao(null)
+    setCreating(true)
+    setCreationError(null)
     try {
-      const [expiryMonth, expiryYear] = cartao.validade.split("/")
+      const [expiryMonth, expiryYear] = card.validade.split("/")
       const d = await createDonation(client, {
         user_id: userId,
-        amount: Math.round(valorFinal * 100),
-        campaign_id: campanhaId,
+        amount: Math.round(finalValue * 100),
+        campaign_id: campaignId,
         payment_method: "CREDIT_CARD",
         credit_card: {
-          holder_name:    cartao.nome,
-          number:         cartao.numero,
+          holder_name:    card.nome,
+          number:         card.numero,
           expiry_month:   expiryMonth,
           expiry_year:    `20${expiryYear}`,
-          ccv:            cartao.cvv,
-          postal_code:    cartao.cep.replace(/\D/g, ""),
-          address_number: cartao.numero_end,
+          ccv:            card.cvv,
+          postal_code:    card.cep.replace(/\D/g, ""),
+          address_number: card.numero_end,
           phone:          userPhone.replace(/\D/g, ""),
         },
       })
       setDonation(d)
-      setPasso(3)
+      setStep(3)
     } catch (err) {
       const raw = err?.response?.data?.error ?? ""
-      setErroCriacao({ msg: raw || "Não foi possível processar o cartão. Tente novamente.", isCpfError: false })
+      setCreationError({ msg: raw || "Não foi possível processar o cartão. Tente novamente.", isCpfError: false })
     } finally {
-      setCriando(false)
+      setCreating(false)
     }
   }
 
-  function handleVoltarParaValor() {
+  function handleBackToValue() {
     setDonation(null)
-    setErroCriacao(null)
-    setPasso(1)
+    setCreationError(null)
+    setStep(1)
   }
 
-  function handleCopiarPix() {
+  function handleCopyPix() {
     navigator.clipboard.writeText(donation?.br_code ?? "")
-    setCopiado(true)
-    setTimeout(() => setCopiado(false), 2000)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   if (loading) return <Loading full />
 
-  if (notFound || !campanha) {
+  if (notFound || !campaign) {
     return (
       <div className="py-20 text-center text-muted px-4">
         <p className="text-lg">Campanha não encontrada.</p>
@@ -173,7 +173,7 @@ export default function Donation() {
       <div className="w-full max-w-lg flex flex-col gap-6">
 
         <div className="flex items-center justify-between">
-          <Link to={`/campanha/${campanha.id}`}
+          <Link to={`/campanha/${campaign.id}`}
             className="flex items-center gap-1.5 text-sm text-muted hover:text-primary transition-colors font-semibold">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L5 8l5 5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"/>
@@ -184,40 +184,40 @@ export default function Donation() {
 
         <div className="bg-white rounded-xl border border-line p-4">
           <p className="text-xs text-muted mb-1">Doando para</p>
-          <p className="font-bold text-ink">{campanha.title}</p>
+          <p className="font-bold text-ink">{campaign.title}</p>
           <p className="text-xs text-muted mt-0.5">{institutionName}</p>
         </div>
 
-        <Passo passo={passo} />
+        <Step step={step} />
 
-        {passo === 1 && (
-          <PassoValor
-            valor={valor} setValor={setValor}
+        {step === 1 && (
+          <StepValue
+            value={value} setValue={setValue}
             isCustom={isCustom} setIsCustom={setIsCustom}
-            valorCustom={valorCustom} setValorCustom={setValorCustom}
-            onNext={handleAvancarPagamento}
-            loading={criando}
-            erro={erroCriacao}
+            customValue={customValue} setCustomValue={setCustomValue}
+            onNext={handleAdvancePayment}
+            loading={creating}
+            erro={creationError}
           />
         )}
-        {passo === 2 && (
-          <PassoPagamento
-            metodo={metodo} setMetodo={setMetodo}
-            cartao={cartao} setCartao={setCartao}
-            copiado={copiado} onCopiarPix={handleCopiarPix}
+        {step === 2 && (
+          <StepPayment
+            method={method} setMethod={setMethod}
+            card={card} setCard={setCard}
+            copied={copied} onCopiarPix={handleCopyPix}
             donation={donation} setDonation={setDonation}
-            onBack={handleVoltarParaValor}
-            onConfirmarPix={handleConfirmarPix}
-            onConfirmarCartao={handleConfirmarCartao}
-            aguardandoPagamento={metodo === "pix" && !!donation && donation.status !== "PAID"}
-            criando={criando}
-            erro={erroCriacao}
+            onBack={handleBackToValue}
+            onConfirmarPix={handleConfirmPix}
+            onConfirmarCartao={handleConfirmCard}
+            awaitingPayment={method === "pix" && !!donation && donation.status !== "PAID"}
+            creating={creating}
+            erro={creationError}
           />
         )}
-        {passo === 3 && (
-          <PassoConfirmacao
-            campanha={campanha} institutionName={institutionName}
-            valor={valorFinal} metodo={metodo} donation={donation}
+        {step === 3 && (
+          <StepConfirmation
+            campaign={campaign} institutionName={institutionName}
+            value={finalValue} method={method} donation={donation}
           />
         )}
       </div>
@@ -225,23 +225,23 @@ export default function Donation() {
   )
 }
 
-function Passo({ passo }) {
-  const passos = ["Valor", "Pagamento", "Confirmação"]
+function Step({ step }) {
+  const steps = ["Valor", "Pagamento", "Confirmação"]
   return (
     <div className="flex items-center gap-2">
-      {passos.map((label, i) => {
+      {steps.map((label, i) => {
         const num = i + 1
-        const ativo = num === passo
-        const feito = num < passo
+        const active = num === step
+        const done = num < step
         return (
           <div key={label} className="flex items-center gap-2 flex-1 last:flex-none">
             <div className="flex items-center gap-2">
-              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${feito || ativo ? "bg-primary text-white" : "bg-soft text-muted"}`}>
-                {feito ? "✓" : num}
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${done || active ? "bg-primary text-white" : "bg-soft text-muted"}`}>
+                {done ? "✓" : num}
               </div>
-              <span className={`text-sm hidden sm:block font-medium ${ativo ? "text-ink" : "text-muted"}`}>{label}</span>
+              <span className={`text-sm hidden sm:block font-medium ${active ? "text-ink" : "text-muted"}`}>{label}</span>
             </div>
-            {i < passos.length - 1 && <div className="flex-1 h-px bg-line mx-1" />}
+            {i < steps.length - 1 && <div className="flex-1 h-px bg-line mx-1" />}
           </div>
         )
       })}
@@ -249,29 +249,29 @@ function Passo({ passo }) {
   )
 }
 
-function PassoValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setValorCustom, onNext, loading, erro }) {
-  function handlePreset(v) { setValor(v); setIsCustom(false); setValorCustom("") }
-  const valorFinal = isCustom ? Number(valorCustom) || 0 : valor
+function StepValue({ value, setValue, isCustom, setIsCustom, customValue, setCustomValue, onNext, loading, erro }) {
+  function handlePreset(v) { setValue(v); setIsCustom(false); setCustomValue("") }
+  const finalValue = isCustom ? Number(customValue) || 0 : value
 
   return (
     <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-6">
       <div>
         <p className="text-sm font-bold text-ink mb-3">Escolha um valor</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-          {VALORES_PRESET.map((v) => (
+          {PRESET_VALUES.map((v) => (
             <button key={v} onClick={() => handlePreset(v)}
-              className={`py-2.5 rounded-lg text-sm font-bold border transition-colors ${!isCustom && valor === v ? "bg-primary text-white border-primary" : "bg-white text-muted border-line hover:border-primary hover:text-primary"}`}>
+              className={`py-2.5 rounded-lg text-sm font-bold border transition-colors ${!isCustom && value === v ? "bg-primary text-white border-primary" : "bg-white text-muted border-line hover:border-primary hover:text-primary"}`}>
               {v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 })}
             </button>
           ))}
-          <button onClick={() => { setIsCustom(true); setValor(0) }}
+          <button onClick={() => { setIsCustom(true); setValue(0) }}
             className={`py-2.5 rounded-lg text-sm font-bold border transition-colors col-span-2 sm:col-span-5 ${isCustom ? "bg-primary text-white border-primary" : "bg-white text-muted border-line hover:border-primary hover:text-primary"}`}>
             Outro valor
           </button>
         </div>
         {isCustom && (
           <div className="mt-3">
-            <Input type="money" min="1" value={valorCustom} onChange={(e) => setValorCustom(e.target.value)} placeholder="0,00" autoFocus />
+            <Input type="money" min="1" value={customValue} onChange={(e) => setCustomValue(e.target.value)} placeholder="0,00" autoFocus />
           </div>
         )}
       </div>
@@ -311,7 +311,7 @@ function PassoValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setVa
         </div>
       )}
 
-      <button onClick={onNext} disabled={valorFinal < 1 || loading}
+      <button onClick={onNext} disabled={finalValue < 1 || loading}
         className="w-full bg-primary hover:bg-primary-dark disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-lg py-3 transition-colors">
         {loading ? "Aguarde..." : "Continuar →"}
       </button>
@@ -319,28 +319,28 @@ function PassoValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setVa
   )
 }
 
-function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopiarPix, donation, setDonation, onBack, onConfirmarPix, onConfirmarCartao, aguardandoPagamento, criando, erro }) {
-  const [buscandoCep, setBuscandoCep] = useState(false)
+function StepPayment({ method, setMethod, card, setCard, copied, onCopiarPix, donation, setDonation, onBack, onConfirmarPix, onConfirmarCartao, awaitingPayment, creating, erro }) {
+  const [searchingCep, setSearchingCep] = useState(false)
 
-  async function handleEscolherMetodo(value) {
-    if (value === metodo) return
+  async function handleChooseMethod(value) {
+    if (value === method) return
     setDonation(null)
-    setMetodo(value)
+    setMethod(value)
     if (value === "pix") onConfirmarPix()
   }
 
-  async function handleCartao(e) {
+  async function handleCard(e) {
     const { name, value } = e.target
     if (name === "cep") {
-      const v = mascararCep(value)
-      setCartao((prev) => ({ ...prev, cep: v }))
+      const v = maskCep(value)
+      setCard((prev) => ({ ...prev, cep: v }))
       if (v.replace(/\D/g, "").length === 8) {
-        setBuscandoCep(true)
+        setSearchingCep(true)
         try {
-          const data = await buscarEnderecoPorCep(v)
+          const data = await searchAddressByCep(v)
           if (data) {
-            const cidades = await buscarCidadesPorUf(data.uf)
-            setCartao((prev) => ({
+            const cidades = await searchCitiesByState(data.uf)
+            setCard((prev) => ({
               ...prev, cep: v,
               rua:    data.logradouro ?? prev.rua,
               bairro: data.bairro     ?? prev.bairro,
@@ -349,30 +349,30 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
               cidadesDisponiveis: cidades,
             }))
           }
-        } finally { setBuscandoCep(false) }
+        } finally { setSearchingCep(false) }
       }
       return
     }
     if (name === "estado") {
-      setCartao((prev) => ({ ...prev, estado: value, cidade: "", cidadesDisponiveis: [] }))
-      const cidades = await buscarCidadesPorUf(value)
-      setCartao((prev) => ({ ...prev, cidadesDisponiveis: cidades }))
+      setCard((prev) => ({ ...prev, estado: value, cidade: "", cidadesDisponiveis: [] }))
+      const cidades = await searchCitiesByState(value)
+      setCard((prev) => ({ ...prev, cidadesDisponiveis: cidades }))
       return
     }
     if (name === "validade") {
-      setCartao((prev) => ({ ...prev, validade: mascararValidadeCartao(value) }))
+      setCard((prev) => ({ ...prev, validade: maskCardExpiry(value) }))
       return
     }
-    setCartao((prev) => ({ ...prev, [name]: value }))
+    setCard((prev) => ({ ...prev, [name]: value }))
   }
 
-  const cartaoValido = (
-    cartao.numero.length >= 16 &&
-    cartao.nome &&
-    cartao.validade.length === 5 &&
-    cartao.cvv.length >= 3 &&
-    cartao.cep.replace(/\D/g, "").length === 8 &&
-    cartao.numero_end
+  const cardValid = (
+    card.numero.length >= 16 &&
+    card.nome &&
+    card.validade.length === 5 &&
+    card.cvv.length >= 3 &&
+    card.cep.replace(/\D/g, "").length === 8 &&
+    card.numero_end
   )
 
   return (
@@ -410,19 +410,19 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
               ),
             },
           ].map(({ value, label, desc, icon }) => {
-            const ativo = metodo === value
+            const active = method === value
             return (
               <button key={value} type="button"
-                onClick={() => handleEscolherMetodo(value)}
-                disabled={criando && metodo !== value}
+                onClick={() => handleChooseMethod(value)}
+                disabled={creating && method !== value}
                 className={`flex flex-col items-start gap-2 p-4 rounded-xl border-2 text-left transition-all ${
-                  ativo
+                  active
                     ? "border-primary bg-primary-light"
                     : "border-line bg-white hover:border-primary/40"
                 }`}>
-                <span className={ativo ? "text-primary" : "text-muted"}>{icon}</span>
+                <span className={active ? "text-primary" : "text-muted"}>{icon}</span>
                 <div>
-                  <p className={`text-sm font-bold ${ativo ? "text-primary" : "text-ink"}`}>{label}</p>
+                  <p className={`text-sm font-bold ${active ? "text-primary" : "text-ink"}`}>{label}</p>
                   <p className="text-xs text-muted mt-0.5">{desc}</p>
                 </div>
               </button>
@@ -432,14 +432,14 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
       </div>
 
       {/* Estado: nenhum método escolhido */}
-      {!metodo && (
+      {!method && (
         <p className="text-sm text-muted text-center py-2">Escolha uma forma de pagamento acima para continuar.</p>
       )}
 
       {/* PIX */}
-      {metodo === "pix" && (
+      {method === "pix" && (
         <div className="flex flex-col items-center gap-4">
-          {criando ? (
+          {creating ? (
             <div className="w-44 h-44 rounded-xl border border-line bg-soft flex flex-col items-center justify-center gap-3">
               <span className="w-7 h-7 rounded-full border-2 border-primary border-t-transparent animate-spin" />
               <p className="text-xs text-muted">Gerando QR Code...</p>
@@ -456,13 +456,13 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
             <div className="w-full flex items-center gap-2 bg-soft rounded-lg border border-line px-3 py-2.5">
               <span className="text-xs text-muted flex-1 truncate font-mono">{donation.br_code}</span>
               <button onClick={onCopiarPix} className="text-xs font-bold text-primary hover:underline shrink-0">
-                {copiado ? "Copiado!" : "Copiar"}
+                {copied ? "Copiado!" : "Copiar"}
               </button>
             </div>
           )}
 
           {donation && (
-            aguardandoPagamento ? (
+            awaitingPayment ? (
               <div className="flex items-center gap-2 text-xs text-muted">
                 <span className="inline-block w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />
                 Aguardando confirmação do pagamento...
@@ -475,15 +475,15 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
       )}
 
       {/* Cartão */}
-      {metodo === "cartao" && (
+      {method === "cartao" && (
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-3">
             <p className="text-xs font-bold text-muted uppercase tracking-widest">Dados do cartão</p>
-            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Número do cartão" name="numero" value={cartao.numero} onChange={handleCartao} placeholder="0000 0000 0000 0000" maxLength={16} inputMode="numeric" />
-            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Nome impresso no cartão" name="nome" value={cartao.nome} onChange={handleCartao} placeholder="Como aparece no cartão" />
+            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Número do cartão" name="numero" value={card.numero} onChange={handleCard} placeholder="0000 0000 0000 0000" maxLength={16} inputMode="numeric" />
+            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Nome impresso no cartão" name="nome" value={card.nome} onChange={handleCard} placeholder="Como aparece no cartão" />
             <div className="grid grid-cols-2 gap-3">
-              <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Validade" name="validade" value={cartao.validade} onChange={handleCartao} placeholder="MM/AA" maxLength={5} />
-              <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="CVV" name="cvv" value={cartao.cvv} onChange={handleCartao} placeholder="000" maxLength={4} inputMode="numeric" />
+              <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Validade" name="validade" value={card.validade} onChange={handleCard} placeholder="MM/AA" maxLength={5} />
+              <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="CVV" name="cvv" value={card.cvv} onChange={handleCard} placeholder="000" maxLength={4} inputMode="numeric" />
             </div>
           </div>
 
@@ -493,24 +493,24 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
             <p className="text-xs font-bold text-muted uppercase tracking-widest">Endereço de cobrança</p>
             <div className="grid grid-cols-3 gap-3">
               <div className="col-span-2 flex flex-col gap-1.5 relative">
-                <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="CEP" name="cep" value={cartao.cep} onChange={handleCartao} placeholder="00000-000" maxLength={9} inputMode="numeric" />
-                {buscandoCep && <span className="absolute right-3 bottom-2.5 w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />}
+                <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="CEP" name="cep" value={card.cep} onChange={handleCard} placeholder="00000-000" maxLength={9} inputMode="numeric" />
+                {searchingCep && <span className="absolute right-3 bottom-2.5 w-3 h-3 rounded-full border-2 border-primary border-t-transparent animate-spin" />}
               </div>
-              <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Número" name="numero_end" value={cartao.numero_end} onChange={handleCartao} placeholder="123" />
+              <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Número" name="numero_end" value={card.numero_end} onChange={handleCard} placeholder="123" />
             </div>
-            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Rua / Logradouro" name="rua" value={cartao.rua} onChange={handleCartao} placeholder="Rua, Avenida, Travessa..." />
-            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Bairro" name="bairro" value={cartao.bairro} onChange={handleCartao} placeholder="Bairro" />
+            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Rua / Logradouro" name="rua" value={card.rua} onChange={handleCard} placeholder="Rua, Avenida, Travessa..." />
+            <FormField compact required={false} labelClassName="text-xs font-semibold text-muted" label="Bairro" name="bairro" value={card.bairro} onChange={handleCard} placeholder="Bairro" />
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-muted">Estado</label>
-                <Select name="estado" value={cartao.estado} onChange={handleCartao} options={ESTADOS} placeholder="Selecione" searchable />
+                <Select name="estado" value={card.estado} onChange={handleCard} options={STATES} placeholder="Selecione" searchable />
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs font-semibold text-muted">Cidade</label>
-                {cartao.cidadesDisponiveis?.length > 0 ? (
-                  <Select name="cidade" value={cartao.cidade} onChange={handleCartao} options={cartao.cidadesDisponiveis.map((c) => ({ value: c, label: c }))} placeholder="Selecione" searchable />
+                {card.cidadesDisponiveis?.length > 0 ? (
+                  <Select name="cidade" value={card.cidade} onChange={handleCard} options={card.cidadesDisponiveis.map((c) => ({ value: c, label: c }))} placeholder="Selecione" searchable />
                 ) : (
-                  <Input name="cidade" value={cartao.cidade} onChange={handleCartao} placeholder="Cidade" />
+                  <Input name="cidade" value={card.cidade} onChange={handleCard} placeholder="Cidade" />
                 )}
               </div>
             </div>
@@ -534,10 +534,10 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
         <button onClick={onBack} className="flex-1 border border-line text-muted hover:border-ink rounded-xl py-3 text-sm font-semibold transition-colors">
           ← Voltar
         </button>
-        {metodo === "cartao" && (
-          <button onClick={onConfirmarCartao} disabled={!cartaoValido || criando}
+        {method === "cartao" && (
+          <button onClick={onConfirmarCartao} disabled={!cardValid || creating}
             className="flex-1 bg-primary hover:bg-primary-dark disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl py-3 transition-colors">
-            {criando ? "Processando..." : "Confirmar doação"}
+            {creating ? "Processando..." : "Confirmar doação"}
           </button>
         )}
       </div>
@@ -545,9 +545,9 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
   )
 }
 
-function PassoConfirmacao({ campanha, institutionName, valor, metodo, donation }) {
-  const metodoLabel = metodo === "pix" ? "PIX" : "Cartão de crédito"
-  const valorFormatado = valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+function StepConfirmation({ campaign, institutionName, value, method, donation }) {
+  const methodLabel = method === "pix" ? "PIX" : "Cartão de crédito"
+  const formattedValue = value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
 
   return (
     <div className="flex flex-col items-center gap-6 text-center">
@@ -573,23 +573,23 @@ function PassoConfirmacao({ campanha, institutionName, valor, metodo, donation }
         {/* Valor em destaque */}
         <div className="bg-primary px-6 py-5 flex flex-col items-center gap-1">
           <p className="text-xs font-semibold text-white/70 uppercase tracking-widest">Valor doado</p>
-          <p className="text-3xl font-bold text-white">{valorFormatado}</p>
+          <p className="text-3xl font-bold text-white">{formattedValue}</p>
         </div>
 
         {/* Detalhes */}
         <div className="px-5 py-4 flex flex-col divide-y divide-line">
-          <LinhaResumo label="Campanha" value={campanha.title} />
-          <LinhaResumo label="Instituição" value={institutionName} />
-          <LinhaResumo label="Forma de pagamento" value={metodoLabel} />
+          <SummaryRow label="Campanha" value={campaign.title} />
+          <SummaryRow label="Instituição" value={institutionName} />
+          <SummaryRow label="Forma de pagamento" value={methodLabel} />
           {donation?.id && (
-            <LinhaResumo label="Protocolo" value={`#${donation.id.slice(0, 8).toUpperCase()}`} mono />
+            <SummaryRow label="Protocolo" value={`#${donation.id.slice(0, 8).toUpperCase()}`} mono />
           )}
         </div>
       </div>
 
       {/* Ações */}
       <div className="flex flex-col gap-3 w-full">
-        <Link to={`/campanha/${campanha.id}`}
+        <Link to={`/campanha/${campaign.id}`}
           className="w-full text-center bg-primary hover:bg-primary-dark text-white font-bold rounded-xl py-3 transition-colors">
           Voltar para a campanha
         </Link>
@@ -602,7 +602,7 @@ function PassoConfirmacao({ campanha, institutionName, valor, metodo, donation }
   )
 }
 
-function LinhaResumo({ label, value, mono }) {
+function SummaryRow({ label, value, mono }) {
   return (
     <div className="flex justify-between items-center gap-4 py-3 text-sm">
       <span className="text-muted shrink-0">{label}</span>

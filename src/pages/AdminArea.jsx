@@ -1,55 +1,55 @@
 import { useState } from "react"
-import { instituicoesPendentesMock } from "../utils/mockData"
+import { pendingInstitutionsMock } from "../utils/mockData"
 import { getInitials } from "../utils/strings"
 import Textarea from "../components/ui/Textarea"
 import StatCard from "../components/ui/StatCard"
 import TabBar from "../components/ui/TabBar"
 
-const ABAS = ["Pendentes", "Aprovadas", "Rejeitadas"]
+const TABS = ["Pendentes", "Aprovadas", "Rejeitadas"]
 
 export default function AdminArea() {
-  const [instituicoes, setInstituicoes] = useState(instituicoesPendentesMock)
-  const [aba, setAba] = useState("Pendentes")
-  const [rejeitandoId, setRejeitandoId] = useState(null)
-  const [motivo, setMotivo] = useState("")
+  const [instituicoes, setInstituicoes] = useState(pendingInstitutionsMock)
+  const [tab, setTab] = useState("Pendentes")
+  const [rejectingId, setRejectingId] = useState(null)
+  const [reason, setReason] = useState("")
 
-  const pendentes  = instituicoes.filter((i) => i.status === "pendente")
-  const aprovadas  = instituicoes.filter((i) => i.status === "aprovada")
-  const rejeitadas = instituicoes.filter((i) => i.status === "rejeitada")
+  const pending  = instituicoes.filter((i) => i.status === "pendente")
+  const approved  = instituicoes.filter((i) => i.status === "aprovada")
+  const rejected = instituicoes.filter((i) => i.status === "rejeitada")
 
-  const listaAtual = { Pendentes: pendentes, Aprovadas: aprovadas, Rejeitadas: rejeitadas }[aba]
+  const currentList = { Pendentes: pending, Aprovadas: approved, Rejeitadas: rejected }[tab]
 
-  function aprovar(id) {
+  function approve(id) {
     setInstituicoes((prev) =>
       prev.map((i) =>
         i.id === id
-          ? { ...i, status: "aprovada", resolvidaEm: new Date().toISOString().slice(0, 10) }
+          ? { ...i, status: "aprovada", resolvedAt: new Date().toISOString().slice(0, 10) }
           : i
       )
     )
   }
 
-  function iniciarRejeicao(id) {
-    setRejeitandoId(id)
-    setMotivo("")
+  function initiateRejection(id) {
+    setRejectingId(id)
+    setReason("")
   }
 
-  function confirmarRejeicao(id) {
-    if (!motivo.trim()) return
+  function confirmRejection(id) {
+    if (!reason.trim()) return
     setInstituicoes((prev) =>
       prev.map((i) =>
         i.id === id
           ? {
               ...i,
               status: "rejeitada",
-              motivoRejeicao: motivo.trim(),
-              resolvidaEm: new Date().toISOString().slice(0, 10),
+              rejectionReason: reason.trim(),
+              resolvedAt: new Date().toISOString().slice(0, 10),
             }
           : i
       )
     )
-    setRejeitandoId(null)
-    setMotivo("")
+    setRejectingId(null)
+    setReason("")
   }
 
   return (
@@ -68,37 +68,37 @@ export default function AdminArea() {
       </div>
 
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
-        <StatCard value={pendentes.length}  label="Pendentes"  color="text-warning" size="text-2xl" />
-        <StatCard value={aprovadas.length}  label="Aprovadas"  color="text-success" size="text-2xl" />
-        <StatCard value={rejeitadas.length} label="Rejeitadas" color="text-accent"  size="text-2xl" />
+        <StatCard value={pending.length}  label="Pendentes"  color="text-warning" size="text-2xl" />
+        <StatCard value={approved.length}  label="Aprovadas"  color="text-success" size="text-2xl" />
+        <StatCard value={rejected.length} label="Rejeitadas" color="text-accent"  size="text-2xl" />
       </div>
 
       <TabBar
-        tabs={ABAS}
-        active={aba}
-        onChange={setAba}
-        renderBadge={(t) => t === "Pendentes" && pendentes.length > 0 && (
+        tabs={TABS}
+        active={tab}
+        onChange={setTab}
+        renderBadge={(t) => t === "Pendentes" && pending.length > 0 && (
           <span className="ml-1.5 bg-warning-light text-warning text-xs font-semibold px-1.5 py-0.5 rounded-full">
-            {pendentes.length}
+            {pending.length}
           </span>
         )}
       />
 
-      {listaAtual.length === 0 ? (
+      {currentList.length === 0 ? (
         <p className="text-center text-muted py-12">Nenhuma instituição nesta categoria.</p>
       ) : (
         <div className="flex flex-col gap-4">
-          {listaAtual.map((inst) => (
-            <InstituicaoCard
+          {currentList.map((inst) => (
+            <InstitutionCard
               key={inst.id}
-              inst={inst}
-              isRejeitando={rejeitandoId === inst.id}
-              motivo={motivo}
-              onMotivo={setMotivo}
-              onAprovar={() => aprovar(inst.id)}
-              onIniciarRejeicao={() => iniciarRejeicao(inst.id)}
-              onConfirmarRejeicao={() => confirmarRejeicao(inst.id)}
-              onCancelarRejeicao={() => setRejeitandoId(null)}
+              institution={inst}
+              isRejecting={rejectingId === inst.id}
+              reason={reason}
+              onReason={setReason}
+              onApprove={() => approve(inst.id)}
+              onInitiateRejection={() => initiateRejection(inst.id)}
+              onConfirmRejection={() => confirmRejection(inst.id)}
+              onCancelRejection={() => setRejectingId(null)}
             />
           ))}
         </div>
@@ -107,50 +107,50 @@ export default function AdminArea() {
   )
 }
 
-function InstituicaoCard({
-  inst, isRejeitando, motivo, onMotivo,
-  onAprovar, onIniciarRejeicao, onConfirmarRejeicao, onCancelarRejeicao,
+function InstitutionCard({
+  institution, isRejecting, reason, onReason,
+  onApprove, onInitiateRejection, onConfirmRejection, onCancelRejection,
 }) {
-  const [expandido, setExpandido] = useState(false)
-  const iniciais = getInitials(inst.nome)
+  const [expanded, setExpanded] = useState(false)
+  const initials = getInitials(institution.name)
 
   return (
     <div className="bg-white rounded-xl border border-line overflow-hidden">
       <div className="p-5 flex flex-col sm:flex-row sm:items-start gap-4">
         <div className="w-12 h-12 rounded-xl bg-primary-light text-primary font-bold text-base flex items-center justify-center shrink-0">
-          {iniciais}
+          {initials}
         </div>
 
         <div className="flex flex-col gap-1 flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-base font-semibold text-ink">{inst.nome}</p>
-            <StatusBadge status={inst.status} />
+            <p className="text-base font-semibold text-ink">{institution.name}</p>
+            <StatusBadge status={institution.status} />
           </div>
-          <p className="text-xs text-muted">{inst.cnpj} · {inst.cidade}, {inst.estado}</p>
-          <p className="text-xs text-muted">{inst.email} · {inst.telefone}</p>
+          <p className="text-xs text-muted">{institution.cnpj} · {institution.city}, {institution.state}</p>
+          <p className="text-xs text-muted">{institution.email} · {institution.phone}</p>
           <p className="text-xs text-muted mt-1">
-            Submetida em {new Date(inst.submetidaEm).toLocaleDateString("pt-BR")}
-            {inst.resolvidaEm && ` · Resolvida em ${new Date(inst.resolvidaEm).toLocaleDateString("pt-BR")}`}
+            Submetida em {new Date(institution.submittedAt).toLocaleDateString("pt-BR")}
+            {institution.resolvedAt && ` · Resolvida em ${new Date(institution.resolvedAt).toLocaleDateString("pt-BR")}`}
           </p>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:shrink-0 sm:flex-wrap">
           <button
-            onClick={() => setExpandido((v) => !v)}
+            onClick={() => setExpanded((v) => !v)}
             className="text-xs px-3 py-1.5 rounded-lg border border-line text-muted hover:border-primary hover:text-primary transition-colors"
           >
-            {expandido ? "Menos" : "Ver detalhes"}
+            {expanded ? "Menos" : "Ver detalhes"}
           </button>
-          {inst.status === "pendente" && (
+          {institution.status === "pendente" && (
             <>
               <button
-                onClick={onAprovar}
+                onClick={onApprove}
                 className="text-xs px-3 py-1.5 rounded-lg bg-success hover:bg-success/80 text-white font-semibold transition-colors"
               >
                 Aprovar
               </button>
               <button
-                onClick={onIniciarRejeicao}
+                onClick={onInitiateRejection}
                 className="text-xs px-3 py-1.5 rounded-lg bg-accent-light hover:bg-accent/20 text-accent border border-accent/30 font-semibold transition-colors"
               >
                 Rejeitar
@@ -160,47 +160,47 @@ function InstituicaoCard({
         </div>
       </div>
 
-      {expandido && (
+      {expanded && (
         <div className="border-t border-line px-5 py-4 flex flex-col gap-3 bg-soft">
           <div>
             <p className="text-xs font-bold text-muted uppercase tracking-wide mb-1">Descrição</p>
-            <p className="text-sm text-ink leading-relaxed">{inst.descricao}</p>
+            <p className="text-sm text-ink leading-relaxed">{institution.description}</p>
           </div>
           <div>
             <p className="text-xs font-bold text-muted uppercase tracking-wide mb-1">Documento</p>
             <button className="text-sm text-primary hover:underline">
-              📄 {inst.documento}
+              📄 {institution.document}
             </button>
           </div>
-          {inst.motivoRejeicao && (
+          {institution.rejectionReason && (
             <div>
               <p className="text-xs font-bold text-accent uppercase tracking-wide mb-1">Motivo da rejeição</p>
-              <p className="text-sm text-accent leading-relaxed">{inst.motivoRejeicao}</p>
+              <p className="text-sm text-accent leading-relaxed">{institution.rejectionReason}</p>
             </div>
           )}
         </div>
       )}
 
-      {isRejeitando && (
+      {isRejecting && (
         <div className="border-t border-accent/20 px-5 py-4 bg-accent-light flex flex-col gap-3">
           <p className="text-sm font-semibold text-accent">Informe o motivo da rejeição</p>
           <Textarea
-            value={motivo}
-            onChange={(e) => onMotivo(e.target.value)}
+            value={reason}
+            onChange={(e) => onReason(e.target.value)}
             rows={3}
             placeholder="Ex: Documentação incompleta. O estatuto social está desatualizado..."
             className="border-accent/30 focus:border-accent focus:ring-accent/10 bg-white"
           />
           <div className="flex gap-2 justify-end">
             <button
-              onClick={onCancelarRejeicao}
+              onClick={onCancelRejection}
               className="text-sm px-4 py-2 rounded-lg border border-line text-muted hover:border-ink transition-colors"
             >
               Cancelar
             </button>
             <button
-              onClick={onConfirmarRejeicao}
-              disabled={!motivo.trim()}
+              onClick={onConfirmRejection}
+              disabled={!reason.trim()}
               className="text-sm px-4 py-2 rounded-lg bg-accent hover:bg-accent/80 disabled:opacity-40 disabled:cursor-not-allowed text-white font-semibold transition-colors"
             >
               Confirmar rejeição
@@ -225,4 +225,3 @@ function StatusBadge({ status }) {
     </span>
   )
 }
-
