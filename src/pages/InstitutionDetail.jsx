@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "../hooks/useAuth"
 import { getInstitutionById } from "../services/institutions"
 import { getCampaignsByInstitution } from "../services/campaigns"
 import { getNecessitiesByInstitution } from "../services/necessities"

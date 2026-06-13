@@ -1,7 +1,6 @@
-import { createContext, useContext, useMemo } from "react"
+import { useMemo } from "react"
 import { useAuth0 } from "@auth0/auth0-react"
-
-const AuthContext = createContext(null)
+import { AuthContext } from "./auth-context"
 
 const ROLE_CLAIM = import.meta.env.VITE_AUTH0_ROLE_CLAIM
 
@@ -43,8 +42,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   )
-}
-
-export function useAuth() {
-  return useContext(AuthContext)
 }

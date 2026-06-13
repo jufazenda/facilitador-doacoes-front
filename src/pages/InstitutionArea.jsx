@@ -15,7 +15,7 @@ import Loading from "../components/ui/Loading"
 import StatCard from "../components/ui/StatCard"
 import TabBar from "../components/ui/TabBar"
 import InfoLinha from "../components/ui/InfoLinha"
-import { useToast } from "../components/ui/Toast"
+import { useToast } from "../hooks/useToast"
 
 const TABS = ["Dashboard", "Perfil", "Campanhas", "Necessidades", "Atualizações"]
 

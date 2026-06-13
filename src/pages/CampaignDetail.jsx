@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom"
 import { getCampaignById } from "../services/campaigns"
 import { getInstitutionById } from "../services/institutions"
 import { categoryImages } from "../utils/categoryImages"
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "../hooks/useAuth"
 import Loading from "../components/ui/Loading"
 
 export default function CampaignDetail() {

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { categoryImages } from "../../utils/categoryImages"
-import { useAuth } from "../../context/AuthContext"
+import { useAuth } from "../../hooks/useAuth"
 import { getInitials } from "../../utils/strings"
 
 function daysLeft(endsAt) {

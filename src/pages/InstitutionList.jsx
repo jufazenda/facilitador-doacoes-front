@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "../hooks/useAuth"
 import { getInstitutions } from "../services/institutions"
 import { getCampaigns } from "../services/campaigns"
 import Loading from "../components/ui/Loading"
