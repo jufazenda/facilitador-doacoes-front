@@ -5,7 +5,6 @@ import { getCampaignsByInstitution, createCampaign, updateCampaign, deleteCampai
 import { getNecessitiesByInstitution, createNecessity, updateNecessity, updateNecessityStatus } from "../services/necessities"
 import { getDonations } from "../services/donations"
 import { categories, slugify, DONATION_STATUS } from "../utils/staticData"
-import { updatesMock } from "../utils/mockData"
 import { maskCnpj } from "../utils/masks"
 import { getInitials } from "../utils/strings"
 import Select from "../components/ui/Select"
@@ -18,7 +17,6 @@ import InfoLinha from "../components/ui/InfoLinha"
 import Badge from "../components/ui/Badge"
 import EmptyState from "../components/ui/EmptyState"
 import { useToast } from "../hooks/useToast"
-import { IconCircleCheck } from "@tabler/icons-react"
 
 const TABS = ["Dashboard", "Perfil", "Campanhas", "Necessidades", "Atualizações"]
 
@@ -34,7 +32,6 @@ export default function InstitutionArea() {
   const [campaigns, setCampaigns] = useState([])
   const [necessities, setNecessities] = useState([])
   const [donations, setDonations] = useState([])
-  const [updates, setUpdates] = useState(updatesMock)
   const [loading, setLoading] = useState(true)
   const client = useApiClient()
   const { showToast, ToastContainer } = useToast()
@@ -121,16 +118,6 @@ export default function InstitutionArea() {
     setNecessities((prev) => [nova, ...prev])
   }
 
-  function sendUpdate(update) {
-    const campaign = campaigns.find((c) => c.id === update.campanhaId)
-    setUpdates((prev) => [{
-      ...update,
-      id:       Date.now(),
-      campaign: campaign?.title ?? "",
-      sentAt:   new Date().toISOString().slice(0, 10),
-    }, ...prev])
-  }
-
   if (loading) return <Loading full />
 
   const institutionStatusKey = INSTITUTION_STATUS_LABEL[institution?.status] ? institution.status : "pending"
@@ -159,7 +146,7 @@ export default function InstitutionArea() {
       {tab === "Perfil"       && <ProfileTab institution={institution} setInstitution={setInstitution} client={client} showToast={showToast} />}
       {tab === "Campanhas"    && <CampaignsTab campaigns={campaigns} onToggleUrgente={toggleUrgentCampaign} onAdicionar={addCampaign} onEditar={editCampaign} onExcluir={handleDeleteCampaign} showToast={showToast} />}
       {tab === "Necessidades" && <NecessitiesTab necessities={necessities} onToggleUrgente={toggleUrgentNecessity} onAtender={attendNecessity} onAdicionar={addNecessity} />}
-      {tab === "Atualizações" && <UpdatesTab campaigns={campaigns} updates={updates} onEnviar={sendUpdate} />}
+      {tab === "Atualizações" && <UpdatesTab />}
       <ToastContainer />
     </div>
   )
@@ -175,7 +162,7 @@ function ProfileTab({ institution, setInstitution, client, showToast }) {
     address:     institution?.address ?? "",
     phone:       institution?.phone ?? "",
     cnpj:        institution?.cnpj ?? "",
-    website:     institution?.website ?? "",
+    website_url: institution?.website_url ?? "",
   })
 
   function handleChange(e) {
@@ -194,7 +181,7 @@ function ProfileTab({ institution, setInstitution, client, showToast }) {
         address:     form.address,
         phone:       form.phone,
         cnpj:        form.cnpj.replace(/\D/g, ""),
-        website:     form.website,
+        website_url: form.website_url,
       })
       setInstitution(updated)
       setEditing(false)
@@ -221,7 +208,7 @@ function ProfileTab({ institution, setInstitution, client, showToast }) {
             <InfoLinha label="Nome" value={institution?.name ?? "-"} />
             <InfoLinha label="CNPJ" value={institution?.cnpj || "-"} />
             <InfoLinha label="Telefone" value={institution?.phone || "-"} />
-            <InfoLinha label="Website" value={institution?.website || "-"} />
+            <InfoLinha label="Website" value={institution?.website_url || "-"} />
             <InfoLinha label="Endereço" value={institution?.address || "-"} />
           </div>
           {institution?.description && (
@@ -246,7 +233,7 @@ function ProfileTab({ institution, setInstitution, client, showToast }) {
             <FormField compact label="Nome da instituição" name="name" value={form.name} onChange={handleChange} />
             <FormField compact required={false} label="CNPJ" name="cnpj" value={form.cnpj} onChange={handleChange} placeholder="00.000.000/0000-00" inputMode="numeric" />
             <FormField compact required={false} label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
-            <FormField compact required={false} label="Website" name="website" value={form.website} onChange={handleChange} placeholder="https://..." />
+            <FormField compact required={false} label="Website" name="website_url" value={form.website_url} onChange={handleChange} placeholder="https://..." />
             <div className="sm:col-span-2">
               <FormField compact required={false} label="Endereço" name="address" value={form.address} onChange={handleChange} placeholder="Rua, número, cidade - estado" />
             </div>
@@ -586,72 +573,14 @@ function NecessityItem({ n, onToggleUrgente, onAtender }) {
   )
 }
 
-function UpdatesTab({ campaigns, updates, onEnviar }) {
-  const [form, setForm] = useState({ campanhaId: campaigns[0]?.id ?? "", title: "", message: "" })
-  const [sent, setSent] = useState(false)
-
-  function handleChange(e) { setForm((prev) => ({ ...prev, [e.target.name]: e.target.value })) }
-
-  function handleSubmit(e) {
-    e.preventDefault()
-    onEnviar(form)
-    setForm({ campanhaId: campaigns[0]?.id ?? "", title: "", message: "" })
-    setSent(true)
-    setTimeout(() => setSent(false), 3000)
-  }
-
+function UpdatesTab() {
   return (
-    <div className="flex flex-col gap-6">
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-line p-5 flex flex-col gap-4 max-w-2xl">
-        <h3 className="text-base font-bold text-ink">Enviar atualização aos doadores</h3>
-        {campaigns.length === 0 ? (
-          <p className="text-sm text-muted">Crie uma campanha primeiro para enviar atualizações.</p>
-        ) : (
-          <>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-ink">Campanha</label>
-              <Select
-                name="campanhaId"
-                value={form.campanhaId}
-                onChange={handleChange}
-                options={campaigns.map((c) => ({ value: c.id, label: c.title }))}
-              />
-            </div>
-            <FormField label="Título" name="title" value={form.title} onChange={handleChange} placeholder="Ex: Meta 80% atingida!" />
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-semibold text-ink">Mensagem</label>
-              <Textarea name="message" value={form.message} onChange={handleChange} rows={4} required
-                placeholder="Conte aos doadores como está o progresso da campanha..." />
-            </div>
-            <div className="flex items-center justify-between">
-              {sent && (
-                <span className="flex items-center gap-1.5 text-sm text-success font-semibold">
-                  <IconCircleCheck size={16} /> Atualização enviada!
-                </span>
-              )}
-              <button type="submit" className="ml-auto bg-primary hover:bg-primary-dark text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-colors">
-                Enviar para doadores
-              </button>
-            </div>
-          </>
-        )}
-      </form>
-
-      {updates.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <p className="text-xs font-bold text-muted uppercase tracking-wide">Atualizações enviadas</p>
-          {updates.map((a) => (
-            <div key={a.id} className="bg-white rounded-xl border border-line p-4 flex flex-col gap-2">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-bold text-ink">{a.title}</p>
-                <span className="text-xs text-muted shrink-0">{new Date(a.sentAt).toLocaleDateString("pt-BR")}</span>
-              </div>
-              <p className="text-xs text-muted">{a.campaign}</p>
-              <p className="text-sm text-muted leading-relaxed">{a.message}</p>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="bg-white rounded-xl border border-line p-8 flex flex-col items-center gap-2 text-center max-w-2xl">
+      <h3 className="text-base font-bold text-ink">Atualizações para doadores</h3>
+      <p className="text-sm text-muted">
+        Este recurso ainda não está disponível. Em breve você poderá enviar atualizações
+        de progresso das campanhas diretamente aos doadores.
+      </p>
     </div>
   )
 }

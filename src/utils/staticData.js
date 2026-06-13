@@ -22,10 +22,10 @@ export const categories = [
 ]
 
 export const DONATION_STATUS = {
-  pendente:   { label: "Pendente",   classes: "bg-warning-light text-warning" },
-  processado: { label: "Processado", classes: "bg-blue-100 text-blue-700" },
-  confirmado: { label: "Confirmado", classes: "bg-secondary/10 text-secondary" },
-  aplicado:   { label: "Aplicado",   classes: "bg-success-light text-success" },
+  PENDING:  { label: "Pendente",    classes: "bg-warning-light text-warning" },
+  PAID:     { label: "Pago",        classes: "bg-success-light text-success" },
+  OVERDUE:  { label: "Vencido",     classes: "bg-accent-light text-accent" },
+  REFUNDED: { label: "Reembolsado", classes: "bg-soft text-muted" },
 }
 
 export const steps = [
