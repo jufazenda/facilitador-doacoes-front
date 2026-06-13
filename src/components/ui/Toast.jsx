@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const VARIANTS = {
   success: {
@@ -52,6 +52,9 @@ export default function Toast({ type = "success", msg, onClose }) {
   const [progress, setProgress] = useState(100)
   const v = VARIANTS[type] ?? VARIANTS.info
 
+  const onCloseRef = useRef(onClose)
+  useEffect(() => { onCloseRef.current = onClose }, [onClose])
+
   useEffect(() => {
     const showTimer = requestAnimationFrame(() => setVisible(true))
 
@@ -63,7 +66,7 @@ export default function Toast({ type = "success", msg, onClose }) {
 
     const hide = setTimeout(() => {
       setVisible(false)
-      setTimeout(onClose, 300)
+      setTimeout(() => onCloseRef.current(), 300)
     }, DURATION)
 
     return () => {

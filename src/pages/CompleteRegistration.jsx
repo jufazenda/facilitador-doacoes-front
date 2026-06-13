@@ -171,7 +171,7 @@ export default function CompleteRegistration() {
   // Step 2b — formulário instituição
   return (
     <div className="flex-1 flex items-start justify-center py-8 px-4 sm:py-12">
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-lg md:max-w-2xl">
         <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5 sm:p-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-ink">Cadastrar instituição</h1>
@@ -187,18 +187,20 @@ export default function CompleteRegistration() {
           )}
 
           <form onSubmit={submitInstitution} className="flex flex-col gap-4">
-            <FormField label="Nome da instituição" id="nome" name="nome" type="text"
-              value={institution.nome} onChange={handleInstitution} placeholder="Nome como é conhecida" />
-            <FormField label="Razão social" id="legalName" name="legalName" type="text"
-              value={institution.legalName} onChange={handleInstitution} placeholder="Nome jurídico completo" />
-            <FormField label="CNPJ" id="cnpj" name="cnpj" type="text" inputMode="numeric"
-              value={institution.cnpj} onChange={handleInstitution} placeholder="00.000.000/0000-00" />
-            <FormField label="E-mail institucional" id="email" name="email" type="email"
-              value={institution.email} onChange={handleInstitution} placeholder="contato@instituicao.org" />
-            <FormField label="Telefone" id="phone" name="phone" type="tel"
-              value={institution.phone} onChange={handleInstitution} placeholder="(00) 00000-0000" />
-            <FormField label="Endereço" id="address" name="address" type="text"
-              value={institution.address} onChange={handleInstitution} placeholder="Rua, número, cidade – UF" />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <FormField label="Nome da instituição" id="nome" name="nome" type="text"
+                value={institution.nome} onChange={handleInstitution} placeholder="Nome como é conhecida" />
+              <FormField label="Razão social" id="legalName" name="legalName" type="text"
+                value={institution.legalName} onChange={handleInstitution} placeholder="Nome jurídico completo" />
+              <FormField label="CNPJ" id="cnpj" name="cnpj" type="text" inputMode="numeric"
+                value={institution.cnpj} onChange={handleInstitution} placeholder="00.000.000/0000-00" />
+              <FormField label="Telefone" id="phone" name="phone" type="tel"
+                value={institution.phone} onChange={handleInstitution} placeholder="(00) 00000-0000" />
+              <FormField label="E-mail institucional" id="email" name="email" type="email"
+                value={institution.email} onChange={handleInstitution} placeholder="contato@instituicao.org" />
+              <FormField label="Endereço" id="address" name="address" type="text"
+                value={institution.address} onChange={handleInstitution} placeholder="Rua, número, cidade – UF" />
+            </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-semibold text-ink" htmlFor="description">Descrição</label>
               <Textarea id="description" name="description" required rows={3}

@@ -243,13 +243,15 @@ function ProfileTab({ institution, setInstitution, client, showToast }) {
               {error}
             </div>
           )}
-          <FormField compact label="Nome da instituição" name="name" value={form.name} onChange={handleChange} />
-          <FormField compact required={false} label="CNPJ" name="cnpj" value={form.cnpj} onChange={handleChange} placeholder="00.000.000/0000-00" inputMode="numeric" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField compact label="Nome da instituição" name="name" value={form.name} onChange={handleChange} />
+            <FormField compact required={false} label="CNPJ" name="cnpj" value={form.cnpj} onChange={handleChange} placeholder="00.000.000/0000-00" inputMode="numeric" />
             <FormField compact required={false} label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
             <FormField compact required={false} label="Website" name="website" value={form.website} onChange={handleChange} placeholder="https://..." />
+            <div className="sm:col-span-2">
+              <FormField compact required={false} label="Endereço" name="address" value={form.address} onChange={handleChange} placeholder="Rua, número, cidade - estado" />
+            </div>
           </div>
-          <FormField compact required={false} label="Endereço" name="address" value={form.address} onChange={handleChange} placeholder="Rua, número, cidade - estado" />
           <div className="flex flex-col gap-1.5">
             <label className="text-xs text-muted">Descrição</label>
             <Textarea name="description" value={form.description} onChange={handleChange} rows={3}
@@ -652,7 +654,7 @@ function ModalConfirmDelete({ titulo, onConfirmar, onCancelar, excluindo }) {
       onClick={onCancelar}
     >
       <div className="w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
-        <div className="rounded-2xl bg-white p-6 shadow-2xl flex flex-col gap-5">
+        <div className="rounded-2xl bg-white p-6 shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
           <div className="flex items-start gap-4">
             <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0 text-red-600 text-lg font-bold">
               !
@@ -707,7 +709,7 @@ function ModalCampaign({ campanha, onSalvar, onFechar, salvando }) {
       <div className="w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
         <form
           onSubmit={(e) => { e.preventDefault(); onSalvar(form) }}
-          className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-2xl"
+          className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
         >
           <div className="flex items-center justify-between">
             <h3 className="text-base font-bold text-ink">{isNew ? "Nova campanha" : "Editar campanha"}</h3>

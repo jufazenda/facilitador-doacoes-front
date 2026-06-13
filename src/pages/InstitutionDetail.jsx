@@ -55,9 +55,9 @@ export default function InstitutionDetail() {
 
       {/* Hero */}
       <section className="overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm">
-        <div className="grid grid-cols-1 lg:grid-cols-5">
+        <div className="grid grid-cols-1 md:grid-cols-5">
 
-          <div className="flex flex-col gap-5 p-7 sm:p-9 lg:col-span-3">
+          <div className="flex flex-col gap-5 p-7 sm:p-9 md:col-span-3">
             <nav className="flex items-center gap-1.5 text-xs text-muted flex-wrap">
               <Link to="/" className="hover:text-primary transition-colors">Início</Link>
               <span>›</span>
@@ -114,7 +114,7 @@ export default function InstitutionDetail() {
             </div>
           </div>
 
-          <div className="h-48 lg:col-span-2 lg:h-auto">
+          <div className="h-48 md:col-span-2 md:h-auto">
             <HeroIllustration initials={initials} />
           </div>
         </div>

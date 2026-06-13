@@ -68,13 +68,13 @@ export default function Header() {
             className="flex items-center text-accent"
             style={{ fontFamily: '"Luckiest Guy", cursive' }}
           >
-            <span className="-rotate-6 text-xl leading-none sm:text-2xl">
+            <span className="-rotate-6 text-lg leading-none sm:text-xl md:text-2xl">
               Faz
             </span>
-            <span className="mx-1 rotate-3 text-base leading-none sm:text-xl">
+            <span className="mx-1 rotate-3 text-sm leading-none sm:text-base md:text-xl">
               a
             </span>
-            <span className="-rotate-2 text-xl leading-none sm:text-2xl">
+            <span className="-rotate-2 text-lg leading-none sm:text-xl md:text-2xl">
               Boa
             </span>
           </span>
