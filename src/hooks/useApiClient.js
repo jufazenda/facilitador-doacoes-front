@@ -21,10 +21,9 @@ export function useApiClient() {
         const token = await getAccessTokenSilently({
           authorizationParams: { audience: import.meta.env.VITE_AUTH0_AUDIENCE },
         })
-        console.log("[useApiClient] token:", token?.slice(0, 30))
         config.headers.Authorization = `Bearer ${token}`
-      } catch (err) {
-        console.error("[useApiClient] getAccessTokenSilently error:", err)
+      } catch {
+        // sem sessão ativa — requisição segue sem token
       }
       return config
     })

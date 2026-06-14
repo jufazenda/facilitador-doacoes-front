@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom"
-import { AuthProvider, useAuth } from "./context/AuthContext"
+import { AuthProvider } from "./context/AuthContext"
+import { useAuth } from "./hooks/useAuth"
 import MainLayout from "./layouts/MainLayout"
 
 import Home from "./pages/Home"
@@ -15,18 +16,18 @@ import InstitutionArea from "./pages/InstitutionArea"
 import AdminArea from "./pages/AdminArea"
 import AboutUs from "./pages/AboutUs"
 
-function ProtectedRoute({ children, tipo }) {
+function ProtectedRoute({ children, type }) {
   const { user, isLoading } = useAuth()
   if (isLoading) return null
   if (!user) return <Navigate to="/login" replace />
-  if (tipo && user.tipo !== tipo) return <Navigate to="/" replace />
+  if (type && user.type !== type) return <Navigate to="/" replace />
   return children
 }
 
 function BlockedForInstituicao({ children }) {
   const { user, isLoading } = useAuth()
   if (isLoading) return null
-  if (user?.tipo === "instituicao") return <Navigate to="/" replace />
+  if (user?.type === "instituicao") return <Navigate to="/" replace />
   return children
 }
 
@@ -36,7 +37,7 @@ function NewUserRedirect() {
   const location = useLocation()
 
   if (isLoading || !user) return null
-  if (user.tipo === null && location.pathname !== "/completar-cadastro") {
+  if (user.type === null && location.pathname !== "/completar-cadastro") {
     return <Navigate to="/completar-cadastro" replace />
   }
   return null
@@ -57,9 +58,9 @@ export default function App() {
           <Route path="/sobre-nos" element={<MainLayout><AboutUs /></MainLayout>} />
           <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
           <Route path="/completar-cadastro" element={<MainLayout><CompleteRegistration /></MainLayout>} />
-          <Route path="/area/doador" element={<MainLayout><ProtectedRoute tipo="doador"><DonorArea /></ProtectedRoute></MainLayout>} />
-          <Route path="/area/instituicao" element={<MainLayout><ProtectedRoute tipo="instituicao"><InstitutionArea /></ProtectedRoute></MainLayout>} />
-          <Route path="/area/admin" element={<MainLayout><ProtectedRoute tipo="admin"><AdminArea /></ProtectedRoute></MainLayout>} />
+          <Route path="/area/doador" element={<MainLayout><ProtectedRoute type="doador"><DonorArea /></ProtectedRoute></MainLayout>} />
+          <Route path="/area/instituicao" element={<MainLayout><ProtectedRoute type="instituicao"><InstitutionArea /></ProtectedRoute></MainLayout>} />
+          <Route path="/area/admin" element={<MainLayout><ProtectedRoute type="admin"><AdminArea /></ProtectedRoute></MainLayout>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

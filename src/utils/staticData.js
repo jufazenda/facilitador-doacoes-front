@@ -1,3 +1,5 @@
+import { IconSearch, IconHeartFilled, IconChartBar, IconSpeakerphone } from "@tabler/icons-react"
+
 export function slugify(str) {
   return str
     .normalize("NFD")
@@ -7,7 +9,7 @@ export function slugify(str) {
     .replace(/^_|_$/g, "")
 }
 
-export const categorias = [
+export const categories = [
   "Higiene & Cuidados Pessoais",
   "Alimentação",
   "Educação & Escolar",
@@ -19,24 +21,31 @@ export const categorias = [
   "Moradia & Utensílios",
 ]
 
+export const DONATION_STATUS = {
+  PENDING:  { label: "Pendente",    classes: "bg-warning-light text-warning" },
+  PAID:     { label: "Pago",        classes: "bg-success-light text-success" },
+  OVERDUE:  { label: "Vencido",     classes: "bg-accent-light text-accent" },
+  REFUNDED: { label: "Reembolsado", classes: "bg-soft text-muted" },
+}
+
 export const steps = [
   {
-    icon: "🔍",
+    icon: IconSearch,
     title: "1. Explore",
     text: "Descubra campanhas e instituições verificadas.",
   },
   {
-    icon: "💜",
+    icon: IconHeartFilled,
     title: "2. Doe com segurança",
     text: "Sua doação é protegida e o impacto é garantido.",
   },
   {
-    icon: "📊",
+    icon: IconChartBar,
     title: "3. Acompanhe",
     text: "Veja como sua doação está transformando vidas.",
   },
   {
-    icon: "📣",
+    icon: IconSpeakerphone,
     title: "4. Compartilhe",
     text: "Convide outras pessoas para multiplicar o impacto.",
   },
