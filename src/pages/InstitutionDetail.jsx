@@ -2,6 +2,8 @@ import { useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
 import { MapPin, Mail, Phone, ClipboardList, CalendarDays, Heart, Flag, ChevronRight, ChevronLeft } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
+import { useFavorites } from "../hooks/useFavorites"
+import { useCoverPosition, useImagePosition } from "../hooks/useCoverPosition"
 import { getInstitutionById } from "../services/institutions"
 import { getCampaignsByInstitution } from "../services/campaigns"
 import { getNecessitiesByInstitution } from "../services/necessities"
@@ -11,12 +13,14 @@ import Loading from "../components/ui/Loading"
 export default function InstitutionDetail() {
   const { id } = useParams()
   const { user } = useAuth()
+  const { toggle, isFavorite } = useFavorites()
+  const { position: coverPosition } = useCoverPosition(id)
+  const { position: logoPosition }  = useImagePosition(`logo_pos_${id}`)
   const [inst, setInst] = useState(null)
   const [campanhas, setCampanhas] = useState([])
   const [necessidades, setNecessidades] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
-  const [apoiando, setApoiando] = useState(false)
 
   useEffect(() => {
     getInstitutionById(id)
@@ -49,6 +53,7 @@ export default function InstitutionDetail() {
   const iniciais         = inst.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
   const isDoador         = user?.tipo === "doador"
   const campanhasAtivas  = campanhas.filter((c) => c.status === "active")
+  const apoiando         = isFavorite(inst.id)
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 flex flex-col gap-8">
@@ -95,7 +100,7 @@ export default function InstitutionDetail() {
             <div className="flex flex-wrap gap-3">
               {isDoador && (
                 <button
-                  onClick={() => setApoiando((v) => !v)}
+                  onClick={() => toggle(inst)}
                   className={`flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold transition-colors ${
                     apoiando
                       ? "border border-success/30 bg-success-light text-success"
@@ -115,7 +120,7 @@ export default function InstitutionDetail() {
           </div>
 
           <div className="h-48 lg:col-span-2 lg:h-auto">
-            <IllustracaoHero iniciais={iniciais} />
+            <IllustracaoHero iniciais={iniciais} coverUrl={inst.cover_image_url} logoUrl={inst.logo_url} coverPosition={coverPosition} logoPosition={logoPosition} />
           </div>
         </div>
       </section>
@@ -155,7 +160,28 @@ export default function InstitutionDetail() {
   )
 }
 
-function IllustracaoHero({ iniciais }) {
+function IllustracaoHero({ iniciais, coverUrl, logoUrl, coverPosition = "50% 50%", logoPosition = "50% 50%" }) {
+  if (coverUrl) {
+    return (
+      <div className="relative h-full overflow-hidden">
+        <img
+          src={coverUrl}
+          alt="Capa"
+          className="h-full w-full object-cover"
+          style={{ objectPosition: coverPosition }}
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-purple-950/30 to-transparent" />
+        {logoUrl && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white shadow-xl shadow-purple-950/10 ring-8 ring-white/60">
+              <img src={logoUrl} alt="Logo" className="h-full w-full rounded-2xl object-cover" style={{ objectPosition: logoPosition }} />
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="relative h-full overflow-hidden bg-linear-to-br from-purple-50 via-primary-light to-soft">
       <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-purple-200/50" />
@@ -167,7 +193,11 @@ function IllustracaoHero({ iniciais }) {
       <Heart className="absolute bottom-8 left-14 select-none text-purple-300/50" size={28} strokeWidth={1} />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white shadow-xl shadow-purple-950/10 ring-8 ring-white/60">
-          <span className="text-3xl font-black text-primary">{iniciais}</span>
+          {logoUrl ? (
+            <img src={logoUrl} alt="Logo" className="h-full w-full rounded-2xl object-cover" style={{ objectPosition: logoPosition }} />
+          ) : (
+            <span className="text-3xl font-black text-primary">{iniciais}</span>
+          )}
         </div>
       </div>
     </div>

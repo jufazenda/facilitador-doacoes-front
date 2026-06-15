@@ -2,11 +2,13 @@ import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Heart, Flame, Star, Trophy, Gem } from "lucide-react"
 import { useApiClient } from "../hooks/useApiClient"
-import { getMe, updateUser } from "../services/users"
+import { useAuth } from "../context/AuthContext"
+import { getMe, updateUser, uploadAvatar } from "../services/users"
 import { getDonations } from "../services/donations"
 import { getCampaigns } from "../services/campaigns"
 import { getInstitutions } from "../services/institutions"
 import { getRanking } from "../services/ranking"
+import DraggablePhoto from "../components/ui/DraggablePhoto"
 import Loading from "../components/ui/Loading"
 import { useToast } from "../components/ui/Toast"
 
@@ -42,7 +44,10 @@ export default function DonorArea() {
   const [campaigns, setCampaigns] = useState({})
   const [institutions, setInstitutions] = useState({})
   const [loading, setLoading] = useState(true)
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [editandoPerfil, setEditandoPerfil] = useState(false)
   const client = useApiClient()
+  const { setAvatarUrl } = useAuth()
   const { showToast, ToastContainer } = useToast()
 
   useEffect(() => {
@@ -67,6 +72,20 @@ export default function DonorArea() {
 
   if (loading) return <Loading full />
 
+  async function handleAvatarFile(file, position) {
+    setUploadingAvatar(true)
+    try {
+      const updated = await uploadAvatar(client, user.id, file)
+      setUser(updated)
+      setAvatarUrl(updated.avatar_url ?? null)
+      showToast("success", "Foto atualizada!")
+    } catch {
+      showToast("error", "Erro ao enviar foto. Tente novamente.")
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
+
   const nome = user?.name ?? "Doador"
   const desde = user?.created_at ?? new Date().toISOString()
   const totalDoado = donations.reduce((sum, d) => sum + (d.amount ?? 0), 0) / 100
@@ -75,9 +94,18 @@ export default function DonorArea() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
       <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shrink-0">
-          <span className="text-white text-xl font-bold">{initials(nome)}</span>
-        </div>
+        <DraggablePhoto
+          imageUrl={user?.avatar_url ?? null}
+          fallback={<div className="w-full h-full rounded-full bg-primary flex items-center justify-center"><span className="text-white text-xl font-bold">{initials(nome)}</span></div>}
+          shape="rounded-full"
+          size="w-14 h-14"
+          aspectRatio={1}
+          storageKey={`avatar_pos_${user?.id}`}
+          uploading={uploadingAvatar}
+          onFileChange={handleAvatarFile}
+          accept="image/jpeg,image/png,image/webp"
+          editMode={editandoPerfil && aba === "Perfil"}
+        />
         <div>
           <h1 className="text-xl font-bold text-ink">{nome}</h1>
           <p className="text-sm text-muted">
@@ -98,7 +126,7 @@ export default function DonorArea() {
       </div>
 
       {aba === "Perfil" && (
-        <AbaPerfil user={user} setUser={setUser} client={client} showToast={showToast} totalDoado={totalDoado} totalDoacoes={totalDoacoes} />
+        <AbaPerfil user={user} setUser={setUser} client={client} showToast={showToast} totalDoado={totalDoado} totalDoacoes={totalDoacoes} onEditandoChange={setEditandoPerfil} />
       )}
       {aba === "Histórico" && (
         <AbaHistorico donations={donations} campaigns={campaigns} institutions={institutions} />
@@ -118,11 +146,16 @@ function mascararCpf(v) {
     .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
 }
 
-function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes }) {
+function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes, onEditandoChange }) {
   const [editando, setEditando] = useState(false)
   const [form, setForm] = useState({ name: user?.name ?? "", phone: user?.phone ?? "", cpf: formatCpf(user?.cpf) })
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState(null)
+
+  function setEditandoSync(v) {
+    setEditando(v)
+    onEditandoChange?.(v)
+  }
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -140,7 +173,7 @@ function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes 
         cpf: form.cpf.replace(/\D/g, ""),
       })
       setUser(updated)
-      setEditando(false)
+      setEditandoSync(false)
       showToast("success", "Dados atualizados com sucesso!")
     } catch (err) {
       setErro(err?.response?.data?.error ?? "Erro ao salvar. Tente novamente.")
@@ -163,7 +196,7 @@ function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes 
         <div className="flex items-center justify-between">
           <h2 className="text-base font-bold text-ink">Dados pessoais</h2>
           {!editando && (
-            <button onClick={() => { setEditando(true) }}
+            <button onClick={() => { setEditandoSync(true) }}
               className="text-sm text-primary hover:underline font-semibold">
               Editar dados
             </button>
@@ -193,7 +226,7 @@ function AbaPerfil({ user, setUser, client, showToast, totalDoado, totalDoacoes 
             <CampoEdicao label="Telefone" name="phone" value={form.phone} onChange={handleChange} placeholder="(00) 00000-0000" />
             <InfoLinha label="E-mail" value={user?.email ?? "-"} />
             <div className="flex gap-3 pt-1">
-              <button type="button" onClick={() => { setEditando(false); setErro(null) }}
+              <button type="button" onClick={() => { setEditandoSync(false); setErro(null) }}
                 className="flex-1 border border-line text-muted hover:border-ink rounded-lg py-2.5 text-sm font-semibold transition-colors">
                 Cancelar
               </button>

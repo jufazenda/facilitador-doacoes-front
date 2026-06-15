@@ -2,6 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { Heart, ChevronDown } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { useFavorites } from "../../hooks/useFavorites";
 import logo from "../../assets/logo.png";
 
 const TIPO_LABEL = {
@@ -10,11 +11,25 @@ const TIPO_LABEL = {
   admin: "Admin",
 };
 
+function UserAvatar({ picture, nome, tipo, size = "sm" }) {
+  const dim = size === "sm" ? "h-7 w-7 text-xs" : "h-9 w-9 text-sm";
+  const shape = tipo === "instituicao" ? "rounded-lg" : "rounded-full";
+  if (picture) {
+    return <img src={picture} alt={nome} className={`${dim} ${shape} object-cover shrink-0`} />;
+  }
+  return (
+    <span className={`flex ${dim} shrink-0 items-center justify-center ${shape} bg-purple-700 font-bold text-white`}>
+      {nome[0]}
+    </span>
+  );
+}
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const { user, logout } = useAuth();
+  const { favorites: topInstitutions } = useFavorites();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -91,16 +106,14 @@ export default function Header() {
               <div className="relative hidden md:block" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen((v) => !v)}
-                  className="flex items-center gap-2 rounded-2xl border border-purple-100 bg-white px-4 py-2 font-semibold text-purple-950 transition hover:bg-purple-50"
+                  className="flex items-center gap-2 rounded-2xl border border-purple-100 bg-white px-3 py-2 font-semibold text-purple-950 transition hover:bg-purple-50"
                 >
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-700 text-xs font-bold text-white">
-                    {user.nome[0]}
-                  </span>
+                  <UserAvatar picture={user.avatarUrl ?? user.picture} nome={user.nome} tipo={user.tipo} size="sm" />
                   <span className="text-sm">{user.nome.split(" ")[0]}</span>
                   <ChevronDown size={14} className="text-purple-400" />
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-purple-100 bg-white py-2 shadow-xl shadow-purple-950/10">
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl border border-purple-100 bg-white py-2 shadow-xl shadow-purple-950/10">
                     <p className="px-4 py-1 text-xs text-slate-400">{TIPO_LABEL[user.tipo]}</p>
                     <Link
                       to={`/area/${user.tipo}`}
@@ -109,6 +122,30 @@ export default function Header() {
                     >
                       Minha área
                     </Link>
+                    {topInstitutions.length > 0 && (
+                      <>
+                        <div className="mx-4 my-1 border-t border-purple-100" />
+                        <p className="px-4 py-1 text-xs text-slate-400">Instituições</p>
+                        {topInstitutions.map((inst) => (
+                          <Link
+                            key={inst.id}
+                            to={`/instituicao/${inst.id}`}
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center gap-2.5 px-4 py-2 hover:bg-purple-50"
+                          >
+                            {inst.logo_url ? (
+                              <img src={inst.logo_url} alt={inst.name} className="h-6 w-6 rounded-lg object-cover shrink-0" />
+                            ) : (
+                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-primary-light text-xs font-bold text-primary">
+                                {inst.name[0]}
+                              </span>
+                            )}
+                            <span className="truncate text-sm text-purple-950">{inst.name}</span>
+                          </Link>
+                        ))}
+                      </>
+                    )}
+                    <div className="mx-4 my-1 border-t border-purple-100" />
                     <button
                       onClick={handleLogout}
                       className="w-full px-4 py-2 text-left text-sm font-semibold text-red-500 hover:bg-red-50"
@@ -202,11 +239,9 @@ export default function Header() {
           {user ? (
             <>
               <div className="flex items-center gap-3 px-4 py-2">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-700 text-sm font-bold text-white">
-                  {user.nome[0]}
-                </span>
+                <UserAvatar picture={user.avatarUrl ?? user.picture} nome={user.nome} tipo={user.tipo} size="lg" />
                 <div>
-                  <p className="text-sm font-bold text-purple-950">{user.nome}</p>
+                  <p className="text-sm font-bold text-purple-950">{user.nome.split(" ")[0]}</p>
                   <p className="text-xs text-slate-400">{TIPO_LABEL[user.tipo]}</p>
                 </div>
               </div>
@@ -217,6 +252,28 @@ export default function Header() {
               >
                 Minha área
               </Link>
+              {topInstitutions.length > 0 && (
+                <div className="flex flex-col gap-1">
+                  <p className="px-1 text-xs text-slate-400">Instituições</p>
+                  {topInstitutions.map((inst) => (
+                    <Link
+                      key={inst.id}
+                      to={`/instituicao/${inst.id}`}
+                      onClick={() => setMenuOpen(false)}
+                      className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 hover:bg-purple-50"
+                    >
+                      {inst.logo_url ? (
+                        <img src={inst.logo_url} alt={inst.name} className="h-6 w-6 rounded-lg object-cover shrink-0" />
+                      ) : (
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-primary-light text-xs font-bold text-primary">
+                          {inst.name[0]}
+                        </span>
+                      )}
+                      <span className="truncate text-sm font-semibold text-purple-950">{inst.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
               <button
                 onClick={handleLogout}
                 className="rounded-xl border border-red-100 px-4 py-3 text-center font-semibold text-red-500"
