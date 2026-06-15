@@ -86,7 +86,7 @@ export default function Header() {
 
         <nav className="hidden items-center gap-10 font-semibold text-purple-950 md:flex">
           <a href="/" className="transition hover:text-purple-600">
-            Menu
+            Home
           </a>
           <Link to="/instituicoes" className="transition hover:text-purple-600">
             Instituições
