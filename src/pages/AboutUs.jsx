@@ -6,6 +6,7 @@ import imgJubs   from "../assets/images/us/jubs.png"
 import imgFarm   from "../assets/images/us/farm.png"
 import imgMa     from "../assets/images/us/ma.png"
 import imgBeka   from "../assets/images/us/beka.png"
+import imgMuriel from "../assets/images/us/muriel.jpg"
 import logoUfcspa       from "../assets/images/ufcspa.png"
 import logoInfoBiomedica from "../assets/images/informatica-biomedica.png"
 import { useEffect } from "react"
@@ -18,6 +19,7 @@ const TEAM = [
   { name: "Maria Antonia Maia", photo: imgMa,     linkedin: "https://www.linkedin.com/in/mariaantoniamaia/" },
   { name: "Rebeca Kepler",      photo: imgBeka,   linkedin: "https://www.linkedin.com/in/rebeca-kepler/" },
   { name: "Victor Octávio",     photo: imgVictor, linkedin: "https://www.linkedin.com/in/victor-octavio/?locale=pt" },
+  { name: "Muriel Franco",      photo: imgMuriel, linkedin: "https://www.linkedin.com/in/murielfranco/" },
 ]
 
 export default function AboutUs() {
@@ -72,11 +74,6 @@ export default function AboutUs() {
       {/* ── Equipe ── */}
       <section className="px-4 py-16 sm:py-20">
         <div className="mx-auto flex max-w-3xl flex-col items-center gap-10">
-          <div className="text-center">
-            <h2 className="text-3xl font-black text-purple-950 sm:text-4xl">Equipe</h2>
-            <p className="mt-2 text-muted">Os estudantes por trás do Faz a Boa</p>
-          </div>
-
           <div className="grid w-full grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4">
             {TEAM.map((member) => (
               <a
@@ -106,14 +103,6 @@ export default function AboutUs() {
                 </p>
               </a>
             ))}
-          </div>
-
-          <div className="w-full rounded-2xl border border-purple-100 bg-white px-6 py-4 text-center text-sm text-muted shadow-sm">
-            Orientado pelo <strong className="text-ink">Prof. Muriel Franco</strong>
-            {" · "}
-            <strong className="text-ink">Informática Biomédica</strong>
-            {" · "}
-            <strong className="text-ink">UFCSPA · 2026</strong>
           </div>
         </div>
       </section>
