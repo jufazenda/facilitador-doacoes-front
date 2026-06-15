@@ -20,3 +20,9 @@ export const updateInstitution = (client, id, body) =>
 
 export const deleteInstitution = (client, id) =>
   client.delete(`/api/v1/institutions/${id}`).then(r => r.data)
+
+export const uploadInstitutionImage = (client, id, type, file) => {
+  const form = new FormData()
+  form.append("image", file)
+  return client.patch(`/api/v1/institutions/${id}/images?type=${type}`, form).then(r => r.data)
+}

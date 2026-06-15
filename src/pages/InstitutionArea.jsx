@@ -1,11 +1,15 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
+import { Move } from "lucide-react"
 import { useApiClient } from "../hooks/useApiClient"
-import { getMyInstitution, updateInstitution } from "../services/institutions"
+import { getMyInstitution, updateInstitution, uploadInstitutionImage } from "../services/institutions"
 import { getCampaignsByInstitution, createCampaign, updateCampaign, deleteCampaign } from "../services/campaigns"
 import { getNecessitiesByInstitution, createNecessity, updateNecessity, updateNecessityStatus } from "../services/necessities"
 import { getDonations } from "../services/donations"
 import { categorias, slugify } from "../utils/staticData"
 import { atualizacoesMock } from "../utils/mockData"
+import { useCoverPosition } from "../hooks/useCoverPosition"
+import DraggablePhoto from "../components/ui/DraggablePhoto"
+import PhotoCropModal from "../components/ui/PhotoCropModal"
 import Select from "../components/ui/Select"
 import Input from "../components/ui/Input"
 import Textarea from "../components/ui/Textarea"
@@ -36,6 +40,8 @@ export default function InstitutionArea() {
   const [doacoes, setDoacoes] = useState([])
   const [atualizacoes, setAtualizacoes] = useState(atualizacoesMock)
   const [loading, setLoading] = useState(true)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [editandoPerfil, setEditandoPerfil] = useState(false)
   const client = useApiClient()
   const { showToast, ToastContainer } = useToast()
 
@@ -133,15 +139,36 @@ export default function InstitutionArea() {
 
   if (loading) return <Loading full />
 
+  async function handleLogoFile(file, position) {
+    setUploadingLogo(true)
+    try {
+      const updated = await uploadInstitutionImage(client, instituicao.id, "logo", file)
+      setInstituicao(updated)
+      showToast("success", "Logo atualizado!")
+    } catch {
+      showToast("error", "Erro ao enviar logo. Tente novamente.")
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
   const statusInst = STATUS_INST[instituicao?.status] ?? STATUS_INST.pending
   const iniciais = (instituicao?.name ?? "?").split(" ").slice(0, 2).map((w) => w[0]).join("")
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 flex flex-col gap-6">
       <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center shrink-0">
-          <span className="text-white text-xl font-bold">{iniciais}</span>
-        </div>
+        <DraggablePhoto
+          imageUrl={instituicao?.logo_url ?? null}
+          fallback={<div className="w-full h-full rounded-2xl bg-primary flex items-center justify-center"><span className="text-white text-xl font-bold">{iniciais}</span></div>}
+          shape="rounded-2xl"
+          size="w-14 h-14"
+          aspectRatio={1}
+          storageKey={`logo_pos_${instituicao?.id}`}
+          uploading={uploadingLogo}
+          onFileChange={handleLogoFile}
+          editMode={editandoPerfil && aba === "Perfil"}
+        />
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-xl font-bold text-ink">{instituicao?.name}</h1>
@@ -167,7 +194,7 @@ export default function InstitutionArea() {
       </div>
 
       {aba === "Dashboard"    && <AbaDashboard campanhas={campanhas} doacoes={doacoes} />}
-      {aba === "Perfil"       && <AbaPerfil instituicao={instituicao} setInstituicao={setInstituicao} client={client} showToast={showToast} />}
+      {aba === "Perfil"       && <AbaPerfil instituicao={instituicao} setInstituicao={setInstituicao} client={client} showToast={showToast} onEditandoChange={setEditandoPerfil} />}
       {aba === "Campanhas"    && <AbaCampanhas campanhas={campanhas} onToggleUrgente={toggleUrgenteC} onAdicionar={adicionarCampanha} onEditar={editarCampanha} onExcluir={excluirCampanha} showToast={showToast} />}
       {aba === "Necessidades" && <AbaNecessidades necessidades={necessidades} onToggleUrgente={toggleUrgenteN} onAtender={atenderNecessidade} onAdicionar={adicionarNecessidade} />}
       {aba === "Atualizações" && <AbaAtualizacoes campanhas={campanhas} atualizacoes={atualizacoes} onEnviar={enviarAtualizacao} />}
@@ -184,10 +211,20 @@ function mascararCnpj(v) {
     .replace(/(\d{4})(\d{1,2})$/, "$1-$2")
 }
 
-function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
+function AbaPerfil({ instituicao, setInstituicao, client, showToast, onEditandoChange }) {
   const [editando, setEditando] = useState(false)
+
+  function setEditandoSync(v) {
+    setEditando(v)
+    onEditandoChange?.(v)
+  }
+
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState(null)
+  const [uploadingCover, setUploadingCover] = useState(false)
+  const [uploadingLogoInner, setUploadingLogoInner] = useState(false)
+  const [pendingCoverFile, setPendingCoverFile] = useState(null)
+  const coverInputRef = useRef(null)
   const [form, setForm] = useState({
     name:        instituicao?.name ?? "",
     description: instituicao?.description ?? "",
@@ -196,6 +233,33 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
     cnpj:        instituicao?.cnpj ?? "",
     website:     instituicao?.website ?? "",
   })
+
+  async function handleCoverFile(file, position) {
+    setUploadingCover(true)
+    if (position) savePosition(position)
+    try {
+      const updated = await uploadInstitutionImage(client, instituicao.id, "cover", file)
+      setInstituicao(updated)
+      showToast("success", "Capa atualizada!")
+    } catch {
+      showToast("error", "Erro ao enviar capa. Tente novamente.")
+    } finally {
+      setUploadingCover(false)
+    }
+  }
+
+  async function handleLogoInnerFile(file, position) {
+    setUploadingLogoInner(true)
+    try {
+      const updated = await uploadInstitutionImage(client, instituicao.id, "logo", file)
+      setInstituicao(updated)
+      showToast("success", "Logo atualizado!")
+    } catch {
+      showToast("error", "Erro ao enviar logo. Tente novamente.")
+    } finally {
+      setUploadingLogoInner(false)
+    }
+  }
 
   function handleChange(e) {
     const { name, value } = e.target
@@ -216,7 +280,7 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
         website:     form.website,
       })
       setInstituicao(updated)
-      setEditando(false)
+      setEditandoSync(false)
       showToast("success", "Perfil atualizado com sucesso!")
     } catch (err) {
       setErro(err?.response?.data?.error ?? "Erro ao salvar. Tente novamente.")
@@ -226,15 +290,140 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
   }
 
   const statusInst = STATUS_INST[instituicao?.status] ?? STATUS_INST.pending
+  const { position, save: savePosition } = useCoverPosition(instituicao?.id)
+  const iniciais = (instituicao?.name ?? "?").split(" ").slice(0, 2).map((w) => w[0]).join("")
+
+  // drag-to-reposition on cover panel
+  const dragRef = useRef(null)
+  const [dragging, setDragging] = useState(false)
+  const dragStart = useRef(null)
+
+  const onPointerDown = useCallback((e) => {
+    if (!instituicao?.cover_image_url) return
+    e.preventDefault()
+    dragRef.current = e.currentTarget
+    const [px, py] = position.split(" ").map((v) => parseFloat(v))
+    dragStart.current = { x: e.clientX, y: e.clientY, px, py }
+    setDragging(true)
+    dragRef.current.setPointerCapture(e.pointerId)
+  }, [position, instituicao?.cover_image_url])
+
+  const onPointerMove = useCallback((e) => {
+    if (!dragging || !dragStart.current || !dragRef.current) return
+    const rect = dragRef.current.getBoundingClientRect()
+    const dx = (dragStart.current.x - e.clientX) / rect.width * 100
+    const dy = (dragStart.current.y - e.clientY) / rect.height * 100
+    const nx = Math.min(100, Math.max(0, dragStart.current.px + dx))
+    const ny = Math.min(100, Math.max(0, dragStart.current.py + dy))
+    savePosition(`${nx.toFixed(1)}% ${ny.toFixed(1)}%`)
+  }, [dragging, savePosition])
+
+  const onPointerUp = useCallback(() => {
+    setDragging(false)
+    dragStart.current = null
+  }, [])
 
   return (
-    <div className="bg-white rounded-xl border border-line p-6 flex flex-col gap-5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-base font-bold text-ink">Dados da instituição</h2>
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusInst.classes}`}>
-          {statusInst.label}
-        </span>
+    <div className="bg-white rounded-xl border border-line overflow-hidden flex flex-col gap-5">
+
+      {/* Hero — same layout as InstitutionDetail */}
+      <div className="grid grid-cols-1 lg:grid-cols-5">
+
+        {/* left: name + status + edit button */}
+        <div className="flex flex-col gap-4 p-6 lg:col-span-3">
+          <div className="flex items-start gap-3">
+            <DraggablePhoto
+              imageUrl={instituicao?.logo_url ?? null}
+              fallback={<div className="w-full h-full rounded-2xl bg-primary-light flex items-center justify-center"><span className="text-xl font-black text-primary">{iniciais}</span></div>}
+              shape="rounded-2xl"
+              size="w-14 h-14"
+              aspectRatio={1}
+              storageKey={`logo_pos_${instituicao?.id}`}
+              uploading={uploadingLogoInner}
+              onFileChange={handleLogoInnerFile}
+              editMode={editando}
+            />
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-xl font-black text-purple-950 leading-tight">{instituicao?.name}</p>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${statusInst.classes}`}>
+                  {statusInst.label}
+                </span>
+              </div>
+              {instituicao?.address && (
+                <p className="text-sm text-muted mt-0.5">{instituicao.address}</p>
+              )}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => coverInputRef.current?.click()}
+            disabled={uploadingCover}
+            className="self-start flex items-center gap-1.5 text-xs font-semibold text-muted border border-line rounded-lg px-3 py-1.5 hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
+          >
+            {uploadingCover
+              ? <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              : <Move size={13} />}
+            Alterar capa
+          </button>
+          <input
+            ref={coverInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) setPendingCoverFile(f); e.target.value = "" }}
+          />
+          {pendingCoverFile && (
+            <PhotoCropModal
+              file={pendingCoverFile}
+              frameShape="rounded-none"
+              aspectRatio={2 / 3}
+              onConfirm={({ file, position: pos }) => { setPendingCoverFile(null); handleCoverFile(file, pos) }}
+              onCancel={() => setPendingCoverFile(null)}
+            />
+          )}
+        </div>
+
+        {/* right: cover panel identical to IllustracaoHero */}
+        <div className="h-48 lg:col-span-2 lg:h-auto">
+          <div
+            ref={dragRef}
+            className={`relative h-full overflow-hidden ${instituicao?.cover_image_url ? (dragging ? "cursor-grabbing" : "cursor-grab") : ""}`}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerLeave={onPointerUp}
+          >
+            {instituicao?.cover_image_url ? (
+              <>
+                <img
+                  src={instituicao.cover_image_url}
+                  alt="Capa"
+                  draggable={false}
+                  className="h-full w-full object-cover select-none"
+                  style={{ objectPosition: position }}
+                />
+                <div className={`absolute inset-0 bg-linear-to-t from-purple-950/30 to-transparent transition-opacity ${dragging ? "opacity-0" : ""}`} />
+                {!dragging && (
+                  <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/40 text-white text-xs px-2 py-1 rounded-full pointer-events-none select-none">
+                    <Move size={10} /> Arraste para reposicionar
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="relative h-full overflow-hidden bg-linear-to-br from-purple-50 via-primary-light to-soft">
+                <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-purple-200/50" />
+                <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-primary/10" />
+                <div className="absolute bottom-16 right-10 h-28 w-28 rounded-full bg-purple-300/30" />
+                <div className="absolute inset-0 bg-[radial-gradient(#4b1fa6_2px,transparent_2px)] bg-size-[22px_22px] opacity-[0.07]" />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
+
+      <div className="px-6 pb-6 flex flex-col gap-5">
+        <h2 className="text-base font-bold text-ink">Dados da instituição</h2>
 
       {!editando ? (
         <>
@@ -251,7 +440,7 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
               <p className="text-sm text-ink font-semibold leading-relaxed">{instituicao.description}</p>
             </div>
           )}
-          <button onClick={() => setEditando(true)}
+          <button onClick={() => setEditandoSync(true)}
             className="self-start text-sm text-primary hover:underline font-semibold">
             Editar dados
           </button>
@@ -276,7 +465,7 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
               placeholder="Conte sobre a missão e os projetos da sua instituição" />
           </div>
           <div className="flex gap-3 pt-1">
-            <button type="button" onClick={() => { setEditando(false); setErro(null) }}
+            <button type="button" onClick={() => { setEditandoSync(false); setErro(null) }}
               className="flex-1 border border-line text-muted hover:border-ink rounded-lg py-2.5 text-sm font-semibold transition-colors">
               Cancelar
             </button>
@@ -287,6 +476,7 @@ function AbaPerfil({ instituicao, setInstituicao, client, showToast }) {
           </div>
         </form>
       )}
+      </div>
     </div>
   )
 }

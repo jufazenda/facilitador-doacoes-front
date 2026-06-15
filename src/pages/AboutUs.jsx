@@ -12,14 +12,14 @@ import logoInfoBiomedica from "../assets/images/informatica-biomedica.png"
 import { useEffect } from "react"
 
 const TEAM = [
-  { name: "Caio Foti",          photo: imgCaio,   linkedin: "https://www.linkedin.com/in/caiofoti/" },
-  { name: "Janiner Severo",     photo: imgNiner,  linkedin: "https://www.linkedin.com/in/janiner-severo/" },
-  { name: "Júlia Fazenda",      photo: imgFarm,   linkedin: "https://www.linkedin.com/in/julia-fazenda-ruiz/" },
-  { name: "Júlia Flach",        photo: imgJubs,   linkedin: "https://www.linkedin.com/in/juliacamillyflach/" },
-  { name: "Maria Antonia Maia", photo: imgMa,     linkedin: "https://www.linkedin.com/in/mariaantoniamaia/" },
-  { name: "Rebeca Kepler",      photo: imgBeka,   linkedin: "https://www.linkedin.com/in/rebeca-kepler/" },
-  { name: "Victor Octávio",     photo: imgVictor, linkedin: "https://www.linkedin.com/in/victor-octavio/?locale=pt" },
-  { name: "Muriel Franco",      photo: imgMuriel, linkedin: "https://www.linkedin.com/in/murielfranco/" },
+  { name: "Caio Foti",          photo: imgCaio,   linkedin: "https://www.linkedin.com/in/caiofoti/", cargo: "Desenvolvedor"},
+  { name: "Janiner Severo",     photo: imgNiner,  linkedin: "https://www.linkedin.com/in/janiner-severo/" , cargo: "Desenvolvedora"},
+  { name: "Júlia Fazenda",      photo: imgFarm,   linkedin: "https://www.linkedin.com/in/julia-fazenda-ruiz/", cargo: "Desenvolvedora" },
+  { name: "Júlia Flach",        photo: imgJubs,   linkedin: "https://www.linkedin.com/in/juliacamillyflach/", cargo: "Desenvolvedora" },
+  { name: "Maria Antonia Maia", photo: imgMa,     linkedin: "https://www.linkedin.com/in/mariaantoniamaia/", cargo: "Desenvolvedora" },
+  { name: "Rebeca Kepler",      photo: imgBeka,   linkedin: "https://www.linkedin.com/in/rebeca-kepler/", cargo: "Desenvolvedora" },
+  { name: "Victor Octávio",     photo: imgVictor, linkedin: "https://www.linkedin.com/in/victor-octavio/?locale=pt", cargo: "Desenvolvedor" },
+  { name: "Muriel Franco",      photo: imgMuriel, linkedin: "https://www.linkedin.com/in/murielfranco/", cargo: "Orientador" },
 ]
 
 export default function AboutUs() {
@@ -73,7 +73,11 @@ export default function AboutUs() {
 
       {/* ── Equipe ── */}
       <section className="px-4 py-16 sm:py-20">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-10">
+        <div className="mx-auto flex max-w-4xl flex-col items-center gap-10">
+          <div className="text-center">
+            <h2 className="text-3xl font-black text-purple-950 sm:text-4xl">Equipe</h2>
+          </div>          
+
           <div className="grid w-full grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4">
             {TEAM.map((member) => (
               <a
@@ -98,9 +102,16 @@ export default function AboutUs() {
                   </div>
                 </div>
 
-                <p className="text-sm font-extrabold leading-snug text-purple-950 transition-colors group-hover:text-purple-600">
+                <div>
+ <p className=" font-extrabold leading-snug text-purple-950 transition-colors group-hover:text-purple-600">
                   {member.name}
                 </p>
+<p className="text-sm leading-snug text-gray-400 transition-colors group-hover:text-purple-600">
+                  {member.cargo}
+                </p>
+</div>
+               
+
               </a>
             ))}
           </div>
