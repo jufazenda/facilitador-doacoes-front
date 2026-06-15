@@ -1,10 +1,9 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/logo.png";
-import { IconHeart } from "@tabler/icons-react";
 
-const TYPE_LABEL = {
+const TIPO_LABEL = {
   doador: "Doador",
   instituicao: "Instituição",
   admin: "Admin",
@@ -69,13 +68,13 @@ export default function Header() {
             className="flex items-center text-accent"
             style={{ fontFamily: '"Luckiest Guy", cursive' }}
           >
-            <span className="-rotate-6 text-lg leading-none sm:text-xl md:text-2xl">
+            <span className="-rotate-6 text-xl leading-none sm:text-2xl">
               Faz
             </span>
-            <span className="mx-1 rotate-3 text-sm leading-none sm:text-base md:text-xl">
+            <span className="mx-1 rotate-3 text-base leading-none sm:text-xl">
               a
             </span>
-            <span className="-rotate-2 text-lg leading-none sm:text-xl md:text-2xl">
+            <span className="-rotate-2 text-xl leading-none sm:text-2xl">
               Boa
             </span>
           </span>
@@ -106,19 +105,19 @@ export default function Header() {
                 className="flex items-center gap-2 rounded-2xl border border-purple-100 bg-white px-4 py-2 font-semibold text-purple-950 transition hover:bg-purple-50"
               >
                 <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-700 text-xs font-bold text-white">
-                  {user.name[0]}
+                  {user.nome[0]}
                 </span>
-                <span className="text-sm">{user.name.split(" ")[0]}</span>
+                <span className="text-sm">{user.nome.split(" ")[0]}</span>
                 <span className="text-xs text-purple-400">▾</span>
               </button>
 
               {dropdownOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-purple-100 bg-white py-2 shadow-xl shadow-purple-950/10">
                   <p className="px-4 py-1 text-xs text-slate-400">
-                    {TYPE_LABEL[user.type]}
+                    {TIPO_LABEL[user.tipo]}
                   </p>
                   <Link
-                    to={`/area/${user.type}`}
+                    to={`/area/${user.tipo}`}
                     onClick={() => setDropdownOpen(false)}
                     className="block px-4 py-2 text-sm font-semibold text-purple-950 hover:bg-purple-50"
                   >
@@ -142,12 +141,12 @@ export default function Header() {
             </Link>
           )}
 
-          {user?.type !== "instituicao" && (
+          {user?.tipo !== "instituicao" && (
           <button
             onClick={() => handleHashNav("campaigns")}
-            className="hidden items-center gap-1.5 rounded-2xl bg-accent px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 sm:inline-flex sm:px-5 sm:py-3"
+            className="hidden rounded-2xl bg-accent px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 sm:block sm:px-5 sm:py-3"
           >
-            Doe agora <IconHeart size={16} />
+            Doe agora ♡
           </button>
           )}
 
@@ -210,19 +209,19 @@ export default function Header() {
               <>
                 <div className="flex items-center gap-3 px-4 py-2">
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-700 text-sm font-bold text-white">
-                    {user.name[0]}
+                    {user.nome[0]}
                   </span>
                   <div>
                     <p className="text-sm font-bold text-purple-950">
-                      {user.name}
+                      {user.nome}
                     </p>
                     <p className="text-xs text-slate-400">
-                      {TYPE_LABEL[user.type]}
+                      {TIPO_LABEL[user.tipo]}
                     </p>
                   </div>
                 </div>
                 <Link
-                  to={`/area/${user.type}`}
+                  to={`/area/${user.tipo}`}
                   onClick={() => setMenuOpen(false)}
                   className="rounded-xl bg-purple-50 px-4 py-3 text-center font-semibold text-purple-800"
                 >
@@ -246,9 +245,9 @@ export default function Header() {
                 </Link>
               </>
             )}
-            {user?.type !== "instituicao" && (
-            <button onClick={() => handleHashNav("campaigns")} className="flex items-center justify-center gap-1.5 rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
-              Doe agora <IconHeart size={16} />
+            {user?.tipo !== "instituicao" && (
+            <button onClick={() => handleHashNav("campaigns")} className="rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
+              Doe agora ♡
             </button>
             )}
           </div>

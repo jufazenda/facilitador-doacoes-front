@@ -6,4 +6,16 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://api.redesalves.com.br",
+        changeOrigin: true,
+        secure: true,
+        headers: {
+          origin: "http://localhost:5174",
+        },
+      },
+    },
+  },
 })

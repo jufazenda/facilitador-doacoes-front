@@ -1,41 +1,34 @@
 import { useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
-import { useAuth } from "../hooks/useAuth"
+import { useAuth } from "../context/AuthContext"
 import { getInstitutionById } from "../services/institutions"
 import { getCampaignsByInstitution } from "../services/campaigns"
 import { getNecessitiesByInstitution } from "../services/necessities"
 import { categoryImages } from "../utils/categoryImages"
 import Loading from "../components/ui/Loading"
-import Badge from "../components/ui/Badge"
-import EmptyState from "../components/ui/EmptyState"
-import { getInitials } from "../utils/strings"
-import {
-  IconHeart, IconHeartFilled, IconMapPin, IconMail, IconPhone,
-  IconFileText, IconCalendar, IconHeartHandshake, IconFlag, IconArrowLeft,
-} from "@tabler/icons-react"
 
 export default function InstitutionDetail() {
   const { id } = useParams()
   const { user } = useAuth()
-  const [institution, setInstitution] = useState(null)
-  const [campaigns, setCampaigns] = useState([])
-  const [necessities, setNecessities] = useState([])
+  const [inst, setInst] = useState(null)
+  const [campanhas, setCampanhas] = useState([])
+  const [necessidades, setNecessidades] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
-  const [supporting, setSupporting] = useState(false)
+  const [apoiando, setApoiando] = useState(false)
 
   useEffect(() => {
     getInstitutionById(id)
       .then((institution) => {
-        setInstitution(institution)
+        setInst(institution)
         return Promise.all([
           getCampaignsByInstitution(institution.id).catch(() => []),
           getNecessitiesByInstitution(institution.id).catch(() => []),
         ])
       })
       .then(([camps, necess]) => {
-        setCampaigns(camps ?? [])
-        setNecessities((necess ?? []).filter((n) => n.status === "open"))
+        setCampanhas(camps ?? [])
+        setNecessidades((necess ?? []).filter((n) => n.status === "open"))
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
@@ -43,125 +36,116 @@ export default function InstitutionDetail() {
 
   if (loading) return <Loading full />
 
-  if (notFound || !institution) {
+  if (notFound || !inst) {
     return (
       <div className="py-20 text-center text-muted px-4">
         <p className="text-lg">Instituição não encontrada.</p>
-        <Link to="/instituicoes" className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink border border-line rounded-lg px-4 py-2 hover:bg-soft transition-colors mt-2">
-          <IconArrowLeft size={16} stroke={1.75} /> Voltar para instituições
-        </Link>
+        <Link to="/instituicoes" className="text-primary hover:underline text-sm mt-2 inline-block">← Voltar para instituições</Link>
       </div>
     )
   }
 
-  const initials        = getInitials(institution.name)
-  const isDonor         = user?.type === "doador"
-  const activeCampaigns = campaigns.filter((c) => c.status === "active")
+  const iniciais         = inst.name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase()
+  const isDoador         = user?.tipo === "doador"
+  const campanhasAtivas  = campanhas.filter((c) => c.status === "active")
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 flex flex-col gap-8">
 
       {/* Hero */}
       <section className="overflow-hidden rounded-2xl border border-purple-100 bg-white shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-5">
+        <div className="grid grid-cols-1 lg:grid-cols-5">
 
-          <div className="flex flex-col gap-5 p-7 sm:p-9 md:col-span-3">
+          <div className="flex flex-col gap-5 p-7 sm:p-9 lg:col-span-3">
             <nav className="flex items-center gap-1.5 text-xs text-muted flex-wrap">
               <Link to="/" className="hover:text-primary transition-colors">Início</Link>
               <span>›</span>
               <Link to="/instituicoes" className="hover:text-primary transition-colors">Instituições</Link>
               <span>›</span>
-              <span className="text-ink">{institution.name}</span>
+              <span className="text-ink">{inst.name}</span>
             </nav>
 
             <div className="flex items-start gap-4">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-light">
-                {institution.logo_url ? (
-                  <img src={institution.logo_url} alt={institution.name} className="h-full w-full rounded-2xl object-cover" />
+                {inst.logo_url ? (
+                  <img src={inst.logo_url} alt={inst.name} className="h-full w-full rounded-2xl object-cover" />
                 ) : (
-                  <span className="text-xl font-black text-primary">{initials}</span>
+                  <span className="text-xl font-black text-primary">{iniciais}</span>
                 )}
               </div>
               <div className="min-w-0">
-                <h1 className="text-2xl font-black leading-tight text-purple-950 sm:text-3xl">{institution.name}</h1>
-                {institution.legal_name && (
-                  <p className="mt-0.5 text-xs text-muted">{institution.legal_name}</p>
+                <h1 className="text-2xl font-black leading-tight text-purple-950 sm:text-3xl">{inst.name}</h1>
+                {inst.legal_name && (
+                  <p className="mt-0.5 text-xs text-muted">{inst.legal_name}</p>
                 )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                  {institution.address && (
-                    <span className="inline-flex items-center gap-1 text-sm text-muted">
-                      <IconMapPin size={15} /> {institution.address}
-                    </span>
-                  )}
-                  <Badge variant="verified" />
+                  {inst.address && <span className="text-sm text-muted">📍 {inst.address}</span>}
+                  <span className="inline-flex items-center gap-1 rounded-full bg-success-light px-2.5 py-0.5 text-xs font-semibold text-success">
+                    ✓ Verificada
+                  </span>
                 </div>
               </div>
             </div>
 
-            {institution.description && (
-              <p className="text-sm leading-relaxed text-muted">{institution.description}</p>
+            {inst.description && (
+              <p className="text-sm leading-relaxed text-muted">{inst.description}</p>
             )}
 
             <div className="flex flex-wrap gap-3">
-              {isDonor && (
+              {isDoador && (
                 <button
-                  onClick={() => setSupporting((v) => !v)}
+                  onClick={() => setApoiando((v) => !v)}
                   className={`flex items-center gap-2 rounded-2xl px-5 py-2.5 text-sm font-bold transition-colors ${
-                    supporting
+                    apoiando
                       ? "border border-success/30 bg-success-light text-success"
                       : "bg-purple-700 text-white hover:bg-purple-800"
                   }`}
                 >
-                  {supporting ? <IconHeartFilled size={16} /> : <IconHeart size={16} />}
-                  {supporting ? "Apoiando" : "Apoiar instituição"}
+                  {apoiando ? "♥ Apoiando" : "♡ Apoiar instituição"}
                 </button>
               )}
-              {activeCampaigns.length > 0 && (
+              {campanhasAtivas.length > 0 && (
                 <a href="#campanhas"
                   className="rounded-2xl border border-purple-200 px-5 py-2.5 text-sm font-bold text-purple-700 transition-colors hover:bg-purple-50">
-                  Ver {activeCampaigns.length} campanha{activeCampaigns.length !== 1 ? "s" : ""}
+                  Ver {campanhasAtivas.length} campanha{campanhasAtivas.length !== 1 ? "s" : ""}
                 </a>
               )}
             </div>
           </div>
 
-          <div className="h-48 md:col-span-2 md:h-auto">
-            <HeroIllustration initials={initials} />
+          <div className="h-48 lg:col-span-2 lg:h-auto">
+            <IllustracaoHero iniciais={iniciais} />
           </div>
         </div>
       </section>
 
       {/* Info */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {institution.email    && <InfoCard icon={IconMail} label="E-mail"        value={institution.email} />}
-        {institution.phone    && <InfoCard icon={IconPhone} label="Telefone"      value={institution.phone} />}
-        {institution.cnpj     && <InfoCard icon={IconFileText} label="CNPJ"          value={institution.cnpj} />}
-        <InfoCard icon={IconCalendar} label="Membro desde"
-          value={new Date(institution.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })} />
+        {inst.email    && <InfoCard icon="✉️" label="E-mail"        value={inst.email} />}
+        {inst.phone    && <InfoCard icon="📞" label="Telefone"      value={inst.phone} />}
+        {inst.cnpj     && <InfoCard icon="📋" label="CNPJ"          value={inst.cnpj} />}
+        <InfoCard icon="📅" label="Membro desde"
+          value={new Date(inst.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })} />
       </div>
 
       {/* Necessidades */}
-      {necessities.length > 0 && (
+      {necessidades.length > 0 && (
         <section className="flex flex-col gap-4">
-          <h2 className="flex items-center gap-2 text-lg font-black text-purple-950">
-            <IconHeartHandshake size={20} className="text-primary" /> Necessidades atuais
-          </h2>
+          <h2 className="text-lg font-black text-purple-950">❤️ Necessidades atuais</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {necessities.map((n) => <NecessityCard key={n.id} necessity={n} />)}
+            {necessidades.map((n) => <CartaoNecessidade key={n.id} necessidade={n} />)}
           </div>
         </section>
       )}
 
       {/* Campanhas */}
       <section id="campanhas" className="flex flex-col gap-4">
-        <h2 className="flex items-center gap-2 text-lg font-black text-purple-950">
-          <IconFlag size={20} className="text-primary" /> Campanhas ativas
-        </h2>
-        {activeCampaigns.length === 0 ? (
-          <EmptyState message="Nenhuma campanha ativa no momento." />
+        <h2 className="text-lg font-black text-purple-950">🚩 Campanhas ativas</h2>
+        {campanhasAtivas.length === 0 ? (
+          <p className="text-sm text-muted">Nenhuma campanha ativa no momento.</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {activeCampaigns.map((c) => <CampaignCardH key={c.id} campaign={c} />)}
+            {campanhasAtivas.map((c) => <CartaoCampanhaH key={c.id} campanha={c} />)}
           </div>
         )}
       </section>
@@ -170,7 +154,7 @@ export default function InstitutionDetail() {
   )
 }
 
-function HeroIllustration({ initials }) {
+function IllustracaoHero({ iniciais }) {
   return (
     <div className="relative h-full overflow-hidden bg-linear-to-br from-purple-50 via-primary-light to-soft">
       <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-purple-200/50" />
@@ -182,26 +166,31 @@ function HeroIllustration({ initials }) {
       <span className="absolute bottom-8 left-14 select-none text-3xl text-purple-300/50">♡</span>
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white shadow-xl shadow-purple-950/10 ring-8 ring-white/60">
-          <span className="text-3xl font-black text-primary">{initials}</span>
+          <span className="text-3xl font-black text-primary">{iniciais}</span>
         </div>
       </div>
     </div>
   )
 }
 
-function InfoCard({ icon: Icon, label, value }) {
+function InfoCard({ icon, label, value }) {
   return (
     <div className="flex flex-col gap-1 rounded-2xl border border-purple-100 bg-white p-4">
-      <span className="flex items-center gap-1 text-xs text-muted"><Icon size={14} /> {label}</span>
+      <span className="text-xs text-muted">{icon} {label}</span>
       <span className="truncate text-sm font-bold text-ink">{value}</span>
     </div>
   )
 }
 
-function NecessityCard({ necessity: n }) {
+function CartaoNecessidade({ necessidade: n }) {
   return (
     <div className={`flex flex-col gap-3 rounded-2xl border bg-white p-5 ${n.is_urgent ? "border-accent/30" : "border-line"}`}>
-      {n.is_urgent && <Badge variant="urgent" className="self-start" />}
+      {n.is_urgent && (
+        <span className="self-start flex items-center gap-1.5 rounded-full border border-accent/20 bg-red-50 px-2.5 py-0.5 text-xs font-bold text-accent">
+          <span className="h-2 w-2 rounded-full bg-accent" />
+          Urgente
+        </span>
+      )}
       <div>
         <p className="font-bold text-ink">{n.description}</p>
         <p className="mt-0.5 text-xs text-muted">{n.category}</p>
@@ -210,7 +199,7 @@ function NecessityCard({ necessity: n }) {
   )
 }
 
-function CampaignCardH({ campaign: c }) {
+function CartaoCampanhaH({ campanha: c }) {
   const bgImage = categoryImages[c.keywords?.[0]]
   const raised  = (c.total_raised ?? 0) / 100
   const goal    = (c.goal_amount  ?? 0) / 100
@@ -230,7 +219,9 @@ function CampaignCardH({ campaign: c }) {
           <h3 className="flex-1 text-sm font-extrabold leading-snug text-purple-950 group-hover:text-purple-700 transition-colors">
             {c.title}
           </h3>
-          {c.is_urgent && <Badge variant="urgent" className="shrink-0" />}
+          {c.is_urgent && (
+            <span className="shrink-0 rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white">Urgente</span>
+          )}
         </div>
         {c.description && (
           <p className="line-clamp-2 text-xs text-muted">{c.description}</p>
