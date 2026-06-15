@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+import { Heart, ChevronDown } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import logo from "../../assets/logo.png";
 
@@ -18,11 +19,11 @@ export default function Header() {
   const location = useLocation();
 
   function handleHashNav(hash) {
-    setMenuOpen(false)
+    setMenuOpen(false);
     if (location.pathname === "/") {
-      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" })
+      document.getElementById(hash)?.scrollIntoView({ behavior: "smooth" });
     } else {
-      navigate("/", { state: { scrollTo: hash } })
+      navigate("/", { state: { scrollTo: hash } });
     }
   }
 
@@ -39,9 +40,7 @@ export default function Header() {
   useEffect(() => {
     if (menuOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "";
-    return () => {
-      document.body.style.overflow = "";
-    };
+    return () => { document.body.style.overflow = ""; };
   }, [menuOpen]);
 
   function handleLogout() {
@@ -51,208 +50,199 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-purple-100 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6">
-        <Link
-          to="/"
-          onClick={() => setMenuOpen(false)}
-          className="group flex items-center gap-2 sm:gap-3"
-        >
-          <img
-            src={logo}
-            alt=""
-            className="h-12 w-auto transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 sm:h-14 md:h-16"
-          />
-
-          <span
-            className="flex items-center text-accent"
-            style={{ fontFamily: '"Luckiest Guy", cursive' }}
+    <>
+      <header className="sticky top-0 z-50 border-b border-purple-100 bg-white/90 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+          {/* Logo */}
+          <Link
+            to="/"
+            onClick={() => setMenuOpen(false)}
+            className="group flex shrink-0 items-center gap-2"
           >
-            <span className="-rotate-6 text-xl leading-none sm:text-2xl">
-              Faz
+            <img
+              src={logo}
+              alt=""
+              className="h-10 w-auto transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105 sm:h-12"
+            />
+            <span
+              className="flex items-center text-accent"
+              style={{ fontFamily: '"Luckiest Guy", cursive' }}
+            >
+              <span className="-rotate-6 text-lg leading-none sm:text-xl">Faz</span>
+              <span className="mx-1 rotate-3 text-sm leading-none sm:text-base">a</span>
+              <span className="-rotate-2 text-lg leading-none sm:text-xl">Boa</span>
             </span>
-            <span className="mx-1 rotate-3 text-base leading-none sm:text-xl">
-              a
-            </span>
-            <span className="-rotate-2 text-xl leading-none sm:text-2xl">
-              Boa
-            </span>
-          </span>
+            <span className="sr-only">Faz a Boa</span>
+          </Link>
 
-          <span className="sr-only">Faz a Boa</span>
-        </Link>
+          {/* Desktop nav */}
+          <nav className="hidden items-center gap-8 font-semibold text-purple-950 md:flex">
+            <Link to="/" className="transition hover:text-purple-600">Home</Link>
+            <button onClick={() => handleHashNav("campaigns")} className="transition hover:text-purple-600">
+              Campanhas
+            </button>
+            <Link to="/instituicoes" className="transition hover:text-purple-600">Instituições</Link>
+            <Link to="/sobre-nos" className="transition hover:text-purple-600">Sobre Nós</Link>
+          </nav>
 
-        {/* Desktop nav */}
+          {/* Desktop actions */}
+          <div className="flex items-center gap-6">
+            {user ? (
+              <div className="relative hidden md:block" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen((v) => !v)}
+                  className="flex items-center gap-2 rounded-2xl border border-purple-100 bg-white px-4 py-2 font-semibold text-purple-950 transition hover:bg-purple-50"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-700 text-xs font-bold text-white">
+                    {user.nome[0]}
+                  </span>
+                  <span className="text-sm">{user.nome.split(" ")[0]}</span>
+                  <ChevronDown size={14} className="text-purple-400" />
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-purple-100 bg-white py-2 shadow-xl shadow-purple-950/10">
+                    <p className="px-4 py-1 text-xs text-slate-400">{TIPO_LABEL[user.tipo]}</p>
+                    <Link
+                      to={`/area/${user.tipo}`}
+                      onClick={() => setDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm font-semibold text-purple-950 hover:bg-purple-50"
+                    >
+                      Minha área
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full px-4 py-2 text-left text-sm font-semibold text-red-500 hover:bg-red-50"
+                    >
+                      Sair
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="hidden font-semibold text-purple-950 transition hover:text-purple-600 md:block"
+              >
+                Login
+              </Link>
+            )}
 
-        <nav className="hidden items-center gap-10 font-semibold text-purple-950 md:flex">
-          <a href="/" className="transition hover:text-purple-600">
+            {user?.tipo !== "instituicao" && (
+              <button
+                onClick={() => handleHashNav("campaigns")}
+                className="hidden rounded-2xl bg-accent px-4 py-3 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 md:flex md:gap-2 md:justify-center md:items-center"
+              >
+                Doe agora <Heart size={14} />
+              </button>
+            )}
+
+            {/* Hamburger */}
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-purple-950 transition hover:bg-purple-50 md:hidden"
+              aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
+            >
+              {menuOpen ? (
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M4 4l12 12M16 4L4 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Mobile menu overlay */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 top-16 z-40 bg-black/20 md:hidden"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+      <div
+        className={`fixed left-0 right-0 top-16 z-40 bg-white transition-transform duration-200 md:hidden ${
+          menuOpen ? "translate-y-0 shadow-xl" : "-translate-y-full pointer-events-none"
+        }`}
+      >
+        <nav className="flex flex-col gap-1 px-4 pt-4">
+          <Link
+            to="/"
+            onClick={() => setMenuOpen(false)}
+            className="rounded-xl px-4 py-3 font-semibold text-purple-950 hover:bg-purple-50"
+          >
             Home
-          </a>
-          <Link to="/instituicoes" className="transition hover:text-purple-600">
+          </Link>
+          <button
+            onClick={() => handleHashNav("campaigns")}
+            className="rounded-xl px-4 py-3 text-left font-semibold text-purple-950 hover:bg-purple-50"
+          >
+            Campanhas
+          </button>
+          <Link
+            to="/instituicoes"
+            onClick={() => setMenuOpen(false)}
+            className="rounded-xl px-4 py-3 font-semibold text-purple-950 hover:bg-purple-50"
+          >
             Instituições
           </Link>
-          <Link to="/sobre-nos" className="transition hover:text-purple-600">
+          <Link
+            to="/sobre-nos"
+            onClick={() => setMenuOpen(false)}
+            className="rounded-xl px-4 py-3 font-semibold text-purple-950 hover:bg-purple-50"
+          >
             Sobre Nós
           </Link>
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Desktop user / login */}
+        <div className="flex flex-col gap-3 border-t border-purple-100 px-4 pb-6 pt-4 mt-2">
           {user ? (
-            <div className="relative hidden sm:block" ref={dropdownRef}>
-              <button
-                onClick={() => setDropdownOpen((v) => !v)}
-                className="flex items-center gap-2 rounded-2xl border border-purple-100 bg-white px-4 py-2 font-semibold text-purple-950 transition hover:bg-purple-50"
-              >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-purple-700 text-xs font-bold text-white">
+            <>
+              <div className="flex items-center gap-3 px-4 py-2">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-700 text-sm font-bold text-white">
                   {user.nome[0]}
                 </span>
-                <span className="text-sm">{user.nome.split(" ")[0]}</span>
-                <span className="text-xs text-purple-400">▾</span>
-              </button>
-
-              {dropdownOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-2xl border border-purple-100 bg-white py-2 shadow-xl shadow-purple-950/10">
-                  <p className="px-4 py-1 text-xs text-slate-400">
-                    {TIPO_LABEL[user.tipo]}
-                  </p>
-                  <Link
-                    to={`/area/${user.tipo}`}
-                    onClick={() => setDropdownOpen(false)}
-                    className="block px-4 py-2 text-sm font-semibold text-purple-950 hover:bg-purple-50"
-                  >
-                    Minha área
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full px-4 py-2 text-left text-sm font-semibold text-red-500 hover:bg-red-50"
-                  >
-                    Sair
-                  </button>
+                <div>
+                  <p className="text-sm font-bold text-purple-950">{user.nome}</p>
+                  <p className="text-xs text-slate-400">{TIPO_LABEL[user.tipo]}</p>
                 </div>
-              )}
-            </div>
+              </div>
+              <Link
+                to={`/area/${user.tipo}`}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-xl bg-purple-50 px-4 py-3 text-center font-semibold text-purple-800"
+              >
+                Minha área
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="rounded-xl border border-red-100 px-4 py-3 text-center font-semibold text-red-500"
+              >
+                Sair
+              </button>
+            </>
           ) : (
             <Link
               to="/login"
-              className="hidden font-semibold text-purple-950 sm:block hover:text-purple-600 transition"
+              onClick={() => setMenuOpen(false)}
+              className="rounded-xl border border-purple-200 px-4 py-3 text-center font-semibold text-purple-800"
             >
               Login
             </Link>
           )}
-
           {user?.tipo !== "instituicao" && (
-          <button
-            onClick={() => handleHashNav("campaigns")}
-            className="hidden rounded-2xl bg-accent px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-red-200 transition hover:-translate-y-0.5 sm:block sm:px-5 sm:py-3"
-          >
-            Doe agora ♡
-          </button>
-          )}
-
-          {/* Hamburger */}
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl text-purple-950 transition hover:bg-purple-50 md:hidden"
-            aria-label="Menu"
-          >
-            {menuOpen ? (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path
-                  d="M4 4l12 12M16 4L4 16"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            ) : (
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path
-                  d="M3 5h14M3 10h14M3 15h14"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <div className="border-t border-purple-100 bg-white px-4 pb-6 pt-4 md:hidden">
-          <nav className="flex flex-col gap-1">
             <button
               onClick={() => handleHashNav("campaigns")}
-              className="rounded-xl px-4 py-3 text-left font-semibold text-purple-950 hover:bg-purple-50"
+              className="rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200"
             >
-              Campanhas
-            </button>
-            <Link
-              to="/instituicoes"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-xl px-4 py-3 font-semibold text-purple-950 hover:bg-purple-50"
-            >
-              Instituições
-            </Link>
-            <button
-              onClick={() => handleHashNav("how-it-works")}
-              className="rounded-xl px-4 py-3 text-left font-semibold text-purple-950 hover:bg-purple-50"
-            >
-              Como funciona?
-            </button>
-          </nav>
-
-          <div className="mt-4 border-t border-purple-100 pt-4 flex flex-col gap-3">
-            {user ? (
-              <>
-                <div className="flex items-center gap-3 px-4 py-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-purple-700 text-sm font-bold text-white">
-                    {user.nome[0]}
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold text-purple-950">
-                      {user.nome}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {TIPO_LABEL[user.tipo]}
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  to={`/area/${user.tipo}`}
-                  onClick={() => setMenuOpen(false)}
-                  className="rounded-xl bg-purple-50 px-4 py-3 text-center font-semibold text-purple-800"
-                >
-                  Minha área
-                </Link>
-                <button
-                  onClick={handleLogout}
-                  className="rounded-xl border border-red-100 px-4 py-3 text-center font-semibold text-red-500"
-                >
-                  Sair
-                </button>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  onClick={() => setMenuOpen(false)}
-                  className="rounded-xl border border-purple-200 px-4 py-3 text-center font-semibold text-purple-800"
-                >
-                  Login
-                </Link>
-              </>
-            )}
-            {user?.tipo !== "instituicao" && (
-            <button onClick={() => handleHashNav("campaigns")} className="rounded-2xl bg-accent px-4 py-3 text-center font-bold text-white shadow-lg shadow-red-200">
               Doe agora ♡
             </button>
-            )}
-          </div>
+          )}
         </div>
-      )}
-    </header>
+      </div>
+    </>
   );
 }

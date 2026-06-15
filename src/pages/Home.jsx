@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Link, useLocation } from "react-router-dom"
+import * as LucideIcons from "lucide-react"
+import { ShieldCheck } from "lucide-react"
 import logo from "../assets/logo.png"
 import CampaignCard from "../components/ui/CampaignCard"
 import Loading from "../components/ui/Loading"
@@ -46,13 +48,19 @@ export default function Home() {
 
   const preview = campanhas.slice(0, 6)
 
+  useEffect(() => {
+    updateArrows()
+    window.addEventListener("resize", updateArrows)
+    return () => window.removeEventListener("resize", updateArrows)
+  }, [preview])
+
   return (
     <>
       <section id="home" className="overflow-hidden bg-linear-to-r from-page via-soft to-white">
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-2 lg:gap-12">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-primary-light px-3 py-1.5 text-xs font-extrabold text-purple-950 sm:px-4 sm:py-2 sm:text-sm">
-              🛡️ Instituições verificadas, impacto real
+              <ShieldCheck size={14} className="shrink-0" /> Instituições verificadas, impacto real
             </span>
 
             <h1 className="mt-5 text-3xl font-black leading-tight tracking-tight text-purple-950 sm:text-4xl md:text-5xl lg:text-6xl">
@@ -92,12 +100,12 @@ export default function Home() {
       <section id="campaigns" className="relative z-10 -mt-4 rounded-t-2xl bg-white py-12 sm:-mt-8 sm:rounded-t-4xl sm:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mb-6 flex items-end justify-between sm:mb-8">
-            <div>
-              <span className="text-xl text-purple-600 sm:text-2xl">✦</span>
+            <div className="flex gap-4 justify-center items-center">
+              <LucideIcons.Sparkles size={20} className="text-purple-600 sm:w-6 sm:h-6" />
               <h2 className="text-2xl font-black text-purple-950 sm:text-3xl">Campanhas</h2>
             </div>
-            <Link to="/campanhas" className="text-sm font-extrabold text-purple-700 transition hover:text-purple-900 hover:underline">
-              Ver todas →
+            <Link to="/campanhas" className="flex items-center gap-1 text-sm font-extrabold text-purple-700 transition hover:text-purple-900 hover:underline">
+              Ver todas <LucideIcons.ChevronRight size={16} />
             </Link>
           </div>
 
@@ -112,9 +120,7 @@ export default function Home() {
                   onClick={() => slide(-1)}
                   className="absolute -left-4 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-lg shadow-purple-950/10 border border-purple-100 text-purple-700 transition hover:bg-purple-700 hover:text-white hover:border-purple-700"
                 >
-                  <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
-                    <path d="M10 4L6 8l4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <LucideIcons.ChevronLeft size={20} />
                 </button>
               )}
 
@@ -137,9 +143,7 @@ export default function Home() {
                   onClick={() => slide(1)}
                   className="absolute -right-4 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-lg shadow-purple-950/10 border border-purple-100 text-purple-700 transition hover:bg-purple-700 hover:text-white hover:border-purple-700"
                 >
-                  <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
-                    <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <LucideIcons.ChevronRight size={20} />
                 </button>
               )}
             </div>
@@ -151,15 +155,18 @@ export default function Home() {
         <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
           <h2 className="text-2xl font-black text-purple-950 sm:text-3xl">Como funciona</h2>
           <div className="mt-8 grid grid-cols-1 gap-4 sm:mt-12 sm:gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-            {steps.map((step) => (
+            {steps.map((step) => {
+              const Icon = LucideIcons[step.iconName]
+              return (
               <article key={step.title} className="rounded-2xl bg-white p-4 sm:rounded-3xl sm:p-6">
-                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary-light text-2xl text-purple-700 sm:h-16 sm:w-16 sm:text-3xl">
-                  {step.icon}
+                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary-light text-purple-700 sm:h-16 sm:w-16">
+                  {Icon && <Icon size={28} />}
                 </span>
                 <h3 className="mt-4 font-black text-purple-950 sm:mt-5">{step.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-slate-500">{step.text}</p>
               </article>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
@@ -194,20 +201,20 @@ function IllustracaoHero() {
       </div>
 
       {/* Floating hearts — white */}
-      <span className="absolute left-5 top-5 select-none text-6xl text-white/[0.07]">♡</span>
-      <span className="absolute bottom-6 left-8 select-none text-5xl text-white/[0.07]">♡</span>
-      <span className="absolute left-1/4 top-1/3 select-none text-2xl text-white/6">♡</span>
+      <LucideIcons.Heart className="absolute left-5 top-5 select-none text-white/[0.07]" size={56} strokeWidth={1} />
+      <LucideIcons.Heart className="absolute bottom-6 left-8 select-none text-white/[0.07]" size={44} strokeWidth={1} />
+      <LucideIcons.Heart className="absolute left-1/4 top-1/3 select-none text-white/6" size={22} strokeWidth={1} />
 
       {/* Floating hearts — accent */}
-      <span className="absolute right-5 top-6 select-none text-4xl text-accent/45">♥</span>
-      <span className="absolute bottom-8 right-8 select-none text-3xl text-accent/30">♡</span>
-      <span className="absolute right-1/4 top-1/3 select-none text-xl text-accent/25">♥</span>
+      <LucideIcons.Heart className="absolute right-5 top-6 select-none text-accent/45" size={36} fill="currentColor" strokeWidth={0} />
+      <LucideIcons.Heart className="absolute bottom-8 right-8 select-none text-accent/30" size={28} strokeWidth={1} />
+      <LucideIcons.Heart className="absolute right-1/4 top-1/3 select-none text-accent/25" size={18} fill="currentColor" strokeWidth={0} />
 
       {/* Sparkles */}
-      <span className="absolute left-[22%] top-5 select-none text-sm text-accent/55">✦</span>
-      <span className="absolute right-[22%] bottom-5 select-none text-sm text-accent/40">✦</span>
-      <span className="absolute right-[30%] top-4 select-none text-xs text-white/25">✦</span>
-      <span className="absolute left-[30%] bottom-4 select-none text-[10px] text-white/20">✦</span>
+      <LucideIcons.Sparkles className="absolute left-[22%] top-5 select-none text-accent/55" size={14} />
+      <LucideIcons.Sparkles className="absolute right-[22%] bottom-5 select-none text-accent/40" size={12} />
+      <LucideIcons.Sparkles className="absolute right-[30%] top-4 select-none text-white/25" size={10} />
+      <LucideIcons.Sparkles className="absolute left-[30%] bottom-4 select-none text-white/20" size={9} />
 
       {/* Logo — big and centered */}
       <div className="absolute inset-0 flex items-center justify-center">
