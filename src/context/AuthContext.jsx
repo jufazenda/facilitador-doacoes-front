@@ -1,6 +1,7 @@
-import { useMemo } from "react"
+import { createContext, useContext, useMemo } from "react"
 import { useAuth0 } from "@auth0/auth0-react"
-import { AuthContext } from "./auth-context"
+
+const AuthContext = createContext(null)
 
 const ROLE_CLAIM = import.meta.env.VITE_AUTH0_ROLE_CLAIM
 
@@ -23,9 +24,9 @@ export function AuthProvider({ children }) {
     if (!isAuthenticated || !auth0User) return null
     const rawRole = ROLE_CLAIM ? auth0User[ROLE_CLAIM] ?? null : null
     return {
-      name:  auth0User.name ?? auth0User.email,
+      nome:  auth0User.name ?? auth0User.email,
       email: auth0User.email,
-      type:  rawRole ? (ROLE_MAP[rawRole] ?? rawRole) : null,
+      tipo:  rawRole ? (ROLE_MAP[rawRole] ?? rawRole) : null,
     }
   }, [isAuthenticated, auth0User])
 
@@ -42,4 +43,8 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   )
+}
+
+export function useAuth() {
+  return useContext(AuthContext)
 }

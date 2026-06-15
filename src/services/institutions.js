@@ -8,11 +8,8 @@ export const getInstitutionById = (id) => api.get(`/api/v1/institutions/${id}`).
 export const createInstitution = (client, body) =>
   client.post("/api/v1/institutions", body).then(r => r.data)
 
-export const updateInstitutionStatus = (client, id, status, rejectionReason) =>
-  client.patch(`/api/v1/institutions/${id}/status`, {
-    status,
-    ...(rejectionReason ? { rejection_reason: rejectionReason } : {}),
-  }).then(r => r.data)
+export const updateInstitutionStatus = (client, id, status) =>
+  client.patch(`/api/v1/institutions/${id}/status`, { status }).then(r => r.data)
 
 // Institution auth (apenas a própria instituição)
 export const getMyInstitution = (client) =>
