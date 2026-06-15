@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom"
+import { Heart } from "lucide-react"
 import { categoryImages } from "../../utils/categoryImages"
 import { useAuth } from "../../context/AuthContext"
 
@@ -74,7 +75,7 @@ export default function CampaignCard({ campaign: c, institutionName = "" }) {
             to={`/doacao/${c.id}`}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-purple-700 px-4 py-2.5 font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-purple-800 sm:py-3"
           >
-            ♡ Doe
+            <Heart size={15} /> Doe
           </Link>
           )}
         </div>

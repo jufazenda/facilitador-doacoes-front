@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
+import { Heart, Flame, Star, Trophy, Gem } from "lucide-react"
 import { useApiClient } from "../hooks/useApiClient"
 import { getMe, updateUser } from "../services/users"
 import { getDonations } from "../services/donations"
@@ -302,11 +303,11 @@ function AbaRanking({ nome, donations, userId }) {
     : 100
 
   const badges = []
-  if (totalDoacoes >= 1) badges.push({ id: 1, icon: "\u{1F49C}", label: "Primeiro passo", descricao: "Realizou a primeira doação" })
-  if (totalDoacoes >= 3) badges.push({ id: 2, icon: "\u{1F525}", label: "Doador constante", descricao: "3 doações confirmadas" })
-  if (totalDoacoes >= 5) badges.push({ id: 3, icon: "\u{2B50}", label: "Impacto real", descricao: "5 doações confirmadas" })
-  if (totalDoacoes >= 10) badges.push({ id: 4, icon: "\u{1F3C6}", label: "Top 10", descricao: "10 doações confirmadas" })
-  if (pontos >= 1000) badges.push({ id: 5, icon: "\u{1F48E}", label: "Generoso", descricao: "Mais de R$ 1.000 doados" })
+  if (totalDoacoes >= 1) badges.push({ id: 1, icon: <Heart size={20} className="text-pink-500" />, label: "Primeiro passo", descricao: "Realizou a primeira doação" })
+  if (totalDoacoes >= 3) badges.push({ id: 2, icon: <Flame size={20} className="text-orange-500" />, label: "Doador constante", descricao: "3 doações confirmadas" })
+  if (totalDoacoes >= 5) badges.push({ id: 3, icon: <Star size={20} className="text-yellow-500" />, label: "Impacto real", descricao: "5 doações confirmadas" })
+  if (totalDoacoes >= 10) badges.push({ id: 4, icon: <Trophy size={20} className="text-amber-600" />, label: "Top 10", descricao: "10 doações confirmadas" })
+  if (pontos >= 1000) badges.push({ id: 5, icon: <Gem size={20} className="text-purple-500" />, label: "Generoso", descricao: "Mais de R$ 1.000 doados" })
 
   if (loadingRanking) return <Loading />
 
@@ -342,7 +343,7 @@ function AbaRanking({ nome, donations, userId }) {
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {badges.map((b) => (
             <div key={b.id} className="bg-white rounded-xl border border-line p-4 flex flex-col items-center gap-2 text-center">
-              <span className="text-3xl">{b.icon}</span>
+              <span className="flex items-center justify-center">{b.icon}</span>
               <p className="text-sm font-bold text-ink">{b.label}</p>
               <p className="text-xs text-muted">{b.descricao}</p>
             </div>

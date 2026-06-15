@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
+import { MapPin, Mail, Phone, ClipboardList, CalendarDays, Heart, Flag, ChevronRight, ChevronLeft } from "lucide-react"
 import { useAuth } from "../context/AuthContext"
 import { getInstitutionById } from "../services/institutions"
 import { getCampaignsByInstitution } from "../services/campaigns"
@@ -40,7 +41,7 @@ export default function InstitutionDetail() {
     return (
       <div className="py-20 text-center text-muted px-4">
         <p className="text-lg">Instituição não encontrada.</p>
-        <Link to="/instituicoes" className="text-primary hover:underline text-sm mt-2 inline-block">← Voltar para instituições</Link>
+        <Link to="/instituicoes" className="text-primary hover:underline text-sm mt-2 inline-flex items-center gap-1"><ChevronLeft size={14} /> Voltar para instituições</Link>
       </div>
     )
   }
@@ -59,9 +60,9 @@ export default function InstitutionDetail() {
           <div className="flex flex-col gap-5 p-7 sm:p-9 lg:col-span-3">
             <nav className="flex items-center gap-1.5 text-xs text-muted flex-wrap">
               <Link to="/" className="hover:text-primary transition-colors">Início</Link>
-              <span>›</span>
+              <ChevronRight size={12} className="text-muted" />
               <Link to="/instituicoes" className="hover:text-primary transition-colors">Instituições</Link>
-              <span>›</span>
+              <ChevronRight size={12} className="text-muted" />
               <span className="text-ink">{inst.name}</span>
             </nav>
 
@@ -79,7 +80,7 @@ export default function InstitutionDetail() {
                   <p className="mt-0.5 text-xs text-muted">{inst.legal_name}</p>
                 )}
                 <div className="mt-1.5 flex flex-wrap items-center gap-2">
-                  {inst.address && <span className="text-sm text-muted">📍 {inst.address}</span>}
+                  {inst.address && <span className="flex items-center gap-1 text-sm text-muted"><MapPin size={13} className="shrink-0" />{inst.address}</span>}
                   <span className="inline-flex items-center gap-1 rounded-full bg-success-light px-2.5 py-0.5 text-xs font-semibold text-success">
                     ✓ Verificada
                   </span>
@@ -101,7 +102,7 @@ export default function InstitutionDetail() {
                       : "bg-purple-700 text-white hover:bg-purple-800"
                   }`}
                 >
-                  {apoiando ? "♥ Apoiando" : "♡ Apoiar instituição"}
+                  {apoiando ? <><Heart size={14} fill="currentColor" /> Apoiando</> : <><Heart size={14} /> Apoiar instituição</>}
                 </button>
               )}
               {campanhasAtivas.length > 0 && (
@@ -121,17 +122,17 @@ export default function InstitutionDetail() {
 
       {/* Info */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {inst.email    && <InfoCard icon="✉️" label="E-mail"        value={inst.email} />}
-        {inst.phone    && <InfoCard icon="📞" label="Telefone"      value={inst.phone} />}
-        {inst.cnpj     && <InfoCard icon="📋" label="CNPJ"          value={inst.cnpj} />}
-        <InfoCard icon="📅" label="Membro desde"
+        {inst.email    && <InfoCard icon={<Mail size={14} />}          label="E-mail"        value={inst.email} />}
+        {inst.phone    && <InfoCard icon={<Phone size={14} />}         label="Telefone"      value={inst.phone} />}
+        {inst.cnpj     && <InfoCard icon={<ClipboardList size={14} />} label="CNPJ"          value={inst.cnpj} />}
+        <InfoCard icon={<CalendarDays size={14} />} label="Membro desde"
           value={new Date(inst.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })} />
       </div>
 
       {/* Necessidades */}
       {necessidades.length > 0 && (
         <section className="flex flex-col gap-4">
-          <h2 className="text-lg font-black text-purple-950">❤️ Necessidades atuais</h2>
+          <h2 className="flex items-center gap-2 text-lg font-black text-purple-950"><Heart size={18} className="text-accent" fill="currentColor" /> Necessidades atuais</h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {necessidades.map((n) => <CartaoNecessidade key={n.id} necessidade={n} />)}
           </div>
@@ -140,7 +141,7 @@ export default function InstitutionDetail() {
 
       {/* Campanhas */}
       <section id="campanhas" className="flex flex-col gap-4">
-        <h2 className="text-lg font-black text-purple-950">🚩 Campanhas ativas</h2>
+        <h2 className="flex items-center gap-2 text-lg font-black text-purple-950"><Flag size={18} className="text-accent" /> Campanhas ativas</h2>
         {campanhasAtivas.length === 0 ? (
           <p className="text-sm text-muted">Nenhuma campanha ativa no momento.</p>
         ) : (
@@ -161,9 +162,9 @@ function IllustracaoHero({ iniciais }) {
       <div className="absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-primary/10" />
       <div className="absolute bottom-16 right-10 h-28 w-28 rounded-full bg-purple-300/30" />
       <div className="absolute inset-0 bg-[radial-gradient(#4b1fa6_2px,transparent_2px)] bg-size-[22px_22px] opacity-[0.07]" />
-      <span className="absolute left-6 top-8 select-none text-4xl text-purple-300/50">♡</span>
-      <span className="absolute right-10 top-10 select-none text-2xl text-purple-400/40">♡</span>
-      <span className="absolute bottom-8 left-14 select-none text-3xl text-purple-300/50">♡</span>
+      <Heart className="absolute left-6 top-8 select-none text-purple-300/50" size={36} strokeWidth={1} />
+      <Heart className="absolute right-10 top-10 select-none text-purple-400/40" size={22} strokeWidth={1} />
+      <Heart className="absolute bottom-8 left-14 select-none text-purple-300/50" size={28} strokeWidth={1} />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white shadow-xl shadow-purple-950/10 ring-8 ring-white/60">
           <span className="text-3xl font-black text-primary">{iniciais}</span>
@@ -176,7 +177,7 @@ function IllustracaoHero({ iniciais }) {
 function InfoCard({ icon, label, value }) {
   return (
     <div className="flex flex-col gap-1 rounded-2xl border border-purple-100 bg-white p-4">
-      <span className="text-xs text-muted">{icon} {label}</span>
+      <span className="flex items-center gap-1 text-xs text-muted">{icon} {label}</span>
       <span className="truncate text-sm font-bold text-ink">{value}</span>
     </div>
   )

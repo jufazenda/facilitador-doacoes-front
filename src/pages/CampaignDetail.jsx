@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
+import { ChevronLeft } from "lucide-react"
 import { getCampaignById } from "../services/campaigns"
 import { getInstitutionById } from "../services/institutions"
 import { categoryImages } from "../utils/categoryImages"
@@ -32,7 +33,7 @@ export default function CampaignDetail() {
     return (
       <div className="py-20 text-center text-muted px-4">
         <p className="text-lg">Campanha não encontrada.</p>
-        <Link to="/" className="text-primary hover:underline text-sm mt-2 inline-block">← Voltar para campanhas</Link>
+        <Link to="/" className="text-primary hover:underline text-sm mt-2 inline-block flex items-center gap-1"><ChevronLeft size={14} /> Voltar para campanhas</Link>
       </div>
     )
   }
@@ -46,7 +47,7 @@ export default function CampaignDetail() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       <Link to="/" className="text-sm text-primary hover:underline inline-flex items-center gap-1 mb-6">
-        ← Voltar para campanhas
+        <ChevronLeft size={16} /> Voltar para campanhas
       </Link>
 
       <div className="relative h-56 overflow-hidden rounded-2xl sm:h-72 sm:rounded-3xl">

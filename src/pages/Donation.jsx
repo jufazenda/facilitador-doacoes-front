@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
 import { Link, useParams } from "react-router-dom"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import { getCampaignById } from "../services/campaigns"
 import { getInstitutionById } from "../services/institutions"
 import { createDonation, getDonationById } from "../services/donations"
@@ -171,7 +172,7 @@ export default function Donation() {
     return (
       <div className="py-20 text-center text-muted px-4">
         <p className="text-lg">Campanha não encontrada.</p>
-        <Link to="/" className="text-primary hover:underline text-sm mt-2 inline-block">← Voltar</Link>
+        <Link to="/" className="text-primary hover:underline text-sm mt-2 inline-flex items-center gap-1"><ChevronLeft size={14} /> Voltar</Link>
       </div>
     )
   }
@@ -314,7 +315,7 @@ function PassoValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setVa
           <p className="text-sm text-accent font-semibold text-center">{typeof erro === "object" ? erro.msg : erro}</p>
           {erro?.isCpfError && (
             <Link to="/area/doador" className="text-sm text-primary hover:underline font-semibold text-center">
-              Atualizar meus dados →
+              Atualizar meus dados <ChevronRight size={14} className="inline" />
             </Link>
           )}
         </div>
@@ -322,7 +323,7 @@ function PassoValor({ valor, setValor, isCustom, setIsCustom, valorCustom, setVa
 
       <button onClick={onNext} disabled={valorFinal < 1 || loading}
         className="w-full bg-primary hover:bg-primary-dark disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-lg py-3 transition-colors">
-        {loading ? "Aguarde..." : "Continuar →"}
+        {loading ? "Aguarde..." : <span className="flex items-center justify-center gap-1">Continuar <ChevronRight size={16} /></span>}
       </button>
     </div>
   )
@@ -535,7 +536,7 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
           <p className="text-sm text-accent font-semibold text-center">{typeof erro === "object" ? erro.msg : erro}</p>
           {erro?.isCpfError && (
             <Link to="/area/doador" className="text-sm text-primary hover:underline font-semibold text-center">
-              Atualizar meus dados →
+              Atualizar meus dados <ChevronRight size={14} className="inline" />
             </Link>
           )}
         </div>
@@ -544,7 +545,7 @@ function PassoPagamento({ metodo, setMetodo, cartao, setCartao, copiado, onCopia
       {/* Botões */}
       <div className="flex gap-3">
         <button onClick={onBack} className="flex-1 border border-line text-muted hover:border-ink rounded-xl py-3 text-sm font-semibold transition-colors">
-          ← Voltar
+          <ChevronLeft size={16} className="inline" /> Voltar
         </button>
         {metodo === "cartao" && (
           <button onClick={onConfirmarCartao} disabled={!cartaoValido || criando}

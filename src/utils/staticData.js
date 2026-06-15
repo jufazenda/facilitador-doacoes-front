@@ -21,22 +21,22 @@ export const categorias = [
 
 export const steps = [
   {
-    icon: "🔍",
+    iconName: "Search",
     title: "1. Explore",
     text: "Descubra campanhas e instituições verificadas.",
   },
   {
-    icon: "💜",
+    iconName: "Heart",
     title: "2. Doe com segurança",
     text: "Sua doação é protegida e o impacto é garantido.",
   },
   {
-    icon: "📊",
+    iconName: "BarChart2",
     title: "3. Acompanhe",
     text: "Veja como sua doação está transformando vidas.",
   },
   {
-    icon: "📣",
+    iconName: "Megaphone",
     title: "4. Compartilhe",
     text: "Convide outras pessoas para multiplicar o impacto.",
   },

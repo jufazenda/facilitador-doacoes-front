@@ -16,12 +16,24 @@ function mascararCpf(v) {
     .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
 }
 
+function mascararTelefone(v) {
+  const digits = v.replace(/\D/g, "").slice(0, 11)
+  if (digits.length <= 10) {
+    return digits
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{4})(\d{1,4})$/, "$1-$2")
+  }
+  return digits
+    .replace(/(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d{1,4})$/, "$1-$2")
+}
+
 export default function DonorRegistration() {
   const { isAuthenticated, isLoading, loginWithRedirect } = useAuth0()
   const client = useApiClient()
   const navigate = useNavigate()
 
-  const [form, setForm] = useState({ nome: "", email: "", cpf: "", termos: false })
+  const [form, setForm] = useState({ nome: "", email: "", cpf: "", telefone: "", termos: false })
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState("")
 
@@ -47,7 +59,7 @@ export default function DonorRegistration() {
 
   function handleMudanca(e) {
     const { name, value, type, checked } = e.target
-    const valor = name === "cpf" ? mascararCpf(value) : value
+    const valor = name === "cpf" ? mascararCpf(value) : name === "telefone" ? mascararTelefone(value) : value
     setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : valor }))
   }
 
@@ -58,6 +70,7 @@ export default function DonorRegistration() {
       name:  form.nome,
       email: form.email,
       cpf:   form.cpf.replace(/\D/g, ""),
+      phone: form.telefone.replace(/\D/g, ""),
       role:  "donor",
     }
 
@@ -93,6 +106,8 @@ export default function DonorRegistration() {
               value={form.email} onChange={handleMudanca} placeholder="seu@email.com" />
             <Campo label="CPF" id="cpf" name="cpf" type="text" inputMode="numeric"
               value={form.cpf} onChange={handleMudanca} placeholder="000.000.000-00" />
+            <Campo label="Telefone" id="telefone" name="telefone" type="tel" inputMode="numeric"
+              value={form.telefone} onChange={handleMudanca} placeholder="(00) 00000-0000" />
 
             <label className="flex items-start gap-2 cursor-pointer">
               <input type="checkbox" name="termos" checked={form.termos}
